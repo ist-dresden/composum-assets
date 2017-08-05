@@ -1,0 +1,60 @@
+
+.asset-select-widget {
+    position: relative;
+    min-height: 400px;
+
+    &_tabs-content {
+
+        .asset-finder {
+
+            &_content {
+                position: absolute;
+                top: 116px;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                overflow: scroll;
+            }
+        }
+    }
+
+    .action-bar {
+        position: absolute;
+        right: 0;
+        top: 80px;
+    }
+
+    .btn-toolbar {
+
+        .btn {
+            width: 34px;
+            height: 30px;
+        }
+
+        .btn span.label {
+            display: none;
+        }
+
+        .btn.go-up {
+            padding-top: 8px;
+            padding-left: 3px;
+
+            .fa-stack-1x {
+                top: 2px;
+                left: auto;
+                right: -3px;
+            }
+        }
+
+        .btn.drill-down {
+            padding-top: 2px;
+            padding-left: 3px;
+
+            .fa-stack-1x {
+                top: 6px;
+                left: auto;
+                right: -4px;
+            }
+        }
+    }
+}

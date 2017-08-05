@@ -1,0 +1,97 @@
+@charset "UTF-8";
+
+@import "mixins";
+
+.btn-toolbar,
+.detail-toolbar {
+
+    .btn.create-folder {
+
+        .fa-stack-1x {
+            top: 3px;
+            left: auto;
+            right: -6px;
+        }
+    }
+
+    .btn.go-up {
+        padding-top: 8px;
+        padding-left: 3px;
+
+        .fa-stack-1x {
+            top: 2px;
+            left: auto;
+            right: -3px;
+        }
+    }
+
+    .btn.drill-down {
+        padding-top: 2px;
+        padding-left: 3px;
+
+        .fa-stack-1x {
+            top: 6px;
+            left: auto;
+            right: -4px;
+        }
+    }
+
+    .btn.fa-sliders {
+
+        &:before {
+            font-size: 15px;
+            line-height: 18px;
+        }
+    }
+
+    .btn.transform {
+        position: relative;
+
+        &:before, i {
+            position: absolute;
+        }
+
+        &:before {
+            top: 3px;
+            left: 7px;
+        }
+
+        i {
+            bottom: 1px;
+            left: 4px;
+        }
+    }
+}
+
+#assets {
+
+    #split-view-horizontal-split {
+
+        > .split-pane-component.right-pane {
+            min-width: 300px;
+        }
+    }
+
+    #assets-view {
+
+        > .detail-view {
+
+            > .detail-panel {
+                padding-top: 23px;
+
+                .detail-toolbar,
+                .full-table-view .bootstrap-table .fixed-table-toolbar {
+                    top: 28px;
+                }
+
+                .composum-assets-manager-image {
+
+                    &_content {
+                        top: 99px;
+                    }
+                }
+
+            }
+        }
+    }
+}

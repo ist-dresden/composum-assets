@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0"
+        jcr:primaryType="sling:OrderedFolder"
+        depends="[composum/nodes/console/clientlibs/console,
+                  composum/nodes/console/browser/js/nodes.js,
+                  composum/nodes/console/browser/js/browser.js]"
+        embed="[category:composum.assets.commons,
+                category:composum.assets.components,
+                composum/assets/manager/js/dialogs.js,
+                composum/assets/manager/js/navigation.js,
+                composum/assets/manager/tabs/folder/folder.js,
+                composum/assets/manager/tabs/config/config.js,
+                composum/assets/manager/tabs/asset/general/general.js,
+                composum/assets/manager/tabs/asset/renditions/renditions.js,
+                composum/assets/manager/tabs/image/image.js,
+                composum/assets/manager/tabs/video/video.js,
+                composum/assets/manager/config/dialog/dialog.js,
+                composum/assets/manager/js/dialogs.js,
+                composum/assets/manager/js/manager.js]"/>

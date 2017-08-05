@@ -1,0 +1,4 @@
+.accordion-item > .panel-heading a {
+    display: inline-block;
+    width: 100%;
+}

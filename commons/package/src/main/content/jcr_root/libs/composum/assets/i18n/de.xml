@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0"
+        xmlns:mix="http://www.jcp.org/jcr/mix/1.0"
+        jcr:language="en"
+        jcr:mixinTypes="[mix:language]"
+        jcr:primaryType="sling:Folder"
+        sling:basename="composum-assets">
+
+    <_list jcr:primaryType="sling:MessageEntry"
+            sling:key="List" sling:message="Liste"/>
+    <large jcr:primaryType="sling:MessageEntry"
+            sling:key="large" sling:message="groß"/>
+    <small jcr:primaryType="sling:MessageEntry"
+            sling:key="small" sling:message="klein"/>
+    <go-up jcr:primaryType="sling:MessageEntry"
+            sling:key="Go Up" sling:message="nach Oben"/>
+
+    <image jcr:primaryType="sling:MessageEntry"
+            sling:key="Image" sling:message="Bild"/>
+    <configuration jcr:primaryType="sling:MessageEntry"
+            sling:key="Configuration" sling:message="Konfiguration"/>
+
+    <cancel jcr:primaryType="sling:MessageEntry"
+            sling:key="Cancel" sling:message="Abbrechen"/>
+    <save jcr:primaryType="sling:MessageEntry"
+            sling:key="Save" sling:message="Speichern"/>
+    <upload jcr:primaryType="sling:MessageEntry"
+            sling:key="Upload" sling:message="Hochladen"/>
+    <delete jcr:primaryType="sling:MessageEntry"
+            sling:key="Delete" sling:message="Löschen"/>
+    <remove jcr:primaryType="sling:MessageEntry"
+            sling:key="Remove" sling:message="Entfernen"/>
+    <transform jcr:primaryType="sling:MessageEntry"
+            sling:key="Transform" sling:message="Umwandeln"/>
+    <reload jcr:primaryType="sling:MessageEntry"
+            sling:key="Reload" sling:message="Neu Laden"/>
+    <drill-down jcr:primaryType="sling:MessageEntry"
+            sling:key="Drill Down" sling:message="Drill-Down"/>
+
+    <delete-image jcr:primaryType="sling:MessageEntry"
+            sling:key="Delete Image" sling:message="Bild löschen"/>
+
+    <create-asset jcr:primaryType="sling:MessageEntry"
+            sling:key="Create a New Asset" sling:message="Ein neues Asset erzeugen"/>
+    <delete-asset jcr:primaryType="sling:MessageEntry"
+            sling:key="Delete Asset" sling:message="Asset löschen"/>
+    <upload-original jcr:primaryType="sling:MessageEntry"
+            sling:key="Upload Asset Original" sling:message="Ein neues Original hochladen"/>
+
+    <go-one-level-up jcr:primaryType="sling:MessageEntry"
+            sling:key="Go one level Up" sling:message="Eine Ebene nach Oben"/>
+    <small-thumbnails jcr:primaryType="sling:MessageEntry"
+            sling:key="Small Thumbnails" sling:message="Kleine Miniaturen"/>
+    <large-thumbnails jcr:primaryType="sling:MessageEntry"
+            sling:key="Large Thumbnails" sling:message="Große Miniaturen"/>
+    <asset-list jcr:primaryType="sling:MessageEntry"
+            sling:key="Assets List" sling:message="Asset-Liste"/>
+    <create-asset-configuration jcr:primaryType="sling:MessageEntry"
+            sling:key="Create Asset Configuration" sling:message="Konfiguration anlegen"/>
+
+    <open-containing-folder jcr:primaryType="sling:MessageEntry"
+            sling:key="Open containing Folder" sling:message="Ordner zum Bild öffnen"/>
+    <to-image-asset jcr:primaryType="sling:MessageEntry"
+            sling:key="Transform into an Image Asset" sling:message="Umwandeln in ein Bild-Asset"/>
+    <to-simple-image jcr:primaryType="sling:MessageEntry"
+            sling:key="Transform into a simple Image" sling:message="Umwandeln in ein einfaches Bild"/>
+    <asset-originals jcr:primaryType="sling:MessageEntry"
+            sling:key="Asset Files (Originals)" sling:message="Asset-Dateien (Originale)"/>
+    <renditions-view jcr:primaryType="sling:MessageEntry"
+            sling:key="Renditions View" sling:message="Renditions-Ansicht"/>
+
+</jcr:root>
