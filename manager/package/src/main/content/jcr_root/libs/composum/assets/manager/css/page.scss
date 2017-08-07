@@ -74,22 +74,6 @@ body, table, p, li, a, span, button, input {
         }
     }
 
-    .two-column {
-        display: flex;
-
-        .column {
-            width: 49%;
-        }
-
-        .column-one {
-            margin-right: 1%;
-        }
-
-        .column-two {
-            margin-left: 1%;
-        }
-    }
-
     .image.view {
 
         .image-background {
@@ -101,15 +85,29 @@ body, table, p, li, a, span, button, input {
         }
     }
 
-    .key.value {
-        max-width: 100%;
+    .overlay {
+        position: relative;
+        width: 100%;
+        overflow: scroll;
 
-        .head {
-            background-color: #eee;
+        &-background {
         }
 
-        td {
+        &-foreground {
+            position: absolute;
+            width: auto;
+            min-width: 250px;
+            top: 10px;
+            right: 10px;
+        }
+    }
+    .key.value {
+        width: 100%;
+
+        th, td {
             padding: 1px 4px;
+            vertical-align: top;
+            background-color: rgba(220, 220, 220, 0.6);
         }
     }
 }

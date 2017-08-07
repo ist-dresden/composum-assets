@@ -29,4 +29,8 @@ public class Blur {
     public boolean isValid() {
         return factor != null && factor > 0;
     }
+
+    public String getFactor() {
+        return factor != null ? factor.toString() : "";
+    }
 }
