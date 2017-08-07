@@ -1,0 +1,28 @@
+<'nt'='http://www.jcp.org/jcr/nt/1.0'>
+<'mix'='http://www.jcp.org/jcr/mix/1.0'>
+<'jcr'='http://www.jcp.org/jcr/1.0'>
+<'sling'='http://sling.apache.org/jcr/sling/1.0'>
+<'cpa'='http://sling.composum.com/assets/1.0'>
+
+[cpa:AssetConfiguration] > nt:unstructured
+
+[cpa:ImageConfiguration] > cpa:AssetConfiguration
+
+[cpa:Variation] > sling:Folder
+
+[cpa:VariationConfig] > nt:unstructured
+
+[cpa:Rendition] > sling:Folder, mix:lockable, mix:lastModified
+
+[cpa:RenditionConfig] > nt:unstructured
+
+[cpa:MetaData] > nt:unstructured, mix:lastModified
+
+[cpa:AssetResource] > sling:Resource mixin
+  + meta = cpa:MetaData mandatory autocreated
+
+[cpa:AssetContent] > nt:unstructured, mix:lastModified
+  + meta = cpa:MetaData mandatory autocreated
+
+[cpa:Asset] > sling:Folder
+  + jcr:content (cpa:AssetContent) = cpa:AssetContent *

@@ -1,0 +1,71 @@
+@charset "UTF-8";
+
+@import "mixins";
+
+#asset-upload-dialog {
+
+    .modal-content {
+
+        .select-buttons-widget {
+
+            .label {
+                top: 1px;
+                font-size: $font-size-base;
+                color: $text-muted;
+            }
+
+            .active {
+
+                .label {
+                    color: $brand-primary;
+                }
+            }
+        }
+
+        .modal-header {
+
+            .modal-title {
+                display: none;
+            }
+        }
+
+        &.create {
+
+            .modal-title.create {
+                display: inherit;
+            }
+
+            .form-group {
+
+                &.variation {
+                    display: none;
+                }
+            }
+        }
+
+        &.original {
+
+            .modal-title.original {
+                display: inherit;
+            }
+
+            .form-group {
+
+                &.name {
+                    display: none;
+                }
+            }
+        }
+
+        .type-selection {
+            width: 100%;
+            text-align: right;
+            @include clear-after;
+            margin-bottom: 10px;
+        }
+
+        .mime-Type {
+            display: none;
+        }
+    }
+}
