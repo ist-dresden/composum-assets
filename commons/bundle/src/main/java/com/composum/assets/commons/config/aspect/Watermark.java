@@ -30,6 +30,38 @@ public class Watermark {
             this.italic = config.getInherited(ConfigHandle.WATERMARK_FONT_ITALIC, DEFAULT_ITALIC);
             this.size = config.getInherited(ConfigHandle.WATERMARK_FONT_SIZE, DEFAULT_SIZE);
         }
+
+        public String getFamily() {
+            return family;
+        }
+
+        public boolean isBold() {
+            return bold;
+        }
+
+        public boolean isItalic() {
+            return italic;
+        }
+
+        public String getSize() {
+            return size;
+        }
+
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            builder.append(family).append(':').append(size);
+            if (bold || italic) {
+                builder.append(" (");
+                if (bold) {
+                    builder.append('B');
+                }
+                if (italic) {
+                    builder.append('I');
+                }
+                builder.append(')');
+            }
+            return builder.toString();
+        }
     }
 
     public final String text;
@@ -37,7 +69,7 @@ public class Watermark {
     public final String vertical;
     public final String horizontal;
     public final Color color;
-    public final float alpha;
+    public final Float alpha;
 
     public Watermark(ConfigHandle config) {
         this.text = config.getInherited(ConfigHandle.WATERMARK_TEXT, "");
@@ -50,6 +82,34 @@ public class Watermark {
 
     public boolean isValid() {
         return StringUtils.isNotBlank(text);
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public Font getFont() {
+        return font;
+    }
+
+    public String getVertical() {
+        return vertical;
+    }
+
+    public String getHorizontal() {
+        return horizontal;
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
+    public String getColorCode() {
+        return '#' + Integer.toHexString(this.color.getRGB() & 0x00FFFFFF).toUpperCase();
+    }
+
+    public String getAlpha() {
+        return alpha != null ? alpha.toString() : "";
     }
 
     public Color getColor(ConfigHandle config, String key, String defaultValue) {
@@ -71,9 +131,5 @@ public class Watermark {
             result = new Color((i >> 16) & 0xFF, (i >> 8) & 0xFF, i & 0xFF);
         }
         return result;
-    }
-
-    public String getColorCode() {
-        return '#' + Integer.toHexString(this.color.getRGB() & 0x00FFFFFF).toUpperCase();
     }
 }

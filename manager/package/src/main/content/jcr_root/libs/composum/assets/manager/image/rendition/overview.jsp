@@ -5,23 +5,16 @@
 <sling:defineObjects/>
 <cpn:component id="assetBean" type="com.composum.assets.manager.image.ImageRenditionBean">
     <div class="rendition config overview">
-        <div class="two-column">
-            <div class="column-one column image view">
+        <div class="overlay">
+            <div class="overlay-background image view">
                 <div class="image-wrapper">
                     <div class="image-background" style="background-image: url(${cpn:url(slingRequest,'/libs/composum/nodes/console/browser/images/image-background.png')})">
                         <img src="${assetBean.imageUrl}">
                     </div>
                 </div>
             </div>
-            <div class="column-two column value table">
-                <table class="key value">
-                    <c:forEach items="${assetBean.values}" var="value">
-                        <tr>
-                            <td class="head key">${value.label}</td>
-                            <td class="value specified">${value.found}
-                        </tr>
-                    </c:forEach>
-                </table>
+            <div class="overlay-foreground">
+                <sling:include resourceType="composum/assets/manager/config/properties"/>
             </div>
         </div>
     </div>

@@ -37,4 +37,16 @@ public class Crop {
                 horizontal == DEFAULT_HORIZONTAL &&
                 (scale == null || scale == DEFAULT_SCALE);
     }
+
+    public float getVertical() {
+        return vertical;
+    }
+
+    public float getHorizontal() {
+        return horizontal;
+    }
+
+    public Float getScale() {
+        return scale;
+    }
 }
