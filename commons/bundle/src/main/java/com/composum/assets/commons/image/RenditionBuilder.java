@@ -29,7 +29,6 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
-import java.util.Map;
 
 public class RenditionBuilder {
 
@@ -104,18 +103,18 @@ public class RenditionBuilder {
                 getRetrievalStrategy(), getCreationStrategy(), getInitializationStrategy(), getParentStrategy());
     }
 
-    protected Resource createRendition(ResourceResolver resolver, Resource renditionPath)
+    protected void createRendition(ResourceResolver resolver, Resource renditionPath)
             throws IOException, RepositoryException {
         BeanContext.Service beanContext = new BeanContext.Service(resolver);
         AssetVariation variation = new AssetVariation(beanContext, renditionPath.getParent(), asset);
-        return buildRenditionContent(resolver, variation, beanContext).getResource();
+        buildRenditionContent(resolver, variation, beanContext);
     }
 
     /**
      * Build the rendition into the rendition resource and switch to valid state.
      */
-    protected AssetRendition buildRenditionContent(ResourceResolver resolver, AssetVariation variation,
-                                                   BeanContext beanContext)
+    protected void buildRenditionContent(ResourceResolver resolver, AssetVariation variation,
+                                         BeanContext beanContext)
             throws IOException, RepositoryException {
         AssetRendition rendition = variation.getRendition(renditionName);
         AssetRendition original;
@@ -130,7 +129,7 @@ public class RenditionBuilder {
                 BufferedImage image = reader.readImage(original, context);
 
                 // TODO make transformers configurable via OSGi
-                RenditionTransformer transformer = context.getService().getTransformers().get("default");
+                RenditionTransformer transformer = context.getService().getRenditionTransformer();
                 image = transformer.transform(rendition, image, context);
 
                 RenditionWriter writer = new RenditionWriter();
@@ -157,7 +156,6 @@ public class RenditionBuilder {
             }
         }
 
-        return rendition;
     }
 
     protected LazyCreationService.RetrievalStrategy<AssetRendition> getRetrievalStrategy() {

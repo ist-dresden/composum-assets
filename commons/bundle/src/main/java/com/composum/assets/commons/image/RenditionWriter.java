@@ -22,7 +22,7 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
 /**
- * Created by rw on 19.02.16.
+ *
  */
 public class RenditionWriter {
 
@@ -33,7 +33,7 @@ public class RenditionWriter {
 
         RenditionConfig config = rendition.getConfig();
         String mimeType = rendition.getMimeType();
-        Double quality = null;
+        Double quality;
 
         final ImageWriter imageWriter = ImageIO.getImageWritersByMIMEType(mimeType).next();
         final ImageWriteParam imageWriteParam = imageWriter.getDefaultWriteParam();

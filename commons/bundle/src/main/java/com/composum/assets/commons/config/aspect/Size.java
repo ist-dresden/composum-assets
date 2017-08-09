@@ -4,6 +4,7 @@ import com.composum.assets.commons.config.ConfigHandle;
 import org.apache.commons.lang3.StringUtils;
 
 import java.text.DecimalFormat;
+import java.util.Map;
 
 public class Size {
 
@@ -15,10 +16,27 @@ public class Size {
     protected final String aspectRatioRule;
 
     public Size(ConfigHandle config) {
-        Long wdth = config.getInherited(ConfigHandle.WIDTH, Long.class);
-        Long hght = config.getInherited(ConfigHandle.HEIGHT, Long.class);
+        this(config.getInherited(ConfigHandle.WIDTH, Long.class),
+                config.getInherited(ConfigHandle.HEIGHT, Long.class),
+                config.getInherited(ConfigHandle.ASPECT_RATIO, ""));
+    }
+
+    public Size(Map<String, Object> options) {
+        this((Integer) options.get(ConfigHandle.WIDTH),
+                (Integer) options.get(ConfigHandle.HEIGHT),
+                (String) options.get(ConfigHandle.ASPECT_RATIO));
+    }
+
+    public Size(Long cfgWidth, Long cfgHeight, String cfgRatio) {
+        this(cfgWidth != null ? (int) cfgWidth.longValue() : null,
+                cfgHeight != null ? (int) cfgHeight.longValue() : null,
+                cfgRatio);
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    public Size(Integer cfgWidth, Integer cfgHeight, String cfgRatio) {
         Float ratio = null;
-        aspectRatioRule = config.getInherited(ConfigHandle.ASPECT_RATIO, "");
+        aspectRatioRule = cfgRatio != null ? cfgRatio : "";
         if (StringUtils.isNotBlank(aspectRatioRule)) {
             String[] values = aspectRatioRule.split(":");
             if (values.length == 2) {
@@ -27,12 +45,12 @@ public class Size {
                 ratio = w / h;
             }
         }
-        width = (wdth != null ? (Integer) wdth.intValue()
-                : (hght != null && ratio != null ? Math.round(((float) hght) * ratio) : null));
-        height = (hght != null ? (Integer) hght.intValue()
-                : (wdth != null && ratio != null ? Math.round(((float) wdth) / ratio) : null));
+        width = (cfgWidth != null ? cfgWidth
+                : (cfgHeight != null && ratio != null ? Math.round(((float) cfgHeight) * ratio) : null));
+        height = (cfgHeight != null ? cfgHeight
+                : (cfgWidth != null && ratio != null ? Math.round(((float) cfgWidth) / ratio) : null));
         aspectRatio = (ratio != null ? ratio
-                : (wdth != null && hght != null ? (float) wdth / (float) hght : null));
+                : (cfgWidth != null && cfgHeight != null ? (float) cfgWidth / (float) cfgHeight : null));
     }
 
     public String getWidth() {

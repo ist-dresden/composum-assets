@@ -13,7 +13,6 @@ import org.apache.sling.api.resource.LoginException;
 
 import javax.jcr.RepositoryException;
 import java.io.IOException;
-import java.util.Map;
 
 public interface AdaptiveImageService {
 
@@ -34,5 +33,5 @@ public interface AdaptiveImageService {
                         String variationKey, String renditionKey)
             throws Exception;
 
-    Map<String, RenditionTransformer> getTransformers();
+    RenditionTransformer getRenditionTransformer();
 }
