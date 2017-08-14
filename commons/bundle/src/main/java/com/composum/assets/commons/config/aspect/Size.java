@@ -16,8 +16,8 @@ public class Size {
     protected final String aspectRatioRule;
 
     public Size(ConfigHandle config) {
-        this(config.getInherited(ConfigHandle.WIDTH, Long.class),
-                config.getInherited(ConfigHandle.HEIGHT, Long.class),
+        this(config.getInherited(ConfigHandle.WIDTH, Integer.class),
+                config.getInherited(ConfigHandle.HEIGHT, Integer.class),
                 config.getInherited(ConfigHandle.ASPECT_RATIO, ""));
     }
 
@@ -25,12 +25,6 @@ public class Size {
         this((Integer) options.get(ConfigHandle.WIDTH),
                 (Integer) options.get(ConfigHandle.HEIGHT),
                 (String) options.get(ConfigHandle.ASPECT_RATIO));
-    }
-
-    public Size(Long cfgWidth, Long cfgHeight, String cfgRatio) {
-        this(cfgWidth != null ? (int) cfgWidth.longValue() : null,
-                cfgHeight != null ? (int) cfgHeight.longValue() : null,
-                cfgRatio);
     }
 
     @SuppressWarnings("ConstantConditions")
