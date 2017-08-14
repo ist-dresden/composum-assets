@@ -2,8 +2,8 @@ package com.composum.assets.commons.service;
 
 import com.composum.assets.commons.handle.AssetRendition;
 import com.composum.assets.commons.handle.ImageAsset;
+import com.composum.assets.commons.image.DefaultRenditionTransformer;
 import com.composum.assets.commons.servlet.AdaptiveImageServlet;
-import com.composum.assets.commons.util.AdaptiveUtil;
 import com.composum.sling.core.BeanContext;
 import com.composum.sling.core.concurrent.LazyCreationServiceImpl;
 import com.composum.sling.core.concurrent.SemaphoreSequencer;
@@ -58,6 +58,7 @@ public class AdaptiveImageServiceTest {
                 "/test/assets/site-1/images/image-2.png/square/original/image-2.png");
         context.registerInjectActivateService(new SemaphoreSequencer());
         context.registerInjectActivateService(new LazyCreationServiceImpl());
+        context.registerInjectActivateService(new DefaultRenditionTransformer());
         service = context.registerInjectActivateService(new DefaultAdaptiveImageService());
     }
 

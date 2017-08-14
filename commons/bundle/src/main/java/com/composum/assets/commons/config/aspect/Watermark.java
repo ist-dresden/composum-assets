@@ -31,6 +31,13 @@ public class Watermark {
             this.size = config.getInherited(ConfigHandle.WATERMARK_FONT_SIZE, DEFAULT_SIZE);
         }
 
+        public Font(GenericAspect config) {
+            this.family = config.get(ConfigHandle.WATERMARK_FONT_FAMILY, DEFAULT_FAMILY);
+            this.bold = config.get(ConfigHandle.WATERMARK_FONT_BOLD, DEFAULT_BOLD);
+            this.italic = config.get(ConfigHandle.WATERMARK_FONT_ITALIC, DEFAULT_ITALIC);
+            this.size = config.get(ConfigHandle.WATERMARK_FONT_SIZE, DEFAULT_SIZE);
+        }
+
         public String getFamily() {
             return family;
         }
@@ -76,8 +83,17 @@ public class Watermark {
         this.font = new Font(config);
         this.vertical = config.getInherited(ConfigHandle.WATERMARK_POS_VERTICAL, DEFAULT_VERTICAL);
         this.horizontal = config.getInherited(ConfigHandle.WATERMARK_POS_HORIZONTAL, DEFAULT_HORIZONTAL);
-        this.color = getColor(config, ConfigHandle.WATERMARK_COLOR, DEFAULT_COLOR);
+        this.color = getColor(config.getInherited(ConfigHandle.WATERMARK_COLOR, DEFAULT_COLOR));
         this.alpha = config.getInherited(ConfigHandle.WATERMARK_ALPHA, DEFAULT_ALPHA);
+    }
+
+    public Watermark(GenericAspect config) {
+        this.text = config.get(ConfigHandle.WATERMARK_TEXT, "");
+        this.font = new Font(config);
+        this.vertical = config.get(ConfigHandle.WATERMARK_POS_VERTICAL, DEFAULT_VERTICAL);
+        this.horizontal = config.get(ConfigHandle.WATERMARK_POS_HORIZONTAL, DEFAULT_HORIZONTAL);
+        this.color = getColor(config.get(ConfigHandle.WATERMARK_COLOR, DEFAULT_COLOR));
+        this.alpha = config.get(ConfigHandle.WATERMARK_ALPHA, DEFAULT_ALPHA);
     }
 
     public boolean isValid() {
@@ -112,24 +128,18 @@ public class Watermark {
         return alpha != null ? alpha.toString() : "";
     }
 
-    public Color getColor(ConfigHandle config, String key, String defaultValue) {
+    public Color getColor(String value) {
         Color result = null;
         Integer colorValue = null;
-        String value = config.getInherited(key, "");
-        if (StringUtils.isNotBlank(value)) {
-            try {
-                value = value.replace('#', ' ').trim();
-                colorValue = Integer.parseInt(value, 16);
-            } catch (NumberFormatException ignored) {
-            }
+        try {
+            value = value.replace('#', ' ').trim();
+            colorValue = Integer.parseInt(value, 16);
+        } catch (NumberFormatException ignored) {
         }
-        if (colorValue == null && StringUtils.isNotBlank(defaultValue)) {
-            colorValue = Integer.parseInt(defaultValue, 16);
+        if (colorValue == null) {
+            colorValue = Integer.parseInt(DEFAULT_COLOR, 16);
         }
-        if (colorValue != null) {
-            int i = colorValue;
-            result = new Color((i >> 16) & 0xFF, (i >> 8) & 0xFF, i & 0xFF);
-        }
-        return result;
+        int i = colorValue;
+        return new Color((i >> 16) & 0xFF, (i >> 8) & 0xFF, i & 0xFF);
     }
 }

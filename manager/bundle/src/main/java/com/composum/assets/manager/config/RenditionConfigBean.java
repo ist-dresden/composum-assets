@@ -151,7 +151,7 @@ public class RenditionConfigBean extends AbstractConfigBean {
             values.add(new RenditionValue(ConfigHandle.WATERMARK_ALPHA, config.getWatermark().alpha));
         }
         if (config.getBlur().isValid()) {
-            values.add(new RenditionValue(ConfigHandle.TRANSFORMATION_BLUR_FACTOR, config.getBlur().factor));
+            values.add(new RenditionValue(ConfigHandle.TRANSFORMATION_BLUR_FACTOR, config.getBlur().getFactor()));
         }
         values.add(new RenditionValue(ConfigHandle.FILE_QUALITY, config.getFile().quality));
 

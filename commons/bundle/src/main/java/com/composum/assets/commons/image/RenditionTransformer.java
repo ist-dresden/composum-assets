@@ -5,14 +5,20 @@
  */
 package com.composum.assets.commons.image;
 
+import com.composum.assets.commons.config.aspect.Crop;
 import com.composum.assets.commons.handle.AssetRendition;
 
 import java.awt.image.BufferedImage;
 
 /**
- * Created by rw on 19.02.16.
  */
 public interface RenditionTransformer {
 
     BufferedImage transform(AssetRendition rendition, BufferedImage image, BuilderContext context);
+
+    BufferedImage transform(BufferedImage image, String operation, Object options);
+
+    BufferedImage scale(BufferedImage image, int width, int height);
+
+    BufferedImage crop(BufferedImage image, int width, int height, Crop options);
 }

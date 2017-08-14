@@ -13,7 +13,6 @@ import com.composum.assets.commons.handle.AssetRendition;
 import com.composum.assets.commons.handle.AssetVariation;
 import com.composum.assets.commons.handle.ImageAsset;
 import com.composum.assets.commons.image.BuilderContext;
-import com.composum.assets.commons.image.DefaultRenditionTransformer;
 import com.composum.assets.commons.image.RenditionBuilder;
 import com.composum.assets.commons.image.RenditionTransformer;
 import com.composum.sling.core.ResourceHandle;
@@ -41,8 +40,6 @@ import java.io.IOException;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -77,19 +74,19 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
 
     protected ExecutorService executorService;
 
-    protected Map<String, RenditionTransformer> transformers;
+    @Reference
+    protected RenditionTransformer renditionTransformer;
 
     @Activate
     protected void activate(ComponentContext context) throws Exception {
         Dictionary<String, Object> properties = context.getProperties();
         int threadPoolSize = PropertiesUtil.toInteger(properties.get(THREAD_POOL_SIZE), THREAD_POOL_SIZE_DEFAULT);
         executorService = Executors.newFixedThreadPool(threadPoolSize);
-        transformers = new LinkedHashMap<>();
-        transformers.put("default", new DefaultRenditionTransformer());
     }
 
-    public Map<String, RenditionTransformer> getTransformers() {
-        return transformers;
+    @Override
+    public RenditionTransformer getRenditionTransformer() {
+        return renditionTransformer;
     }
 
     public AssetRendition getRendition(ImageAsset asset,

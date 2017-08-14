@@ -6,10 +6,7 @@
 package com.composum.assets.commons.image;
 
 import com.composum.assets.commons.service.AdaptiveImageService;
-import com.composum.sling.core.BeanContext;
 import com.composum.sling.core.concurrent.LazyCreationService;
-import com.composum.sling.core.concurrent.SequencerService;
-import org.apache.sling.api.resource.ResourceResolver;
 
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -38,7 +35,9 @@ public class BuilderContext {
         return service;
     }
 
-    public LazyCreationService getLazyCreationService() { return lazyCreationService; }
+    public LazyCreationService getLazyCreationService() {
+        return lazyCreationService;
+    }
 
     public void execute(Runnable runnable) {
         executor.execute(runnable);
