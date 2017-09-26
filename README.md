@@ -10,6 +10,10 @@ the image asset management feature of the Composum platform
 
 ### see also
 
+#### [Composum Pages](https://github.com/ist-dresden/composum-pages)
+
+* [Composum Pages Wiki](https://ist-software.atlassian.net/wiki/display/CMP/Composum+Pages)
+
 #### [Composum Prototype](https://github.com/ist-dresden/composum-prototype)
 
 * [Composum Prototype Wiki](https://ist-software.atlassian.net/wiki/display/CMP/Composum+Prototype)
