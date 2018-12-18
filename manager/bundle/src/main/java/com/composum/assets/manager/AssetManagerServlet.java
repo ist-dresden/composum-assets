@@ -6,20 +6,27 @@ import org.apache.felix.scr.annotations.sling.SlingServlet;
 
 import java.util.regex.Pattern;
 
+import static com.composum.assets.manager.AssetManagerServlet.SERVLET_PATH;
+
 /**
  * The general hook (servlet) for the Asset Manager feature provides the path '/bin/assets.html/...'.
  */
 @SlingServlet(
-        paths = "/bin/assets",
+        paths = SERVLET_PATH,
         methods = {"GET"}
 )
 public class AssetManagerServlet extends AbstractConsoleServlet {
 
-    public static final String SERVLET_PATH = "/bin/assets.html";
+    public static final String SERVLET_PATH = "/bin/assets";
 
     public static final String RESOURCE_TYPE = "composum/assets/manager";
 
-    public static final Pattern PATH_PATTERN = Pattern.compile("^(/bin/assets(\\.[^/]+)?\\.html)(/.*)?$");
+    public static final Pattern PATH_PATTERN = Pattern.compile("^(" + SERVLET_PATH + "(\\.[^/]+)?\\.html)(/.*)?$");
+
+    @Override
+    protected String getServletPath(BeanContext context) {
+        return SERVLET_PATH;
+    }
 
     @Override
     protected Pattern getPathPattern(BeanContext context) {

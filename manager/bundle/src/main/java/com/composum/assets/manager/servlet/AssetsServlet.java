@@ -22,10 +22,6 @@ import com.composum.sling.core.util.ResponseUtil;
 import com.composum.sling.nodes.NodesConfiguration;
 import com.google.gson.stream.JsonWriter;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Modified;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.sling.SlingServlet;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.request.RequestDispatcherOptions;
@@ -34,13 +30,21 @@ import org.apache.sling.api.request.RequestParameterMap;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ValueMap;
+import org.apache.sling.api.servlets.HttpConstants;
+import org.apache.sling.api.servlets.ServletResolverConstants;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Modified;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jcr.RepositoryException;
 import javax.servlet.RequestDispatcher;
+import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -53,8 +57,15 @@ import java.util.List;
 /**
  * The servlet to provide changes of the Asset Managers UI.
  */
-@SlingServlet(paths = "/bin/cpm/assets/assets", methods = {"GET", "POST", "PUT", "DELETE"})
-@SuppressWarnings("deprecation")
+@Component(service = Servlet.class,
+        property = {
+                Constants.SERVICE_DESCRIPTION + "=Assets Servlet",
+                ServletResolverConstants.SLING_SERVLET_PATHS + "=/bin/cpm/assets/assets",
+                ServletResolverConstants.SLING_SERVLET_METHODS + "=" + HttpConstants.METHOD_GET,
+                ServletResolverConstants.SLING_SERVLET_METHODS + "=" + HttpConstants.METHOD_POST,
+                ServletResolverConstants.SLING_SERVLET_METHODS + "=" + HttpConstants.METHOD_PUT,
+                ServletResolverConstants.SLING_SERVLET_METHODS + "=" + HttpConstants.METHOD_DELETE
+        })
 public class AssetsServlet extends NodeTreeServlet {
 
     private static final Logger LOG = LoggerFactory.getLogger(AssetsServlet.class);
@@ -160,7 +171,7 @@ public class AssetsServlet extends NodeTreeServlet {
         @Override
         public void doIt(SlingHttpServletRequest request, SlingHttpServletResponse response,
                          ResourceHandle resource)
-                throws RepositoryException, IOException, ServletException {
+                throws IOException, ServletException {
 
             String type = request.getParameter("resourceType");
             RequestDispatcherOptions options = new RequestDispatcherOptions();
@@ -172,7 +183,11 @@ public class AssetsServlet extends NodeTreeServlet {
             }
 
             RequestDispatcher dispatcher = request.getRequestDispatcher(resource, options);
-            dispatcher.forward(request, response);
+            if (dispatcher != null) {
+                dispatcher.forward(request, response);
+            } else {
+                LOG.error("can't retrive dispatcher");
+            }
         }
     }
 
@@ -190,7 +205,7 @@ public class AssetsServlet extends NodeTreeServlet {
         @Override
         public void doIt(SlingHttpServletRequest request, SlingHttpServletResponse response,
                          ResourceHandle resource)
-                throws RepositoryException, IOException, ServletException {
+                throws IOException {
 
             ResourceResolver resolver = resource.getResourceResolver();
             metaPropertiesService.adjustMetaProperties(resolver, resource);
@@ -208,7 +223,7 @@ public class AssetsServlet extends NodeTreeServlet {
         @Override
         public void doIt(SlingHttpServletRequest request, SlingHttpServletResponse response,
                          ResourceHandle resource)
-                throws RepositoryException, IOException, ServletException {
+                throws IOException {
 
             RequestParameterMap parameters = request.getRequestParameterMap();
 
@@ -245,7 +260,7 @@ public class AssetsServlet extends NodeTreeServlet {
         @Override
         public void doIt(SlingHttpServletRequest request, SlingHttpServletResponse response,
                          ResourceHandle resource)
-                throws RepositoryException, IOException, ServletException {
+                throws RepositoryException, IOException {
 
             try (ResourceResolver resolver = resource.getResourceResolver()) {
 
@@ -263,7 +278,7 @@ public class AssetsServlet extends NodeTreeServlet {
         @Override
         public void doIt(SlingHttpServletRequest request, SlingHttpServletResponse response,
                          ResourceHandle resource)
-                throws RepositoryException, IOException, ServletException {
+                throws RepositoryException, IOException {
 
             try (ResourceResolver resolver = resource.getResourceResolver()) {
 
@@ -301,7 +316,7 @@ public class AssetsServlet extends NodeTreeServlet {
         @Override
         public void doIt(SlingHttpServletRequest request, SlingHttpServletResponse response,
                          ResourceHandle resource)
-                throws RepositoryException, IOException, ServletException {
+                throws IOException {
 
             BeanContext context = new BeanContext.Servlet(getServletContext(), bundleContext, request, response);
             jsonAnswer(context, resource, "not a configuration resource: ");
@@ -329,7 +344,7 @@ public class AssetsServlet extends NodeTreeServlet {
         @Override
         public void doIt(SlingHttpServletRequest request, SlingHttpServletResponse response,
                          ResourceHandle resource)
-                throws RepositoryException, IOException, ServletException {
+                throws IOException {
 
             BeanContext context = new BeanContext.Servlet(getServletContext(), bundleContext, request, response);
 
@@ -353,7 +368,7 @@ public class AssetsServlet extends NodeTreeServlet {
         @Override
         public void doIt(SlingHttpServletRequest request, SlingHttpServletResponse response,
                          ResourceHandle resource)
-                throws RepositoryException, IOException, ServletException {
+                throws IOException {
 
             BeanContext context = new BeanContext.Servlet(getServletContext(), bundleContext, request, response);
 
@@ -384,7 +399,7 @@ public class AssetsServlet extends NodeTreeServlet {
         @Override
         public void doIt(SlingHttpServletRequest request, SlingHttpServletResponse response,
                          ResourceHandle resource)
-                throws RepositoryException, IOException, ServletException {
+                throws IOException {
 
             BeanContext context = new BeanContext.Servlet(getServletContext(), bundleContext, request, response);
             if (resource != null && getConfigBean(context, resource) != null) {
@@ -405,14 +420,14 @@ public class AssetsServlet extends NodeTreeServlet {
         @Override
         public void doIt(SlingHttpServletRequest request, SlingHttpServletResponse response,
                          ResourceHandle resource)
-                throws RepositoryException, IOException, ServletException {
+                throws IOException {
 
             BeanContext context = new BeanContext.Servlet(getServletContext(), bundleContext, request, response);
             sendConfigSettings(context, resource);
         }
 
         protected void sendConfigSettings(BeanContext context, Resource configResource)
-                throws RepositoryException, IOException {
+                throws IOException {
 
             JsonWriter jsonWriter = ResponseUtil.getJsonWriter(context.getResponse());
             jsonWriter.beginArray();
@@ -449,7 +464,7 @@ public class AssetsServlet extends NodeTreeServlet {
         @Override
         public void doIt(SlingHttpServletRequest request, SlingHttpServletResponse response,
                          ResourceHandle resource)
-                throws RepositoryException, IOException, ServletException {
+                throws IOException {
 
             BeanContext context = new BeanContext.Servlet(getServletContext(), bundleContext, request, response);
             assetsService.setDefaultConfiguration(context, resource, true);
@@ -477,6 +492,7 @@ public class AssetsServlet extends NodeTreeServlet {
      * sort children of orderable nodes
      */
     @Override
+    @SuppressWarnings("Duplicates")
     protected List<Resource> prepareTreeItems(ResourceHandle resource, List<Resource> items) {
         if (!nodesConfig.getOrderableNodesFilter().accept(resource)) {
             Collections.sort(items, new Comparator<Resource>() {
@@ -510,7 +526,7 @@ public class AssetsServlet extends NodeTreeServlet {
         @Override
         public String getContentTypeKey(ResourceHandle resource, String prefix) {
             Resource config = resource.getChild(AssetConfig.CHILD_NAME);
-            if (config != null && ResourceUtil.isResourceType(config,
+            if (ResourceUtil.isResourceType(config,
                     AssetsConstants.NODE_TYPE_ASSET_CONFIG)) {
                 return AssetConfig.CHILD_NAME;
             } else {
