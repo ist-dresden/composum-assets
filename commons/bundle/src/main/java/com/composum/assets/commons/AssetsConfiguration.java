@@ -6,33 +6,26 @@
 package com.composum.assets.commons;
 
 import com.composum.sling.core.filter.ResourceFilter;
-import com.composum.sling.core.servlet.AbstractServiceServlet;
 
-import java.util.Dictionary;
+import javax.annotation.Nonnull;
 
 /**
  * The configuration service for all servlets in the core bundle.
  */
 public interface AssetsConfiguration {
 
-    String ASSETS_CATEGORIES_KEY = "assets.categories";
-
-    String ASSET_NODE_FILTER_KEY = "assets.filter.node";
-    String ASSET_PATH_FILTER_KEY = "assets.filter.path";
-    String DEFAULT_NODE_FILTER_KEY = "node.default.filter";
-    String TREE_INTERMEDIATE_FILTER_KEY = "tree.intermediate.filter";
-
+    @Nonnull
     String[] getAssetsCategories();
 
-    boolean isEnabled(AbstractServiceServlet servlet);
-
+    @Nonnull
     ResourceFilter getAssetNodeFilter();
 
+    @Nonnull
     ResourceFilter getAssetPathFilter();
 
+    @Nonnull
     ResourceFilter getDefaultNodeFilter();
 
+    @Nonnull
     ResourceFilter getTreeIntermediateFilter();
-
-    Dictionary getProperties();
 }

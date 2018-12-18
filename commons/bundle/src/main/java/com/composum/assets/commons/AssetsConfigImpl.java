@@ -1,5 +1,5 @@
 /*
- * copyright (c) 2015 IST GmbH Dresden, Germany
+ * copyright (c) 2015ff IST GmbH Dresden, Germany - https://www.ist-software.com
  *
  * This software may be modified and distributed under the terms of the MIT license.
  */
@@ -7,130 +7,110 @@ package com.composum.assets.commons;
 
 import com.composum.sling.core.filter.ResourceFilter;
 import com.composum.sling.core.mapping.jcr.ResourceFilterMapping;
-import com.composum.sling.core.servlet.AbstractServiceServlet;
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Modified;
-import org.apache.felix.scr.annotations.Property;
-import org.apache.felix.scr.annotations.Service;
-import org.apache.sling.commons.osgi.PropertiesUtil;
+import org.osgi.framework.Constants;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
+import org.osgi.service.metatype.annotations.AttributeDefinition;
+import org.osgi.service.metatype.annotations.Designate;
+import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import java.util.Dictionary;
-import java.util.HashMap;
-import java.util.Map;
+import javax.annotation.Nonnull;
 
 /**
- * The configuration service for all servlets in the core bundle.
+ * The configuration service for all servlets in the Assets module.
  */
 @Component(
-        label = "Composum Assets - Configuration",
-        description = "the configuration service for all servlets in the nodes bundles",
-        immediate = true,
-        metatype = true
+        property = {
+                Constants.SERVICE_DESCRIPTION + "=Composum Assets Module Configuration"
+        }
 )
-@Service
+@Designate(ocd = AssetsConfigImpl.Configuration.class)
 public class AssetsConfigImpl implements AssetsConfiguration {
 
-    @Property(
-            name = ASSETS_CATEGORIES_KEY,
-            label = "Assets Categories",
-            description = "the list of categories to determine the views in the assets manager",
-            value = {
-                    "assets"
-            }
+    @ObjectClassDefinition(
+            name = "Composum Assets Module Configuration"
     )
-    private String[] assetsCategories;
+    public @interface Configuration {
 
-    @Property(
-            name = ASSET_NODE_FILTER_KEY,
-            label = "Asset Resource Filter",
-            description = "the filter configuration to set the scope to the content assets",
-            value = "or{PrimaryType(+'^cpa:Asset$'),and{PrimaryType(+'^nt:file$'),MimeType(+'^(image|video)/.*$')}}"
-    )
+        @AttributeDefinition(
+                description = "the list of categories to determine the views in the assets manager"
+        )
+        String[] assetsCategories() default {
+                "assets"
+        };
+
+        @AttributeDefinition(
+                description = "the filter configuration to set the scope to the content assets"
+        )
+        String assetNodeFilterRule() default "or{PrimaryType(+'^cpa:Asset$'),and{PrimaryType(+'^nt:file$'),MimeType(+'^(image|video)/.*$')}})";
+
+        @AttributeDefinition(
+                description = "the path selection for the assets tree"
+        )
+        String assetPathFilterRule() default "Path(+'^/$,^/(content|test)(/.*)?$')";
+
+        @AttributeDefinition(
+                description = "the filter configuration to filter out system nodes"
+        )
+        String defaultNodeFilterRule() default "and{Name(-'^rep:(repo)?[Pp]olicy$'),Path(-'^/bin(/.*)?$,^/services(/.*)?$,^/servlet(/.*)?$,^/(jcr:)?system(/.*)?$')}";
+
+        @AttributeDefinition(
+                description = "the filter configuration to determine all intermediate nodes in the tree view"
+        )
+        String treeIntermediateFilterRule() default "Folder()";
+    }
+
     private ResourceFilter assetNodeFilter;
-
-    @Property(
-            name = ASSET_PATH_FILTER_KEY,
-            label = "Asset Path Filter",
-            description = "the path selection for the assets tree",
-            value = "Path(+'^/$,^/(content|sites|test)(/.*)?$')"
-    )
     private ResourceFilter assetPathFilter;
-
-    @Property(
-            name = DEFAULT_NODE_FILTER_KEY,
-            label = "The default Node Filter",
-            description = "the filter configuration to filter out system nodes",
-            value = "and{Name(-'^rep:(repo)?[Pp]olicy$'),Path(-'^/bin(/.*)?$,^/services(/.*)?$,^/servlet(/.*)?$,^/(jcr:)?system(/.*)?$')}"
-    )
     private ResourceFilter defaultNodeFilter;
-
-    @Property(
-            name = TREE_INTERMEDIATE_FILTER_KEY,
-            label = "Tree Intermediate (Folder) Filter",
-            description = "the filter configuration to determine all intermediate nodes in the tree view",
-            value = "Folder()"
-    )
     private ResourceFilter treeIntermediateFilter;
 
-    private Map<String, Boolean> enabledServlets;
+    protected Configuration config;
 
-    @Override
-    public boolean isEnabled(AbstractServiceServlet servlet) {
-        Boolean result = enabledServlets.get(servlet.getClass().getSimpleName());
-        return result != null ? result : false;
-    }
-
+    @Nonnull
     public String[] getAssetsCategories() {
-        return assetsCategories;
+        return config != null ? config.assetsCategories() : new String[0];
     }
 
+    @Nonnull
     @Override
     public ResourceFilter getAssetNodeFilter() {
         return assetNodeFilter;
     }
 
+    @Nonnull
     @Override
     public ResourceFilter getAssetPathFilter() {
         return assetPathFilter;
     }
 
+    @Nonnull
     @Override
     public ResourceFilter getDefaultNodeFilter() {
         return defaultNodeFilter;
     }
 
+    @Nonnull
     @Override
     public ResourceFilter getTreeIntermediateFilter() {
         return treeIntermediateFilter;
     }
 
-    public Dictionary getProperties() {
-        return properties;
-    }
-
-    protected Dictionary properties;
-
     @Activate
     @Modified
-    protected void activate(ComponentContext context) {
-        this.properties = context.getProperties();
-        assetsCategories = PropertiesUtil.toStringArray(properties.get(ASSETS_CATEGORIES_KEY));
-        assetNodeFilter = ResourceFilterMapping.fromString(
-                (String) properties.get(ASSET_NODE_FILTER_KEY));
-        assetPathFilter = ResourceFilterMapping.fromString(
-                (String) properties.get(ASSET_PATH_FILTER_KEY));
-        defaultNodeFilter = ResourceFilterMapping.fromString(
-                (String) properties.get(DEFAULT_NODE_FILTER_KEY));
-        treeIntermediateFilter = ResourceFilterMapping.fromString(
-                (String) properties.get(TREE_INTERMEDIATE_FILTER_KEY));
-        enabledServlets = new HashMap<>();
+    protected void activate(Configuration config) {
+        this.config = config;
+        assetNodeFilter = ResourceFilterMapping.fromString(config.assetNodeFilterRule());
+        assetPathFilter = ResourceFilterMapping.fromString(config.assetPathFilterRule());
+        defaultNodeFilter = ResourceFilterMapping.fromString(config.defaultNodeFilterRule());
+        treeIntermediateFilter = ResourceFilterMapping.fromString(config.treeIntermediateFilterRule());
     }
 
     @Deactivate
     protected void deactivate(ComponentContext context) {
-        this.properties = null;
+        this.config = null;
     }
 }

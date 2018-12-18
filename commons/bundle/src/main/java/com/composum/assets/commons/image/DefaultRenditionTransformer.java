@@ -85,7 +85,7 @@ public class DefaultRenditionTransformer implements RenditionTransformer {
     /**
      * Removes a ImageTransformer service implementation from the transformer configuration.
      */
-    protected synchronized void unbindImageTransformer(final ImageTransformer transformer) {
+    protected void unbindImageTransformer(final ImageTransformer transformer) {
         for (String operation : transformer.getOperations()) {
             unbindImageTransformer(operation, transformer);
         }
