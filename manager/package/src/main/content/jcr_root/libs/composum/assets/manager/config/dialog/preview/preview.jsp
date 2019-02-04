@@ -5,7 +5,7 @@
 <sling:defineObjects/>
 <div class="image-wrapper preview-image">
     <div class="image-background"
-         style="background-image: url(${cpn:url(slingRequest,'/libs/composum/nodes/console/browser/images/image-background.png')})">
+         style="background-image: url(${cpn:url(slingRequest,'/libs/composum/nodes/commons/images/image-background.png')})">
         <img class="image" src="">
     </div>
 </div>

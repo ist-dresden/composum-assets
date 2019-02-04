@@ -20,7 +20,7 @@
                     <div class="panel-group image-original" id="${variation.path}">
                         <div class="image-frame ${variation.original.imageCSS}">
                             <div class="image-background"
-                                 style="background-image:url(${cpn:unmappedUrl(slingRequest,'/libs/composum/nodes/console/browser/images/image-background.png')})">
+                                 style="background-image:url(${cpn:unmappedUrl(slingRequest,'/libs/composum/nodes/commons/images/image-background.png')})">
                                 <img src="${variation.originalUrl}"/>
                             </div>
                         </div>

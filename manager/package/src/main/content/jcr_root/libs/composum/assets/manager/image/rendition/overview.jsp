@@ -8,7 +8,7 @@
         <div class="overlay">
             <div class="overlay-background image view">
                 <div class="image-wrapper">
-                    <div class="image-background" style="background-image: url(${cpn:url(slingRequest,'/libs/composum/nodes/console/browser/images/image-background.png')})">
+                    <div class="image-background" style="background-image: url(${cpn:url(slingRequest,'/libs/composum/nodes/commons/images/image-background.png')})">
                         <img src="${assetBean.imageUrl}">
                     </div>
                 </div>
