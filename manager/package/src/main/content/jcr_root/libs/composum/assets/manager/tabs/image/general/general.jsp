@@ -20,7 +20,7 @@
         <div class="image-view">
             <div class="image-frame ${image.imageCSS}">
                 <div class="image-background"
-                     style="background-image:url(${cpn:unmappedUrl(slingRequest,'/libs/composum/nodes/console/browser/images/image-background.png')})">
+                     style="background-image:url(${cpn:unmappedUrl(slingRequest,'/libs/composum/nodes/commons/images/image-background.png')})">
                     <img src="${image.path}"/>
                 </div>
             </div>

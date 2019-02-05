@@ -75,7 +75,7 @@
 
         assets.manager = core.getView('#assets', assets.Manager);
 
-        assets.Tree = core.browser.Tree.extend({
+        assets.Tree = core.console.Tree.extend({
 
             nodeIdPrefix: 'AM_',
 
@@ -91,7 +91,7 @@
             },
 
             refreshNodeState: function ($node, node) {
-                var result = core.browser.Tree.prototype.refreshNodeState.apply(this, [$node, node]);
+                var result = core.console.Tree.prototype.refreshNodeState.apply(this, [$node, node]);
                 if (node.original.contentType === 'assetconfig') {
                     $node.removeClass('intermediate').addClass('assetconfig');
                 }
@@ -101,11 +101,11 @@
 
         assets.tree = core.getView('#assets-tree', assets.Tree);
 
-        assets.TreeActions = core.browser.TreeActions.extend({
+        assets.TreeActions = core.console.TreeActions.extend({
 
             initialize: function (options) {
-                core.browser.TreeActions.prototype.initialize.apply(this, [options]);
                 this.tree = assets.tree;
+                core.console.TreeActions.prototype.initialize.apply(this, [options]);
                 this.$browserLink = this.$('a.browser');
                 this.setBrowserLink();
                 this.$('button.create-asset').on('click', _.bind(this.createAsset, this));
@@ -113,12 +113,24 @@
                 $(document).on('path:selected', _.bind(this.setBrowserLink, this));
             },
 
+            // @Override
             getCurrent: function () {
                 return assets.current;
             },
 
+            // @Override
             getCurrentPath: function () {
                 return assets.getCurrentPath();
+            },
+
+            // @Override
+            setFilter: function (event) {
+                event.preventDefault();
+                var $link = $(event.currentTarget);
+                var filter = $link.text();
+                this.tree.setFilter(filter);
+                this.setFilterLabel(filter);
+                core.console.getProfile().set('assets', 'filter', filter);
             },
 
             setBrowserLink: function () {

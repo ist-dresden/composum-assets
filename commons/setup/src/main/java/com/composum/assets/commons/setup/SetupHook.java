@@ -24,10 +24,6 @@ public class SetupHook implements InstallHook {
 
     private static final Logger LOG = LoggerFactory.getLogger(SetupHook.class);
 
-    public static final String ASSETS_IMMEDIATE_PATH = "composum/assets/";
-
-    public static final String ASSETS_MANAGERS_GROUP = "asset-managers";
-
     public static final String ASSETS_SYSTEM_USERS_PATH = "system/composum/assets/";
 
     public static final String ASSETS_SERVICE_USER = "composum-assets-service";
@@ -38,16 +34,13 @@ public class SetupHook implements InstallHook {
 
     static {
         ASSETS_SYSTEM_USERS = new LinkedHashMap<>();
-        ASSETS_SYSTEM_USERS.put(ASSETS_SYSTEM_USERS_PATH + ASSETS_SERVICE_USER, Collections.singletonList(
-                ADMINISTRATORS_GROUP
-        ));
+        ASSETS_SYSTEM_USERS.put(ASSETS_SYSTEM_USERS_PATH + ASSETS_SERVICE_USER, Collections.<String>emptyList());
     }
 
     public static final Map<String, List<String>> ASSETS_GROUPS;
 
     static {
         ASSETS_GROUPS = new LinkedHashMap<>();
-        ASSETS_GROUPS.put(ASSETS_IMMEDIATE_PATH + ASSETS_MANAGERS_GROUP, Collections.<String>emptyList());
     }
 
     @SuppressWarnings("Duplicates")
@@ -56,9 +49,7 @@ public class SetupHook implements InstallHook {
         switch (ctx.getPhase()) {
             case INSTALLED:
                 LOG.info("installed: execute...");
-
                 setupGroupsAndUsers(ctx);
-
                 LOG.info("installed: execute ends.");
         }
     }
