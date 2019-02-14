@@ -54,7 +54,7 @@ public class SetupHook implements InstallHook {
         }
     }
 
-    protected void setupGroupsAndUsers(InstallContext ctx) {
+    protected void setupGroupsAndUsers(InstallContext ctx) throws PackageException {
         UserManagementService userManagementService = getService(UserManagementService.class);
         try {
             JackrabbitSession session = (JackrabbitSession) ctx.getSession();
@@ -76,8 +76,9 @@ public class SetupHook implements InstallHook {
                 }
             }
             session.save();
-        } catch (RepositoryException rex) {
+        } catch (RepositoryException | RuntimeException rex) {
             LOG.error(rex.getMessage(), rex);
+            throw new PackageException(rex);
         }
     }
 
