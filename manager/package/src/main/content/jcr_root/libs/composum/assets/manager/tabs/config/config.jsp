@@ -10,7 +10,7 @@
                 <button type="button" class="go-up fa fa-folder-o text-muted btn btn-default"
                         title="${cpn:i18n(slingRequest,'Go one level Up')}"><i
                         class="fa fa-chevron-up fa-stack-1x"></i><cpn:text
-                        value="Go Up" tagName="span" tagClass="label" i18n="true"/></button>
+                        value="Go Up" tagName="span" class="label" i18n="true"/></button>
             </div>
             <div class="btn-group btn-group-sm" role="group">
                 <a class="small fa fa-th btn btn-default" href="#small" data-group="general"

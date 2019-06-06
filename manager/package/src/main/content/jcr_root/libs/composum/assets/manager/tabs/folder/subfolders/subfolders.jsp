@@ -13,7 +13,7 @@
                             <button type="button" class="drill-down fa fa-folder-open-o text-muted btn btn-default"
                                     title="${cpn:i18n(slingRequest,'Drill Down')}" data-path="${subfolder.path}"><i
                                     class="fa fa-chevron-down fa-stack-1x"></i><cpn:text
-                                    value="Drill Down" tagName="span" tagClass="label" i18n="true"/></button>
+                                    value="Drill Down" tagName="span" class="label" i18n="true"/></button>
                         </div>
                     </div>
                     <h2 class="panel-title">

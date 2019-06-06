@@ -12,38 +12,38 @@
         </div>
         <div class="data-column col-lg-10 col-md-10 col-sm-9 col-xs-8">
             <div class="image-data">
-                <cpn:text tagName="h4" tagClass="name" value="${thumbnail.name}"/>
+                <cpn:text tagName="h4" class="name" value="${thumbnail.name}"/>
                 <table>
                     <tbody>
                     <tr class="last-modified timestamp">
-                        <cpn:text tagName="td" tagClass="label label-default" value="last modified" i18n="true"/>
-                        <cpn:text tagName="td" tagClass="value" value="${thumbnail.lastModified}"
+                        <cpn:text tagName="td" class="label label-default" value="last modified" i18n="true"/>
+                        <cpn:text tagName="td" class="value" value="${thumbnail.lastModified}"
                                   format="{Date}YYYY-MM-dd HH:mm:ss"/>
                     </tr>
                     <c:if test="${thumbnail.metaAvailable}">
                         <c:if test="${thumbnail.metaData.hasDimension}">
                             <tr class="size dimension">
-                                <cpn:text tagName="td" tagClass="label label-default" value="width / height"
+                                <cpn:text tagName="td" class="label label-default" value="width / height"
                                           i18n="true"/>
                                 <td class="value">
-                                    <cpn:text tagName="span" tagClass="width" value="${thumbnail.metaData.width}"/>
+                                    <cpn:text tagName="span" class="width" value="${thumbnail.metaData.width}"/>
                                     x
-                                    <cpn:text tagName="span" tagClass="height"
+                                    <cpn:text tagName="span" class="height"
                                               value="${thumbnail.metaData.height}"/>
                                 </td>
                             </tr>
                         </c:if>
                         <c:if test="${thumbnail.metaData.hasSize}">
                             <tr class="filesize">
-                                <cpn:text tagName="td" tagClass="label label-default" value="size (bytes)"
+                                <cpn:text tagName="td" class="label label-default" value="size (bytes)"
                                           i18n="true"/>
-                                <cpn:text tagName="td" tagClass="value" value="${thumbnail.metaData.size}"/>
+                                <cpn:text tagName="td" class="value" value="${thumbnail.metaData.size}"/>
                             </tr>
                         </c:if>
                         <c:if test="${thumbnail.metaData.hasDate}">
                             <div class="date">
-                                <cpn:text tagName="td" tagClass="label label-default" value="date" i18n="true"/>
-                                <cpn:text tagName="td" tagClass="value" value="${thumbnail.metaData.date}"
+                                <cpn:text tagName="td" class="label label-default" value="date" i18n="true"/>
+                                <cpn:text tagName="td" class="value" value="${thumbnail.metaData.date}"
                                           format="{Date}YYYY-MM-dd HH:mm:ss"/>
                             </div>
                         </c:if>
@@ -52,7 +52,7 @@
                 </table>
             </div>
             <c:if test="${thumbnail.metaAvailable}">
-                <cpn:text tagClass="description" value="${thumbnail.metaData.description}" type="rich"/>
+                <cpn:text class="description" value="${thumbnail.metaData.description}" type="rich"/>
             </c:if>
         </div>
     </a>

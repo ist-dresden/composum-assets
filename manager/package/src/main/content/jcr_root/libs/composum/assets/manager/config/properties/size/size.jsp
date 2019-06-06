@@ -5,7 +5,7 @@
 <sling:defineObjects/>
 <cpn:component id="model" type="com.composum.assets.manager.config.RenditionConfigBean" scope="request">
     <tr class="size aspect">
-        <cpn:text tagName="th" tagClass="key" value="size" i18n="true"/>
+        <cpn:text tagName="th" class="key" value="size" i18n="true"/>
         <td class="value">${cpn:text(model.config.size.width)} x ${cpn:text(model.config.size.height)}
             (${cpn:text(model.config.size.aspectRatio)})
         </td>

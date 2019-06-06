@@ -9,7 +9,7 @@
                 <button type="button" class="go-up fa fa-folder-o text-muted btn btn-default"
                         title="${cpn:i18n(slingRequest,'Go one level Up')}"><i
                         class="fa fa-chevron-up fa-stack-1x"></i><cpn:text
-                        value="Go Up" tagName="span" tagClass="label" i18n="true"/></button>
+                        value="Go Up" tagName="span" class="label" i18n="true"/></button>
             </div>
             <sling:call script="viewModeButtons.jsp"/>
         </div>

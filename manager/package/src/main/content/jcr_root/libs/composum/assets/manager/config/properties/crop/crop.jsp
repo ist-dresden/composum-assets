@@ -6,7 +6,7 @@
 <cpn:component id="model" type="com.composum.assets.manager.config.RenditionConfigBean" scope="request">
     <c:if test="${!model.config.crop.default}">
         <tr class="crop aspect">
-            <cpn:text tagName="th" tagClass="key" value="crop" i18n="true"/>
+            <cpn:text tagName="th" class="key" value="crop" i18n="true"/>
             <td class="value">${cpn:text(model.config.crop.horizontal)} / ${cpn:text(model.config.crop.vertical)}
                 (${cpn:text(model.config.crop.scale)})
             </td>

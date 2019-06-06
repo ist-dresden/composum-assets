@@ -10,7 +10,7 @@
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                             aria-hidden="true">&times;</span></button>
-                    <cpn:text tagName="h4" tagClass="modal-title asset" value="Delete Configuration"
+                    <cpn:text tagName="h4" class="modal-title asset" value="Delete Configuration"
                               i18n="true"/>
                 </div>
                 <div class="modal-body">
@@ -23,7 +23,7 @@
                     <div class="row">
                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                             <div class="form-group">
-                                <cpn:text tagName="label" tagClass="control-label" value="Configuration Path"
+                                <cpn:text tagName="label" class="control-label" value="Configuration Path"
                                           i18n="true"/>
                                 <input class="config-path widget text-field-widget form-control" type="text"
                                        disabled="true"/>
@@ -33,14 +33,14 @@
                     <div class="row">
                         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
                             <div class="form-group">
-                                <cpn:text tagName="label" tagClass="control-label" value="Context" i18n="true"/>
+                                <cpn:text tagName="label" class="control-label" value="Context" i18n="true"/>
                                 <input class="config-context widget text-field-widget form-control" type="text"
                                        disabled="true"/>
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
                             <div class="form-group ">
-                                <cpn:text tagName="label" tagClass="control-label" value="Name" i18n="true"/>
+                                <cpn:text tagName="label" class="control-label" value="Name" i18n="true"/>
                                 <input class="config-name widget text-field-widget form-control" type="text"
                                        disabled="true"/>
                             </div>

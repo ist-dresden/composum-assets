@@ -10,7 +10,7 @@
                 <button type="button" class="go-up fa fa-folder-o text-muted btn btn-default"
                         title="${cpn:i18n(slingRequest,'Go to Folder')}"><i
                         class="fa fa-chevron-up fa-stack-1x"></i><cpn:text
-                        value="Folder" tagName="span" tagClass="label" i18n="true"/></button>
+                        value="Folder" tagName="span" class="label" i18n="true"/></button>
             </div>
             <div class="btn-group btn-group-sm" role="group">
                 <div class="btn-group btn-group-sm" role="group">

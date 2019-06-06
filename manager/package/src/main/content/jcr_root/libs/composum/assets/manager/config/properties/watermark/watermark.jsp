@@ -7,9 +7,9 @@
     <c:if test="${model.config.watermark.valid}">
         <tr class="watermark aspect">
             <th class="key" rowspan="3"><cpn:text tagName="none" value="watermark" i18n="true"/></th>
-            <cpn:text tagName="td" tagClass="value" value="${model.config.watermark.text}"/>
+            <cpn:text tagName="td" class="value" value="${model.config.watermark.text}"/>
         </tr>
-        <tr><cpn:text tagName="td" tagClass="value" value="${model.config.watermark.font}"/></tr>
+        <tr><cpn:text tagName="td" class="value" value="${model.config.watermark.font}"/></tr>
         <tr>
             <td class="value">${cpn:text(model.config.watermark.horizontal)}
                 / ${cpn:text(model.config.watermark.vertical)}; ${cpn:text(model.config.watermark.colorCode)}
