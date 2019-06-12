@@ -51,7 +51,7 @@ public class AdjustDefaultConfigObserver extends AbstractChangeObserver {
     public static final StringFilter CATEGORY_PROPERTY_FILTER =
             new StringFilter.WhiteList("/jcr:content/(.*/)?categories$");
 
-    public static class DefaultCategoryFilter implements ResourceFilter {
+    public static class DefaultCategoryFilter extends ResourceFilter.AbstractResourceFilter {
 
         @Override
         public boolean accept(Resource resource) {

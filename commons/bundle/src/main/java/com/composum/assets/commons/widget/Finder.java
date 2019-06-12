@@ -6,6 +6,7 @@ import com.composum.assets.commons.util.AdaptiveUtil;
 import com.composum.sling.clientlibs.handle.FileHandle;
 import com.composum.sling.core.AbstractServletBean;
 import com.composum.sling.core.BeanContext;
+import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.sling.api.resource.Resource;
 
 import java.util.ArrayList;
@@ -44,7 +45,10 @@ public class Finder extends AbstractServletBean {
 
         @Override
         public int compareTo(Thumbnail other) {
-            return getName().compareTo(other.getName());
+            CompareToBuilder builder = new CompareToBuilder();
+            builder.append(getName(), other.getName());
+            builder.append(getPath(), other.getPath());
+            return builder.toComparison();
         }
     }
 
@@ -57,6 +61,7 @@ public class Finder extends AbstractServletBean {
             file = new FileHandle(resource);
         }
 
+        @Override
         public Date getLastModified() {
             return file.getLastModified().getTime();
         }
@@ -71,14 +76,17 @@ public class Finder extends AbstractServletBean {
             metaData = new MetaData(context, resource);
         }
 
+        @Override
         public String getContent() {
             return "<img class=\"thumbnail-image\" src=\"" + getPath() + "\"/>";
         }
 
+        @Override
         public boolean isMetaAvailable() {
             return metaData.isValid();
         }
 
+        @Override
         public MetaData getMetaData() {
             return metaData;
         }
@@ -93,20 +101,24 @@ public class Finder extends AbstractServletBean {
             asset = new ImageAsset(context, resource);
         }
 
+        @Override
         public Date getLastModified() {
             return asset.getLastModified().getTime();
         }
 
+        @Override
         public String getContent() {
             return "<img class=\"thumbnail-image\" src=\"" +
                     AdaptiveUtil.getImageUri(asset, "thumbnail", "large") +
                     "\"/>";
         }
 
+        @Override
         public boolean isMetaAvailable() {
             return false;
         }
 
+        @Override
         public MetaData getMetaData() {
             return null;
         }
@@ -118,15 +130,18 @@ public class Finder extends AbstractServletBean {
             super(resource);
         }
 
+        @Override
         public String getContent() {
             return "<video class=\"thumbnail-video\">" +
                     "<source type=\"" + file.getMimeType() + "\" src=\"" + getPath() + "\"/></video>";
         }
 
+        @Override
         public boolean isMetaAvailable() {
             return false;
         }
 
+        @Override
         public MetaData getMetaData() {
             return null;
         }
