@@ -23,8 +23,7 @@ import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jcr.RepositoryException;
-import javax.servlet.ServletException;
+import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,9 +42,9 @@ public class ImageAssetServlet extends SlingSafeMethodsServlet {
     protected BundleContext bundleContext;
 
     @Override
-    protected void doGet(SlingHttpServletRequest request,
-                         SlingHttpServletResponse response)
-            throws ServletException, IOException {
+    protected void doGet(@Nonnull final SlingHttpServletRequest request,
+                         @Nonnull final SlingHttpServletResponse response)
+            throws IOException {
 
         Resource resource = AdaptiveUtil.retrieveResource(request);
         if (!ResourceUtil.isNonExistingResource(resource)) {
@@ -55,18 +54,11 @@ public class ImageAssetServlet extends SlingSafeMethodsServlet {
             if (original != null) {
                 FileHandle file = original.getFile();
                 if (file.isValid()) {
-                    try {
-                        response.setContentType(original.getMimeType());
-                        InputStream imageStream = file.getStream();
-                        try {
-                            AdaptiveUtil.sendImageStream(response, original, imageStream);
-                        } finally {
-                            imageStream.close();
-                        }
-                        return;
-                    } catch (RepositoryException ex) {
-                        LOG.error(ex.getMessage(), ex);
+                    response.setContentType(original.getMimeType());
+                    try (InputStream imageStream = file.getStream()) {
+                        AdaptiveUtil.sendImageStream(response, original, imageStream);
                     }
+                    return;
                 }
             }
         }

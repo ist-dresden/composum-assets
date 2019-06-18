@@ -44,7 +44,8 @@
         <package.group>com/composum/assets</package.group>
         <package.company>IST GmbH Dresden</package.company>
         <bundle.category>composum,assets</bundle.category>
-        <composum.core.version>1.10.0-SNAPSHOT</composum.core.version>
+        <composum.nodes.version>1.10.2</composum.nodes.version>
+        <composum.nodes.dependency>[${composum.nodes.version},2.1)</composum.nodes.dependency>
         <sling.scheme>http</sling.scheme>
         <sling.secure>false</sling.secure>
         <sling.host>localhost</sling.host>
@@ -55,8 +56,8 @@
         <sling.password>admin</sling.password>
         <bundle.status.skip>true</bundle.status.skip>
         <source.encoding>UTF-8</source.encoding>
-        <java.source>1.8</java.source>
-        <java.target>1.8</java.target>
+        <java.source>8</java.source>
+        <java.target>8</java.target>
         <maven.compiler.source>${java.source}</maven.compiler.source>
         <maven.compiler.target>${java.target}</maven.compiler.target>
     </properties>
@@ -144,13 +145,13 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.0.0</version>
+                    <version>3.1.1</version>
                 </plugin>
 
                 <plugin>
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-scr-plugin</artifactId>
-                    <version>1.24.0</version>
+                    <version>1.26.2</version>
                     <executions>
                         <execution>
                             <id>generate-scr-scrdescriptor</id>
@@ -393,23 +394,23 @@
                 <scope>provided</scope>
             </dependency>
 
-            <!-- Composum Core -->
+            <!-- Composum Nodes -->
             <dependency>
                 <groupId>com.composum.sling.core</groupId>
                 <artifactId>composum-sling-core-console</artifactId>
-                <version>${composum.core.version}</version>
+                <version>${composum.nodes.dependency}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.composum.sling.core</groupId>
                 <artifactId>composum-sling-user-management</artifactId>
-                <version>${composum.core.version}</version>
+                <version>${composum.nodes.dependency}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.composum.sling.core</groupId>
                 <artifactId>composum-sling-core-commons</artifactId>
-                <version>${composum.core.version}</version>
+                <version>${composum.nodes.dependency}</version>
                 <scope>provided</scope>
             </dependency>
 
