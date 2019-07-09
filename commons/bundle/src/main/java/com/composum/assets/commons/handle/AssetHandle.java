@@ -12,6 +12,7 @@ import com.composum.sling.core.ResourceHandle;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public abstract class AssetHandle<Config extends ConfigHandle> extends AbstractSlingBean {
@@ -39,10 +40,12 @@ public abstract class AssetHandle<Config extends ConfigHandle> extends AbstractS
         return resource != null && resource.isValid();
     }
 
+    @Nonnull
     public String getName() {
         return resource.getName();
     }
 
+    @Nonnull
     public String getPath() {
         return resource.getPath();
     }

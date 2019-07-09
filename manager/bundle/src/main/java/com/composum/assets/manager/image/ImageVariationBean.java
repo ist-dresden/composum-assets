@@ -8,6 +8,8 @@ import com.composum.sling.core.BeanContext;
 import com.composum.sling.core.ResourceHandle;
 import org.apache.sling.api.resource.Resource;
 
+import javax.annotation.Nonnull;
+
 public class ImageVariationBean extends AbstractImageBean<VariationConfig> {
 
     protected VariationConfig config;
@@ -40,11 +42,13 @@ public class ImageVariationBean extends AbstractImageBean<VariationConfig> {
         return config;
     }
 
+    @Nonnull
     @Override
     public String getName() {
         return variation != null ? variation.getName() : config.getName();
     }
 
+    @Nonnull
     @Override
     public String getPath() {
         return variation != null ? variation.getPath() : config.getPath();
