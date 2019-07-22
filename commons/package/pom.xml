@@ -5,11 +5,11 @@
 
     <parent>
         <groupId>com.composum.sling.assets</groupId>
-        <artifactId>composum-sling-assets-commons</artifactId>
+        <artifactId>composum-assets-commons</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>composum-sling-assets-commons-package</artifactId>
+    <artifactId>composum-assets-commons-package</artifactId>
     <packaging>content-package</packaging>
 
     <name>Composum Assets Commons Package</name>
@@ -80,7 +80,7 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>${project.groupId}</groupId>
-                                    <artifactId>composum-sling-assets-commons-setup</artifactId>
+                                    <artifactId>composum-assets-commons-setup</artifactId>
                                     <outputDirectory>${project.build.directory}/vault-work/META-INF/vault/hooks</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
@@ -113,7 +113,7 @@
                         <filter>
                             <root>/libs/composum/assets/install</root>
                             <includes>
-                                <include>.*/composum-sling-assets-commons-bundle.*\.jar</include>
+                                <include>.*/composum-assets-commons-bundle.*\.jar</include>
                                 <include>.*/org.apache.sling.serviceusermapping.impl.ServiceUserMapperImpl.amended-assets.config</include>
                             </includes>
                         </filter>
@@ -122,7 +122,7 @@
                     <embeddeds>
                         <embedded>
                             <groupId>${project.groupId}</groupId>
-                            <artifactId>composum-sling-assets-commons-bundle</artifactId>
+                            <artifactId>composum-assets-commons-bundle</artifactId>
                             <target>/libs/composum/assets/install</target>
                         </embedded>
                     </embeddeds>
@@ -137,12 +137,12 @@
         <!-- Composum Assets -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>composum-sling-assets-commons-bundle</artifactId>
+            <artifactId>composum-assets-commons-bundle</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>composum-sling-assets-commons-setup</artifactId>
+            <artifactId>composum-assets-commons-setup</artifactId>
             <version>${project.version}</version>
         </dependency>
 

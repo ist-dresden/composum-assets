@@ -10,7 +10,7 @@
     </parent>
 
     <groupId>com.composum.sling.assets</groupId>
-    <artifactId>composum-sling-assets</artifactId>
+    <artifactId>composum-assets</artifactId>
     <packaging>pom</packaging>
     <version>1.0.0-SNAPSHOT</version>
 
@@ -70,7 +70,7 @@
             <!-- Composum Assets -->
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>composum-sling-assets-commons-bundle</artifactId>
+                <artifactId>composum-assets-commons-bundle</artifactId>
                 <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
@@ -78,7 +78,7 @@
             <!-- Composum Platform -->
             <dependency>
                 <groupId>com.composum.sling.platform</groupId>
-                <artifactId>composum-sling-platform-staging</artifactId>
+                <artifactId>composum-platform-staging</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
                 <scope>provided</scope>
             </dependency>

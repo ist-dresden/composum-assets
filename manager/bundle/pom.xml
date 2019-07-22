@@ -5,11 +5,11 @@
 
     <parent>
         <groupId>com.composum.sling.assets</groupId>
-        <artifactId>composum-sling-assets-manager</artifactId>
+        <artifactId>composum-assets-manager</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>composum-sling-assets-manager-bundle</artifactId>
+    <artifactId>composum-assets-manager-bundle</artifactId>
     <packaging>bundle</packaging>
 
     <name>Composum Assets Manager Bundle</name>
@@ -64,7 +64,7 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>composum-sling-assets-commons-bundle</artifactId>
+            <artifactId>composum-assets-commons-bundle</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
