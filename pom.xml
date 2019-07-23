@@ -9,7 +9,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.composum.sling.assets</groupId>
+    <groupId>com.composum.assets</groupId>
     <artifactId>composum-assets</artifactId>
     <packaging>pom</packaging>
     <version>1.0.0-SNAPSHOT</version>
@@ -23,7 +23,7 @@
         <package.company>IST GmbH Dresden</package.company>
         <bundle.category>composum,assets</bundle.category>
         <composum.nodes.version>1.11.1-SNAPSHOT</composum.nodes.version>
-        <composum.platform.version>1.0.0-SNAPSHOT</composum.platform.version>
+        <composum.platform.version>1.0.4</composum.platform.version>
     </properties>
 
     <scm>
@@ -77,7 +77,7 @@
 
             <!-- Composum Platform -->
             <dependency>
-                <groupId>com.composum.sling.platform</groupId>
+                <groupId>com.composum.platform</groupId>
                 <artifactId>composum-platform-staging</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
                 <scope>provided</scope>
