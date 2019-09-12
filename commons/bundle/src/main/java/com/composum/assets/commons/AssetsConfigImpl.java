@@ -45,7 +45,7 @@ public class AssetsConfigImpl implements AssetsConfiguration {
         @AttributeDefinition(
                 description = "the filter configuration to set the scope to the content assets"
         )
-        String assetNodeFilterRule() default "or{PrimaryType(+'^cpa:Asset$'),and{PrimaryType(+'^nt:file$'),MimeType(+'^(image|video)/.*$')}})";
+        String assetNodeFilterRule() default "or{PrimaryType(+'^cpa:Asset$'),and{PrimaryType(+'^nt:file$'),MimeType(+'^(image|video)/.*$')}}";
 
         @AttributeDefinition(
                 description = "the path selection for the assets tree"
@@ -70,6 +70,7 @@ public class AssetsConfigImpl implements AssetsConfiguration {
 
     protected Configuration config;
 
+    @Override
     @Nonnull
     public String[] getAssetsCategories() {
         return config != null ? config.assetsCategories() : new String[0];
