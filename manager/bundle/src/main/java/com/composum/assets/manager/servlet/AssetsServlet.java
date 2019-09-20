@@ -59,7 +59,7 @@ import java.util.List;
  */
 @Component(service = Servlet.class,
         property = {
-                Constants.SERVICE_DESCRIPTION + "=Assets Servlet",
+                Constants.SERVICE_DESCRIPTION + "=Composum Assets Servlet",
                 ServletResolverConstants.SLING_SERVLET_PATHS + "=/bin/cpm/assets/assets",
                 ServletResolverConstants.SLING_SERVLET_METHODS + "=" + HttpConstants.METHOD_GET,
                 ServletResolverConstants.SLING_SERVLET_METHODS + "=" + HttpConstants.METHOD_POST,
@@ -101,6 +101,7 @@ public class AssetsServlet extends NodeTreeServlet {
 
     protected AssetsOperationSet operations = new AssetsOperationSet();
 
+    @Override
     protected ServletOperationSet getOperations() {
         return operations;
     }
