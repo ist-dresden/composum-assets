@@ -4,24 +4,24 @@
 <'sling'='http://sling.apache.org/jcr/sling/1.0'>
 <'cpa'='http://sling.composum.com/assets/1.0'>
 
-[cpa:AssetConfiguration] > nt:unstructured
+[cpa:AssetConfiguration] > nt:unstructured, mix:lastModified
 
 [cpa:ImageConfiguration] > cpa:AssetConfiguration
 
 [cpa:Variation] > sling:Folder
 
-[cpa:VariationConfig] > nt:unstructured
+[cpa:VariationConfig] > nt:unstructured, mix:lastModified
 
 [cpa:Rendition] > sling:Folder
 
-[cpa:RenditionConfig] > nt:unstructured
+[cpa:RenditionConfig] > nt:unstructured, mix:lastModified
 
 [cpa:MetaData] > nt:unstructured, mix:lastModified
 
 [cpa:AssetResource] > sling:Resource mixin
   + meta = cpa:MetaData mandatory autocreated
 
-[cpa:AssetContent] > nt:unstructured, mix:lastModified
+[cpa:AssetContent] > mix:lastModified, mix:versionable, nt:unstructured
   + meta = cpa:MetaData mandatory autocreated
 
 [cpa:Asset] > sling:Folder
