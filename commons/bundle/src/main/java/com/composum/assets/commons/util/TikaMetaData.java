@@ -46,7 +46,7 @@ public class TikaMetaData extends HashMap<String, Object> {
                     result.put(name, metadata.get(name));
                 }
             }
-        } catch (TikaException | SAXException | IOException ex) {
+        } catch (TikaException | SAXException | IOException | NoClassDefFoundError ex) {
             LOG.error(ex.getMessage(), ex);
         }
         return result;
