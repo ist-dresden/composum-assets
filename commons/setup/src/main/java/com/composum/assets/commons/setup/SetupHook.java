@@ -7,6 +7,7 @@ import org.apache.jackrabbit.api.security.user.UserManager;
 import org.apache.jackrabbit.vault.packaging.InstallContext;
 import org.apache.jackrabbit.vault.packaging.InstallHook;
 import org.apache.jackrabbit.vault.packaging.PackageException;
+import org.apache.jackrabbit.vault.util.JcrConstants;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -14,7 +15,12 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
+import javax.jcr.query.Query;
+import javax.jcr.query.QueryManager;
+import javax.jcr.query.QueryResult;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -76,9 +82,29 @@ public class SetupHook implements InstallHook {
                 }
             }
             session.save();
+            addVersionableMixinToAssetContentNodes(ctx, session);
         } catch (RepositoryException | RuntimeException rex) {
             LOG.error(rex.getMessage(), rex);
             throw new PackageException(rex);
+        }
+    }
+
+    /**
+     * We want all jcr:content nodes containing an cpa:AssetConfiguration to be versionable so that they can be
+     * published. Thus, we need to add a mix:versionable if need be.
+     */
+    protected void addVersionableMixinToAssetContentNodes(InstallContext ctx, JackrabbitSession session) throws RepositoryException {
+        QueryManager queryManager = session.getWorkspace().getQueryManager();
+        Query query = queryManager.createQuery("select * from [cpa:AssetConfiguration]", Query.JCR_SQL2);
+        QueryResult result = query.execute();
+        for (NodeIterator it = result.getNodes(); it.hasNext(); ) {
+            Node node = it.nextNode();
+            if (node.isNodeType("cpa:AssetConfiguration")) {
+                while (node != null && !node.getName().equals(JcrConstants.JCR_CONTENT)) { node = node.getParent(); }
+                if (node != null && !node.isNodeType(JcrConstants.MIX_VERSIONABLE)) {
+                    node.addMixin(JcrConstants.MIX_VERSIONABLE);
+                }
+            }
         }
     }
 
