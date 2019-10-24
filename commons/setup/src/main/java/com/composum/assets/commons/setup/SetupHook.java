@@ -125,8 +125,10 @@ public class SetupHook implements InstallHook {
             Session session = ctx.getSession();
             NodeTypeManager nodeTypeManager = session.getWorkspace().getNodeTypeManager();
             NodeType assetContentType = nodeTypeManager.getNodeType("cpa:AssetContent");
-            if (!assetContentType.isNodeType(org.apache.jackrabbit.JcrConstants.MIX_VERSIONABLE)) {
-                LOG.info("Updating nodetypes - cpa:AssetContent is not yet versionable.");
+            NodeType assetResourceType = nodeTypeManager.getNodeType("cpa:AssetResource");
+            if (!assetContentType.isNodeType(org.apache.jackrabbit.JcrConstants.MIX_VERSIONABLE)
+                    || !assetResourceType.isNodeType(org.apache.jackrabbit.JcrConstants.MIX_VERSIONABLE)) {
+                LOG.info("Updating nodetypes - cpa:AssetContent / cpa:AssetResource is not yet versionable.");
                 try (VaultPackage vaultPackage = ctx.getPackage()) {
                     Archive archive = vaultPackage.getArchive();
                     try (InputStream stream = archive.openInputStream(archive.getEntry("/META-INF/vault/nodetypes.cnd"))) {
