@@ -18,7 +18,7 @@ public class AssetsConstants {
     public static final String COMPOSUM_PREFIX = "composum-";
     public static final String ASSETS_PREFIX = COMPOSUM_PREFIX + "assets-";
 
-    /** propertiy names */
+    /** property names */
 
     public static final String PROP_VARIATION = "variation";
     public static final String PROP_RENDITION = "rendition";
@@ -66,6 +66,15 @@ public class AssetsConstants {
     public static final String PATH_META = NODE_CONTENT + "/" + NODE_META;
     public static final String IMAGE_CONFIG = "imageconfig";
     public static final String PATH_IMAGE_CONFIG = NODE_CONTENT + "/" + IMAGE_CONFIG;
+
+    /** Path below which transient renderings are stored. */
+    public static final String PATH_TRANSIENTS = "/var/composum/assets";
+
+    /**
+     * Path particle for transient paths when the configuration is a versionable but we render for the workspace, as
+     * opposed to a checked in version.
+     */
+    public static final String NODE_WORKSPACECONFIGURED = "workspace";
 
     /** general properties */
 

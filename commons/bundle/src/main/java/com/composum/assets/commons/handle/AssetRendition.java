@@ -43,10 +43,12 @@ public class AssetRendition extends AssetHandle<RenditionConfig> {
         this.config = variation.getChildConfig(resource);
     }
 
+    @Override
     public RenditionConfig getConfig() {
         return config;
     }
 
+    @Override
     public ConfigHandle getChildConfig(Resource resource) {
         return null;
     }
@@ -63,6 +65,7 @@ public class AssetRendition extends AssetHandle<RenditionConfig> {
         return variation;
     }
 
+    @Override
     public boolean isValid() {
         return super.isValid() && resource.getProperty(VALID, Boolean.FALSE);
     }

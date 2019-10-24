@@ -13,6 +13,7 @@ import com.composum.assets.commons.util.AssetConfigUtil;
 import com.composum.sling.core.BeanContext;
 import com.composum.sling.core.ResourceHandle;
 import com.composum.sling.core.util.ResourceUtil;
+import com.composum.sling.platform.staging.StagingConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
@@ -146,6 +147,33 @@ public abstract class AbstractAsset extends AssetHandle<AssetConfig> {
         }
         targetPath = path.toString();
         return getConfig().getCascadeForPath(configResourceType, targetPath);
+    }
+
+    /** The path where transient renditions will be stored. */
+    public String getTransientsPath() {
+        StringBuilder transientsPath = new StringBuilder();
+        Resource stepResource = resource;
+        while (stepResource != null) {
+            Resource contentNode = stepResource.getChild(ResourceUtil.CONTENT_NODE);
+            if (contentNode != null) { // FIXME handle workspace references somehow
+                String versionUuid = ResourceHandle.use(contentNode)
+                        .getProperty(StagingConstants.PROP_REPLICATED_VERSION);
+                if (StringUtils.isNotBlank(versionUuid)) {
+                    transientsPath.insert(0, versionUuid);
+                    transientsPath.insert(0, "/");
+                } else if (ResourceUtil.isNodeType(contentNode, ResourceUtil.MIX_VERSIONABLE)) {
+                    // FIXME(hps,24.10.19) how to integrate last modification date? Add time?
+                    transientsPath.insert(0, AssetsConstants.NODE_WORKSPACECONFIGURED);
+                    transientsPath.insert(0, "/");
+                }
+            }
+            transientsPath.insert(0, stepResource.getName());
+            transientsPath.insert(0, "/");
+            stepResource = stepResource.getParent();
+        }
+        transientsPath.deleteCharAt(0); // the slash coming from the root resource
+        transientsPath.insert(0, AssetsConstants.PATH_TRANSIENTS);
+        return transientsPath.toString();
     }
 
     /**

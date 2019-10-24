@@ -30,8 +30,9 @@ public abstract class AssetHandle<Config extends ConfigHandle> extends AbstractS
 
     public abstract Config getConfig();
 
-    public abstract ConfigHandle getChildConfig(Resource asset);
+    protected abstract ConfigHandle getChildConfig(Resource asset);
 
+    @Override
     public ResourceHandle getResource() {
         return resource;
     }
@@ -40,17 +41,19 @@ public abstract class AssetHandle<Config extends ConfigHandle> extends AbstractS
         return resource != null && resource.isValid();
     }
 
+    @Override
     @Nonnull
     public String getName() {
         return resource.getName();
     }
 
+    @Override
     @Nonnull
     public String getPath() {
         return resource.getPath();
     }
 
-    public Resource findChildByCategoryOrName(String type, String... key) {
+    protected Resource findChildByCategoryOrName(String type, String... key) {
         Resource result = null;
         for (int i = 0; result == null && i < key.length; i++) {
             result = retrieveChildByCategoryOrName(type, key[i]);
@@ -58,7 +61,7 @@ public abstract class AssetHandle<Config extends ConfigHandle> extends AbstractS
         return result;
     }
 
-    public Resource retrieveChildByCategoryOrName(String type, String key) {
+    protected Resource retrieveChildByCategoryOrName(String type, String key) {
         Resource byName = null;
         for (ResourceHandle child : resource.getChildrenByType(type)) {
             ConfigHandle childConfig = getChildConfig(child);

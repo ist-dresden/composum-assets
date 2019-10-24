@@ -70,6 +70,10 @@
   "jcr:content": {
     "jcr:primaryType": "nt:unstructured",
     "jcr:title": "Assets Example 1",
+    "jcr:mixinTypes": [
+      "mix:versionable"
+    ],
+    "cpl:replicatedVersion": "theuuidofthereplicatedversion",
     "assetconfig": {
       "jcr:primaryType": "cpa:AssetConfiguration",
       "example.image.path": "/test/assets/site-1/images/image-01.png",
