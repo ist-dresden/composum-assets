@@ -42,10 +42,12 @@ public class AssetVariation extends AssetHandle<VariationConfig> {
         this.config = asset.getChildConfig(resource);
     }
 
+    @Override
     public VariationConfig getConfig() {
         return config;
     }
 
+    @Override
     public RenditionConfig getChildConfig(Resource resource) {
         AbstractAsset asset = getAsset();
         List<ResourceHandle> renditionCascade = asset.getConfigCascade(resource, RenditionConfig.NODE_TYPE);
@@ -73,6 +75,7 @@ public class AssetVariation extends AssetHandle<VariationConfig> {
         return rendition;
     }
 
+    /** Creates an original rendition - which is stored in the /content resource tree. */
     public AssetRendition getOrCreateOriginal() throws PersistenceException {
         AssetRendition rendition = getOriginal();
         if (rendition == null) {

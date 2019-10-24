@@ -10,6 +10,7 @@ import com.composum.assets.commons.AssetsConstants;
 import com.composum.assets.commons.util.TikaMetaData;
 import com.composum.sling.core.filter.StringFilter;
 import com.composum.sling.core.util.ResourceUtil;
+import com.composum.sling.core.util.SlingResourceUtil;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Modified;
@@ -120,10 +121,14 @@ public class AssetMetaPropertiesService implements MetaPropertiesService {
                 metaResource = resolver.create(contentResource, AssetsConstants.NODE_META, CRUD_META_PROPERTIES);
             }
             ModifiableValueMap values = metaResource.adaptTo(ModifiableValueMap.class);
-            for (Map.Entry<String, Object> entry : metadata.entrySet()) {
-                String key = entry.getKey();
-                key = key.replace('/', '-').replace(':', '.');
-                values.put(key, entry.getValue());
+            if (values != null) {
+                for (Map.Entry<String, Object> entry : metadata.entrySet()) {
+                    String key = entry.getKey();
+                    key = key.replace('/', '-').replace(':', '.');
+                    values.put(key, entry.getValue());
+                }
+            } else {
+                LOG.warn("Not modifable? {}", SlingResourceUtil.getPath(metaResource));
             }
         }
     }
@@ -268,6 +273,7 @@ public class AssetMetaPropertiesService implements MetaPropertiesService {
         }
     }
 
+    @Override
     public boolean adjustMetaProperties(ResourceResolver resolver, Resource resource) {
         boolean result = false;
         for (MetaStrategy strategy : strategies) {

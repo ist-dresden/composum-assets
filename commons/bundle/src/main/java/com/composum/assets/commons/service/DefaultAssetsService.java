@@ -190,7 +190,7 @@ public class DefaultAssetsService implements AssetsService {
             Resource assetResource = resolver.create(parent, name, IMAGE_PROPERTIES);
             Resource content = resolver.create(assetResource, ResourceUtil.CONTENT_NODE, IMAGE_CONTENT_PROPERTIES);
             ImageAsset imageAsset = new ImageAsset(context, assetResource);
-            AssetVariation variation = imageAsset.getOrCreateVariation(null);
+            AssetVariation variation = imageAsset.getOrCreateVariationForOriginal(null);
             AssetRendition rendition = variation.getOrCreateOriginal();
             session.move(tmpPath, rendition.getPath() + "/" + name);
             resolver.refresh();
@@ -227,7 +227,7 @@ public class DefaultAssetsService implements AssetsService {
 
     protected void storeImageOriginal(ImageAsset imageAsset, String variationKey, InputStream imageData)
             throws Exception {
-        AssetVariation variation = imageAsset.getOrCreateVariation(variationKey);
+        AssetVariation variation = imageAsset.getOrCreateVariationForOriginal(variationKey);
         AssetRendition rendition = variation.getOrCreateOriginal();
         FileHandle file = rendition.getFile();
         if (file == null) {
@@ -246,6 +246,7 @@ public class DefaultAssetsService implements AssetsService {
         adaptiveImageService.dropRenditions(imageAsset.getPath(), variationKey, null);
     }
 
+    @Override
     public void deleteAsset(Resource assetResource)
             throws PersistenceException {
         if (assetResource != null && !ResourceUtil.isNonExistingResource(assetResource)) {

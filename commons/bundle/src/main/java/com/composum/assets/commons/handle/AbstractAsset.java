@@ -77,7 +77,8 @@ public abstract class AbstractAsset extends AssetHandle<AssetConfig> {
         return variation;
     }
 
-    public AssetVariation getOrCreateVariation(String key) throws PersistenceException {
+    /** Retrieves or creates a variation to store an original - which is stored in the /content resource tree. */
+    public AssetVariation getOrCreateVariationForOriginal(String key) throws PersistenceException {
         if (StringUtils.isBlank(key)) {
             AssetConfig assetConfig = getConfig();
             if (assetConfig != null) {
@@ -100,6 +101,7 @@ public abstract class AbstractAsset extends AssetHandle<AssetConfig> {
         return variation;
     }
 
+    @Override
     public AssetConfig getConfig() {
         if (assetConfig == null) {
             List<ResourceHandle> cascade = getConfigCascade();
@@ -120,6 +122,7 @@ public abstract class AbstractAsset extends AssetHandle<AssetConfig> {
         return AssetConfigUtil.assetConfigCascade(resource);
     }
 
+    @Override
     public VariationConfig getChildConfig(Resource resource) {
         AbstractAsset asset = getAsset();
         List<ResourceHandle> variationCascade = asset.getConfigCascade(resource, VariationConfig.NODE_TYPE);
