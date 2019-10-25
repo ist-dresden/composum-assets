@@ -149,7 +149,7 @@ public class DefaultAssetsService implements AssetsService {
         ResourceResolver resolver = context.getResolver();
         String pathAndName = parentPath + "/" + name;
         Resource assetResource = resolver.getResource(pathAndName);
-        if (assetResource == null || !assetResource.isResourceType(AssetsConstants.NODE_TYPE_ASSET)) {
+        if (assetResource == null || !ResourceUtil.isNodeType(assetResource, AssetsConstants.NODE_TYPE_ASSET)) {
             createImageAsset(context, parentPath, name, variation, imageData);
         } else {
             changeImageAsset(context, assetResource, variation, imageData);
@@ -176,7 +176,7 @@ public class DefaultAssetsService implements AssetsService {
     @Override
     public void transformToImageAsset(BeanContext context, Resource imageResource)
             throws PersistenceException, RepositoryException {
-        if (!ResourceUtil.isResourceType(imageResource, AssetsConstants.NODE_TYPE_ASSET)) {
+        if (!ResourceUtil.isNodeType(imageResource, AssetsConstants.NODE_TYPE_ASSET)) {
             ResourceResolver resolver = context.getResolver();
             Resource parent = imageResource.getParent();
             String assetPath = imageResource.getPath();
@@ -200,7 +200,7 @@ public class DefaultAssetsService implements AssetsService {
     @Override
     public void transformToSimpleImage(BeanContext context, Resource assetResource)
             throws PersistenceException, RepositoryException {
-        if (!ResourceUtil.isResourceType(assetResource, JcrConstants.NT_FILE)) {
+        if (!ResourceUtil.isNodeType(assetResource, JcrConstants.NT_FILE)) {
             ResourceResolver resolver = context.getResolver();
             String assetPath = assetResource.getPath();
             ImageAsset imageAsset = new ImageAsset(context, assetResource);

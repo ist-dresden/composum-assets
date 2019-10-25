@@ -14,14 +14,17 @@ import java.io.InputStream;
 
 public interface AssetsService {
 
-    void uploadImageAsset(BeanContext context, String parentPath, String name,
+    /** Updates or creates the original rendition for a given variation. */
+    void uploadImageAsset(BeanContext context, String parentPath, String assetName,
                           String variation, InputStream imageData)
             throws Exception;
 
+    /** Updates the original rendition for a given variation. */
     Resource createImageAsset(BeanContext context, String parentPath, String name,
                               String variation, InputStream imageData)
             throws Exception;
 
+    /** Creates the original rendition for a given variation. */
     void changeImageAsset(BeanContext context, Resource assetResource,
                           String variation, InputStream imageData)
             throws Exception;
