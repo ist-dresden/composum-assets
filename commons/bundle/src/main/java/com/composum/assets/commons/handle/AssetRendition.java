@@ -18,6 +18,8 @@ import com.composum.sling.core.util.ResourceUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.resource.Resource;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.jcr.RepositoryException;
 import java.io.InputStream;
 import java.util.Calendar;
@@ -28,16 +30,15 @@ public class AssetRendition extends AssetHandle<RenditionConfig> {
     public static final String NODE_TYPE = AssetsConstants.NODE_TYPE_RENDITION;
     public static final String RESOURCE_TYPE = AssetsConstants.RESOURCE_TYPE_RENDITION;
 
+    @Nonnull
     protected AssetVariation variation;
     protected RenditionConfig config;
 
     private transient String mimeType;
     private transient FileHandle file;
+    private transient String transientsPath;
 
-    public AssetRendition() {
-    }
-
-    public AssetRendition(BeanContext context, Resource resource, AssetVariation variation) {
+    public AssetRendition(@Nonnull BeanContext context, @Nonnull Resource resource, @Nonnull AssetVariation variation) {
         super(context, resource);
         this.variation = variation;
         this.config = variation.getChildConfig(resource);
@@ -53,14 +54,34 @@ public class AssetRendition extends AssetHandle<RenditionConfig> {
         return null;
     }
 
+    @Nonnull
     public AbstractAsset getAsset() {
         return getVariation().getAsset();
     }
 
+    @Override
+    @Nonnull
+    public String getTransientsPath() {
+        if (transientsPath == null) {
+            StringBuilder pathBuf = new StringBuilder(getVariation().getTransientsPath()).append("/").append(getName());
+            AssetRendition original = getOriginal();
+            if (original != null && original.getFile() != null) {
+                String originalversion = versionMarker(original.getFile().getResource());
+                if (StringUtils.isNotBlank(originalversion)) {
+                    pathBuf.append("/").append(originalversion);
+                }
+            }
+            transientsPath = pathBuf.toString();
+        }
+        return transientsPath;
+    }
+
+    @Nullable
     public AssetRendition getOriginal() {
         return getVariation().getOriginal();
     }
 
+    @Nonnull
     public AssetVariation getVariation() {
         return variation;
     }

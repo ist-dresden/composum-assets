@@ -21,6 +21,8 @@ import org.apache.sling.api.resource.ResourceResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -154,49 +156,16 @@ public abstract class AbstractAsset extends AssetHandle<AssetConfig> {
         return getConfig().getCascadeForPath(configResourceType, targetPath);
     }
 
-    /**
-     * The path where transient renditions will be stored. This path is below
-     * {@value AssetsConstants#PATH_TRANSIENTS} and replicates the path of the asset with insertions of the version
-     * of the jcr:content node whereever there is one, to make sure an asset gets a new place whenever it would be
-     * rendered differently. For example, an asset
-     * <code>/content/foo/bar/somesite/assets/bloom.jpg/square/original/bloom</code>.jpg could get a {@link #getTransientsPath()}
-     * <code>/var/composum/assets/content/foo/bar/somesite/{sitecfgversion}/assets/{assetscfgversion}/bloom.jpg/{
-     * bloomcfgversion}</code> with the UUIDs of the version of the jcr:content node in somesite, assets and bloom.jpg
-     * inserted at the appropriate place. If this isn't a staged version, we try to use the last modification time
-     * with prefix {@value AssetsConstants#NODE_WORKSPACECONFIGURED} instead.
-     */
+    /* Doc inherited: @see AssetHandle#getTransientsPath() */
+    @Override
+    @Nonnull
     public String getTransientsPath() {
         if (transientsPath == null) {
             StringBuilder transientsPathBuilder = new StringBuilder();
             Resource stepResource = resource;
             while (stepResource != null) {
-                if (stepResource.getChild(ResourceUtil.CONTENT_NODE) != null) {
-                    String versionnodename = null;
-                    Calendar lastmodif = null;
-                    for (String subpath :
-                            new String[]{".", ResourceUtil.CONTENT_NODE, ResourceUtil.CONTENT_NODE + "/" + AssetConfig.CHILD_NAME}) {
-                        Resource subnode = stepResource.getChild(subpath);
-                        if (subnode != null) {
-                            versionnodename = ResourceHandle.use(subnode)
-                                    .getProperty(StagingConstants.PROP_REPLICATED_VERSION);
-                            if (StringUtils.isNotBlank(versionnodename)) { break; }
-                            if (ResourceUtil.isNodeType(subnode, ResourceUtil.MIX_LAST_MODIFIED)) {
-                                lastmodif = ResourceHandle.use(subnode)
-                                        .getProperty(ResourceUtil.PROP_LAST_MODIFIED, Calendar.class);
-                            }
-                            if (lastmodif != null) { break; }
-                        }
-                    }
-
-                    if (StringUtils.isBlank(versionnodename)) {
-                        versionnodename = AssetsConstants.NODE_WORKSPACECONFIGURED;
-                        if (lastmodif != null) {
-                            versionnodename = AssetsConstants.NODE_WORKSPACECONFIGURED + "-" + lastmodif.getTimeInMillis() / 1000;
-                        } else {
-                            LOG.warn("Workspace node {} should have {} to have reliable assets rendering.",
-                                    stepResource.getPath(), ResourceUtil.TYPE_LAST_MODIFIED);
-                        }
-                    }
+                String versionnodename = versionMarker(stepResource);
+                if (versionnodename != null) {
                     transientsPathBuilder.insert(0, versionnodename);
                     transientsPathBuilder.insert(0, "/");
                 }

@@ -135,6 +135,11 @@ public class AdaptiveImageServiceTest {
         ImageAsset asset = new ImageAsset(beanContext, asset1Resource);
         AssetRendition rendition = service.getOrCreateRendition(asset, "bar", "medium");
         ec.checkThat(IOUtils.toByteArray(rendition.getStream()).length, is(161679));
+        JcrTestUtils.printResourceRecursivelyAsJson(rendition.getResource());
+
+        ec.checkThat(rendition.getTransientsPath().replaceAll("workspace-[0-9]*", "workspace-time"),
+                is("/var/composum/assets/test/assets/site-1/theuuidofthereplicatedversion/images/" +
+                        "image-1.png/workspace-time/bar/medium/workspace-time"));
     }
 
     /** Creates a new asset. */
@@ -148,6 +153,9 @@ public class AdaptiveImageServiceTest {
         ec.onFailure(() -> JcrTestUtils.printResourceRecursivelyAsJson(assetResource));
         // the meta node is specified as autocreated, but Jackrabbit doesn't create it for unknown reasons in this
         // test. :-( So we have to do it manually to be able to commit.
+        // FIXME(hps,25.10.19) what about autocreated meta? Autocreating it doesn't work right now as it is
+        // configured in the nodetypes.cnd, but when I insert the base type, I get ItemExistsException on the JSON
+        // import.
         context.build().resource("test/assets/site-1/images/newasset.png/jcr:content/meta",
                 ResourceUtil.PROP_PRIMARY_TYPE, AssetsConstants.NODE_TYPE_META_DATA);
         context.resourceResolver().commit();

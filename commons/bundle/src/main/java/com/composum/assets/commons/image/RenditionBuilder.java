@@ -5,6 +5,7 @@
  */
 package com.composum.assets.commons.image;
 
+import com.composum.assets.commons.AssetsConstants;
 import com.composum.assets.commons.config.AssetConfig;
 import com.composum.assets.commons.config.RenditionConfig;
 import com.composum.assets.commons.config.VariationConfig;
@@ -15,7 +16,6 @@ import com.composum.assets.commons.handle.ImageAsset;
 import com.composum.sling.core.BeanContext;
 import com.composum.sling.core.concurrent.LazyCreationService;
 import com.composum.sling.core.util.ResourceUtil;
-import org.apache.commons.lang3.Validate;
 import org.apache.jackrabbit.JcrConstants;
 import org.apache.sling.api.resource.ModifiableValueMap;
 import org.apache.sling.api.resource.PersistenceException;
@@ -29,41 +29,44 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Map;
 
 public class RenditionBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(RenditionBuilder.class);
 
-    public static final HashMap<String, Object> CRUD_VARIATION_PROPS;
+    public static final Map<String, Object> CRUD_VARIATION_PROPS;
 
     static {
         CRUD_VARIATION_PROPS = new HashMap<>();
-        CRUD_VARIATION_PROPS.put(ResourceUtil.PROP_PRIMARY_TYPE, "cpa:Variation");
+        CRUD_VARIATION_PROPS.put(ResourceUtil.PROP_PRIMARY_TYPE, AssetsConstants.NODE_TYPE_VARIATION);
         CRUD_VARIATION_PROPS.put(ResourceUtil.PROP_RESOURCE_TYPE, AssetVariation.RESOURCE_TYPE);
     }
 
-    public static final HashMap<String, Object> CRUD_RENDITION_PROPS;
+    public static final Map<String, Object> CRUD_RENDITION_PROPS;
 
     static {
         CRUD_RENDITION_PROPS = new HashMap<>();
-        CRUD_RENDITION_PROPS.put(ResourceUtil.PROP_PRIMARY_TYPE, "cpa:Rendition");
+        CRUD_RENDITION_PROPS.put(ResourceUtil.PROP_PRIMARY_TYPE, AssetsConstants.NODE_TYPE_RENDITION);
         CRUD_RENDITION_PROPS.put(ResourceUtil.PROP_RESOURCE_TYPE, AssetRendition.RESOURCE_TYPE);
         CRUD_RENDITION_PROPS.put(AbstractAsset.VALID, false);
         CRUD_RENDITION_PROPS.put(JcrConstants.JCR_MIXINTYPES, new String[]{JcrConstants.MIX_LOCKABLE});
     }
 
-    public static final HashMap<String, Object> CRUD_FILE_PROPS;
+    public static final Map<String, Object> CRUD_FILE_PROPS;
 
     static {
         CRUD_FILE_PROPS = new HashMap<>();
         CRUD_FILE_PROPS.put(ResourceUtil.PROP_PRIMARY_TYPE, "nt:file");
     }
 
-    public static final HashMap<String, Object> CRUD_RESOURCE_PROPS;
+    public static final Map<String, Object> CRUD_RESOURCE_PROPS;
 
     static {
         CRUD_RESOURCE_PROPS = new HashMap<>();
         CRUD_RESOURCE_PROPS.put(ResourceUtil.PROP_PRIMARY_TYPE, "nt:resource");
+        CRUD_RESOURCE_PROPS.put(JcrConstants.JCR_MIXINTYPES,
+                new String[]{ResourceUtil.TYPE_VERSIONABLE, ResourceUtil.TYPE_LAST_MODIFIED});
     }
 
     protected final BuilderContext context;
@@ -172,9 +175,9 @@ public class RenditionBuilder {
             @Override
             public Resource createParent(ResourceResolver resolver, Resource parentsParent, String parentName,
                                          int level) throws RepositoryException, PersistenceException {
-                Validate.inclusiveBetween(1, 1, level, "Bug: level %s not expected for %s", level, parentsParent);
                 LOG.debug("Creating parent {}/{}", parentsParent.getPath(), parentName);
-                return resolver.create(parentsParent, parentName, CRUD_VARIATION_PROPS);
+                Map<String, Object> props = CRUD_VARIATION_PROPS;
+                return resolver.create(parentsParent, parentName, props);
             }
         };
     }

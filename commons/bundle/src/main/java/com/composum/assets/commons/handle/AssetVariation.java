@@ -16,6 +16,8 @@ import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,10 +35,11 @@ public class AssetVariation extends AssetHandle<VariationConfig> {
         RENDITION_PROPERTIES.put(ResourceUtil.PROP_RESOURCE_TYPE, AssetsConstants.RESOURCE_TYPE_RENDITION);
     }
 
+    @Nonnull
     protected final AbstractAsset asset;
     protected final VariationConfig config;
 
-    public AssetVariation(BeanContext context, Resource resource, AbstractAsset asset) {
+    public AssetVariation(@Nonnull BeanContext context, @Nonnull Resource resource, @Nonnull AbstractAsset asset) {
         super(context, resource);
         this.asset = asset;
         this.config = asset.getChildConfig(resource);
@@ -54,10 +57,18 @@ public class AssetVariation extends AssetHandle<VariationConfig> {
         return renditionCascade != null && renditionCascade.size() > 0 ? new RenditionConfig(getConfig(), renditionCascade) : null;
     }
 
+    @Override
+    @Nonnull
+    public String getTransientsPath() {
+        return getAsset().getTransientsPath() + "/" + getName();
+    }
+
+    @Nonnull
     public AbstractAsset getAsset() {
         return asset;
     }
 
+    @Nullable
     public AssetRendition getOriginal() {
         AssetRendition original = getRendition(ConfigHandle.ORIGINAL);
         if (original == null) {
