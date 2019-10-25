@@ -11,10 +11,12 @@ import com.composum.sling.core.mapping.MappingRules;
 import com.composum.sling.core.util.JsonUtil;
 import com.composum.sling.platform.testing.testutil.ErrorCollectorAlwaysPrintingFailures;
 import com.google.gson.stream.JsonWriter;
+import org.apache.commons.io.IOUtils;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.apache.sling.testing.mock.sling.junit.SlingContext;
+import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -22,6 +24,7 @@ import org.junit.Test;
 
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 
@@ -80,12 +83,15 @@ public class AdaptiveImageServiceTest {
         Resource assetResource = context.resourceResolver().getResource("/test/assets/site-1/images/image-1.png");
         ImageAsset asset = new ImageAsset(beanContext, assetResource);
         assertTrue(asset.isValid());
+        ec.checkThat(asset.getTransientsPath().replaceAll("workspace-[0-9]*", "workspace-time"),
+                is("/var/composum/assets/test/assets/site-1/theuuidofthereplicatedversion/images/image-1.png/workspace-time"));
+
         AssetRendition rendition = service.getOrCreateRendition(asset, "thumbnail", "medium");
         assertNotNull(rendition);
         assertTrue(rendition.isValid());
-        assertNotNull(rendition.getStream());
-        ec.checkThat(asset.getTransientsPath().replaceAll("workspace-[0-9]*", "workspace-time"),
-                is("/var/composum/assets/test/assets/site-1/theuuidofthereplicatedversion/images/image-1.png/workspace-time"));
+        InputStream stream = rendition.getStream();
+        assertNotNull(stream);
+        ec.checkThat((double) IOUtils.toByteArray(stream).length, Matchers.closeTo(189558.0, 1000.0));
     }
 
     /**
