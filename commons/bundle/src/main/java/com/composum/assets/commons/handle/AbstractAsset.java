@@ -18,6 +18,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Calendar;
 import java.util.HashMap;
@@ -25,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class AbstractAsset extends AssetHandle<AssetConfig> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractAsset.class);
 
     public static final Map<String, Object> VARIATION_PROPERTIES;
 
@@ -162,8 +166,16 @@ public abstract class AbstractAsset extends AssetHandle<AssetConfig> {
                     transientsPath.insert(0, versionUuid);
                     transientsPath.insert(0, "/");
                 } else if (ResourceUtil.isNodeType(contentNode, ResourceUtil.MIX_VERSIONABLE)) {
-                    // FIXME(hps,24.10.19) how to integrate last modification date? Add time?
-                    transientsPath.insert(0, AssetsConstants.NODE_WORKSPACECONFIGURED);
+                    String nodename = AssetsConstants.NODE_WORKSPACECONFIGURED;
+                    if (ResourceUtil.isNodeType(contentNode, ResourceUtil.MIX_LAST_MODIFIED)) {
+                        Calendar lastmodif = ResourceHandle.use(contentNode)
+                                .getProperty(ResourceUtil.PROP_LAST_MODIFIED, Calendar.class);
+                        nodename = nodename + "-" + lastmodif.getTimeInMillis() / 1000;
+                    } else {
+                        LOG.warn("Workspace node {} should have {} to have reliable assets rendering.",
+                                stepResource.getPath(), ResourceUtil.TYPE_LAST_MODIFIED);
+                    }
+                    transientsPath.insert(0, nodename);
                     transientsPath.insert(0, "/");
                 }
             }

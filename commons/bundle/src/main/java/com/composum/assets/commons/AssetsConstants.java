@@ -72,7 +72,7 @@ public class AssetsConstants {
 
     /**
      * Path particle for transient paths when the configuration is a versionable but we render for the workspace, as
-     * opposed to a checked in version.
+     * opposed to a checked in version. If availale, the last modification time is appended.
      */
     public static final String NODE_WORKSPACECONFIGURED = "workspace";
 

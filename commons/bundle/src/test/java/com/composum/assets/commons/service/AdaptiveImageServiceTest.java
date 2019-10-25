@@ -9,14 +9,12 @@ import com.composum.sling.core.concurrent.LazyCreationServiceImpl;
 import com.composum.sling.core.concurrent.SemaphoreSequencer;
 import com.composum.sling.core.mapping.MappingRules;
 import com.composum.sling.core.util.JsonUtil;
-import com.composum.sling.core.util.ResourceUtil;
 import com.composum.sling.platform.testing.testutil.ErrorCollectorAlwaysPrintingFailures;
 import com.google.gson.stream.JsonWriter;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.apache.sling.testing.mock.sling.junit.SlingContext;
-import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -86,7 +84,8 @@ public class AdaptiveImageServiceTest {
         assertNotNull(rendition);
         assertTrue(rendition.isValid());
         assertNotNull(rendition.getStream());
-        ec.checkThat(asset.getTransientsPath(), is("/var/composum/assets/test/assets/site-1/theuuidofthereplicatedversion/images/image-1.png/workspace"));
+        ec.checkThat(asset.getTransientsPath().replaceAll("workspace-[0-9]*", "workspace-time"),
+                is("/var/composum/assets/test/assets/site-1/theuuidofthereplicatedversion/images/image-1.png/workspace-time"));
     }
 
     /**
