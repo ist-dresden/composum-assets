@@ -13,6 +13,7 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.List;
 
 public abstract class AssetHandle<Config extends ConfigHandle> extends AbstractSlingBean {
@@ -67,19 +68,11 @@ public abstract class AssetHandle<Config extends ConfigHandle> extends AbstractS
             ConfigHandle childConfig = getChildConfig(child);
             if (childConfig != null) {
                 List<String> categories = childConfig.getCategories();
-                for (String category : categories) {
-                    if (category.equals(key)) {
-                        return child;
-                    }
-                }
+                if (categories.contains(key)) { return child; }
             }
             String[] categories = child.adaptTo(ValueMap.class)
                     .get(ConfigHandle.CATEGORIES, new String[0]);
-            for (String category : categories) {
-                if (category.equals(key)) {
-                    return child;
-                }
-            }
+            if (Arrays.asList(categories).contains(key)) { return child; }
             if (child.getName().equals(key)) {
                 byName = child;
             }
