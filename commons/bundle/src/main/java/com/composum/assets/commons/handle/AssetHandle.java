@@ -42,17 +42,29 @@ public abstract class AssetHandle<Config extends ConfigHandle> extends AbstractS
 
     public abstract Config getConfig();
 
-    protected abstract ConfigHandle getChildConfig(Resource asset);
+    /**
+     * Returns the configuration for a variation (configPath = variation-name) or a rendition (configPath =
+     * variation-name/rendition-name).
+     */
+    protected abstract ConfigHandle getChildConfig(String targetPath);
 
     /**
-     * The path where transient renditions will be stored. This path is below
+     * The configuration target path of this item - "." in case of an asset, "variation" in case of a variation,
+     * "variationname/renditionname" in case of a rendition.
+     */
+    protected abstract String getConfigTargetPath();
+
+    /**
+     * The path where transient renditions of this will be stored. This path is below
      * {@value AssetsConstants#PATH_TRANSIENTS} and replicates the path of the asset with insertions of the version
      * of the jcr:content node whereever there is one, to make sure an asset gets a new place whenever it would be
-     * rendered differently. For example, an asset
-     * <code>/content/foo/bar/somesite/assets/bloom.jpg/square/original/bloom</code>.jpg could get a {@link #getTransientsPath()}
+     * rendered differently. For example, a rendition
+     * <code>/content/foo/bar/somesite/assets/bloom.jpg/square/original/bloom/square/medium</code>.jpg could get a
+     * {@link #getTransientsPath()}
      * <code>/var/composum/assets/content/foo/bar/somesite/{sitecfgversion}/assets/{assetscfgversion}/bloom.jpg/{
-     * bloomcfgversion}</code> with the UUIDs of the version of the jcr:content node in somesite, assets and bloom.jpg
-     * inserted at the appropriate place. If this isn't a staged version, we try to use the last modification time
+     * bloomcfgversion}/square/{squareoriginalversion}/medium</code> with the UUIDs of the version of the jcr:content
+     * node in somesite, assets and bloom.jpg, and the version of the original of the square variation inserted
+     * at the appropriate place. If this isn't a staged version, we try to use the last modification time
      * with prefix {@value AssetsConstants#NODE_WORKSPACECONFIGURED} instead.
      */
     @Nonnull
@@ -79,18 +91,22 @@ public abstract class AssetHandle<Config extends ConfigHandle> extends AbstractS
         return resource.getPath();
     }
 
-    protected Resource findChildByCategoryOrName(String type, String... key) {
+    protected Resource findChildByCategoryOrName(Resource someResource, String type, String... key) {
         Resource result = null;
         for (int i = 0; result == null && i < key.length; i++) {
-            result = retrieveChildByCategoryOrName(type, key[i]);
+            result = retrieveChildByCategoryOrName(someResource, type, key[i]);
         }
         return result;
     }
 
-    protected Resource retrieveChildByCategoryOrName(String type, String key) {
+    protected Resource retrieveChildByCategoryOrName(Resource someResource, String type, String key) {
         Resource byName = null;
-        for (ResourceHandle child : resource.getChildrenByType(type)) {
-            ConfigHandle childConfig = getChildConfig(child);
+        for (ResourceHandle child : ResourceHandle.use(someResource).getChildrenByType(type)) {
+            String childCfgTargetPath = child.getName();
+            if (StringUtils.isNotBlank(getConfigTargetPath())) {
+                childCfgTargetPath = getConfigTargetPath() + "/" + childCfgTargetPath;
+            }
+            ConfigHandle childConfig = getChildConfig(childCfgTargetPath);
             if (childConfig != null) {
                 List<String> categories = childConfig.getCategories();
                 if (categories.contains(key)) { return child; }

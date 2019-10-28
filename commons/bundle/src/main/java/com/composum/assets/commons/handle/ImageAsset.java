@@ -38,6 +38,7 @@ public class ImageAsset extends AbstractAsset {
         return super.isValid() && resource.isResourceType(IMAGE_RESOURCE_TYPE);
     }
 
+    @Override
     public AbstractAsset getAsset() {
         return this;
     }

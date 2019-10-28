@@ -13,16 +13,16 @@ import com.composum.assets.commons.util.AssetConfigUtil;
 import com.composum.sling.core.BeanContext;
 import com.composum.sling.core.ResourceHandle;
 import com.composum.sling.core.util.ResourceUtil;
-import com.composum.sling.platform.staging.StagingConstants;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.sling.api.resource.NonExistingResource;
 import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -76,11 +76,34 @@ public abstract class AbstractAsset extends AssetHandle<AssetConfig> {
         return variation != null && !variation.equals(context) ? variation.getOriginal() : null;
     }
 
+    /**
+     * Returns the variation if there is a resource for it.
+     */
+    @Nullable
     public AssetVariation getVariation(String... keyChain) {
         AssetVariation variation = null;
-        Resource variationResource = findChildByCategoryOrName(AssetVariation.NODE_TYPE, keyChain);
+        Resource variationResource = findChildByCategoryOrName(resource, AssetVariation.NODE_TYPE, keyChain);
         if (variationResource != null) {
             variation = new AssetVariation(context, variationResource, this);
+        } else {
+            Resource transientsResource = getResolver().getResource(getAsset().getTransientsPath());
+            if (transientsResource != null) {
+                Resource transientChild = findChildByCategoryOrName(transientsResource, AssetVariation.NODE_TYPE, keyChain);
+                if (transientChild != null) {
+                    variation = new AssetVariation(context, transientChild, this);
+                }
+            }
+        }
+        return variation;
+    }
+
+    /** Returns a variation for the given config, possibly on a NonExistingResource if there was nothing created yet. */
+    @Nonnull
+    public AssetVariation giveVariation(@Nonnull VariationConfig config) {
+        AssetVariation variation = getVariation(config.getName());
+        if (variation == null) {
+            variation = new AssetVariation(context, new NonExistingResource(getResolver(), resource.getPath() +
+                    "/" + config.getName()), this);
         }
         return variation;
     }
@@ -131,29 +154,19 @@ public abstract class AbstractAsset extends AssetHandle<AssetConfig> {
     }
 
     @Override
-    public VariationConfig getChildConfig(Resource resource) {
+    public VariationConfig getChildConfig(String targetPath) {
         AbstractAsset asset = getAsset();
-        List<ResourceHandle> variationCascade = asset.getConfigCascade(resource, VariationConfig.NODE_TYPE);
+        List<ResourceHandle> variationCascade = asset.getConfigCascade(targetPath, VariationConfig.NODE_TYPE);
         return variationCascade != null && variationCascade.size() > 0 ? new VariationConfig(getConfig(), variationCascade) : null;
     }
 
-    public List<ResourceHandle> getConfigCascade(Resource asset, String configResourceType) {
-        String targetPath = asset.getPath();
-        String assetPath = getPath();
-        if (targetPath.startsWith(assetPath)) {
-            targetPath = targetPath.substring(assetPath.length());
-        }
-        while (targetPath.startsWith("/")) {
-            targetPath = targetPath.substring(1);
-        }
-        String[] segments = targetPath.split("/");
-        StringBuilder path = new StringBuilder();
-        path.append(segments[0]);
-        if (segments.length > 1) {
-            path.append("/").append(segments[1]);
-        }
-        targetPath = path.toString();
+    public List<ResourceHandle> getConfigCascade(String targetPath, String configResourceType) {
         return getConfig().getCascadeForPath(configResourceType, targetPath);
+    }
+
+    @Override
+    protected String getConfigTargetPath() {
+        return "";
     }
 
     /* Doc inherited: @see AssetHandle#getTransientsPath() */

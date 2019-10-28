@@ -89,6 +89,7 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
         return renditionTransformer;
     }
 
+    @Override
     public AssetRendition getRendition(ImageAsset asset,
                                        String variationKey, String renditionKey) throws RepositoryException {
         AssetRendition rendition = null;
@@ -96,12 +97,15 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
         if (variation != null) {
             rendition = variation.getRendition(renditionKey);
         }
-        if (null != rendition && lazyCreationService.isInitialized(rendition.getResource()) && rendition.isValid()) {
+        if (null != rendition && rendition.isValid() &&
+                (lazyCreationService.isInitialized(rendition.getResource()) || rendition.isOriginal())
+        ) {
             return rendition;
         }
         return null;
     }
 
+    @Override
     public RenditionConfig getRenditionConfig(ImageAsset asset,
                                               String variationKey, String renditionKey) {
         RenditionConfig renditionConfig = null;
@@ -113,6 +117,7 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
         return renditionConfig;
     }
 
+    @Override
     public RenditionConfig findRenditionConfig(ImageAsset asset,
                                                String variationKey, String renditionKey) {
         RenditionConfig renditionConfig = null;
@@ -124,6 +129,7 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
         return renditionConfig;
     }
 
+    @Override
     public AssetRendition getOrCreateRendition(ImageAsset asset,
                                                String variationKey, String renditionKey)
             throws LoginException, RepositoryException, IOException {
@@ -151,6 +157,7 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
         return rendition;
     }
 
+    @Override
     public void dropRenditions(String path,
                                String variationKey, String renditionKey)
             throws Exception {

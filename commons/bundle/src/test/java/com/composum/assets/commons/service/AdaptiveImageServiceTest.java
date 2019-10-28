@@ -4,23 +4,18 @@ import com.composum.assets.commons.AssetsConstants;
 import com.composum.assets.commons.handle.AssetRendition;
 import com.composum.assets.commons.handle.ImageAsset;
 import com.composum.assets.commons.image.DefaultRenditionTransformer;
-import com.composum.assets.commons.servlet.AdaptiveImageServlet;
 import com.composum.sling.core.BeanContext;
 import com.composum.sling.core.concurrent.LazyCreationServiceImpl;
 import com.composum.sling.core.concurrent.SemaphoreSequencer;
-import com.composum.sling.core.mapping.MappingRules;
-import com.composum.sling.core.util.JsonUtil;
 import com.composum.sling.core.util.ResourceUtil;
 import com.composum.sling.platform.testing.testutil.ErrorCollectorAlwaysPrintingFailures;
 import com.composum.sling.platform.testing.testutil.JcrTestUtils;
-import com.google.gson.stream.JsonWriter;
 import org.apache.commons.io.IOUtils;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.apache.sling.testing.mock.sling.junit.SlingContext;
-import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -30,9 +25,9 @@ import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.StringWriter;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -44,7 +39,6 @@ public class AdaptiveImageServiceTest {
 
     @Rule
     public final SlingContext context = new SlingContext(ResourceResolverType.JCR_OAK);
-    private AdaptiveImageServlet servlet;
     private AdaptiveImageService service;
     private AssetsService assetService;
     private BeanContext beanContext;
@@ -88,13 +82,24 @@ public class AdaptiveImageServiceTest {
     }
 
     @Test
+    public void retrieveOriginal() throws Exception {
+        ImageAsset asset = new ImageAsset(beanContext, asset1Resource);
+        AssetRendition rendition = service.getRendition(asset, "wide", "original");
+        assertNotNull(rendition);
+        assertTrue(rendition.isValid());
+        InputStream stream = rendition.getStream();
+        assertNotNull(stream);
+        ec.checkThat(IOUtils.toByteArray(stream).length, is(120063));
+    }
+
+    @Test
     public void retrieveImage() throws Exception {
         ImageAsset asset = new ImageAsset(beanContext, asset1Resource);
         assertTrue(asset.isValid());
         ec.checkThat(asset.getTransientsPath().replaceAll("workspace-[0-9]*", "workspace-time"),
                 is("/var/composum/assets/test/assets/site-1/theuuidofthereplicatedversion/images/image-1.png/workspace-time"));
-        ec.onFailure(() -> JcrTestUtils.printResourceRecursivelyAsJson(context.resourceResolver().getResource(
-                "/test/assets/site-1/images/image-1.png/thumbnail")));
+        ec.onFailure(() -> JcrTestUtils.printResourceRecursivelyAsJson(context.resourceResolver(),
+                "/test/assets/site-1/images/image-1.png/thumbnail"));
 
         AssetRendition rendition = service.getOrCreateRendition(asset, "thumbnail", "medium");
         assertNotNull(rendition);
@@ -138,11 +143,10 @@ public class AdaptiveImageServiceTest {
         JcrTestUtils.printResourceRecursivelyAsJson(rendition.getResource());
 
         ec.checkThat(rendition.getTransientsPath().replaceAll("workspace-[0-9]*", "workspace-time"),
-                is("/var/composum/assets/test/assets/site-1/theuuidofthereplicatedversion/images/" +
-                        "image-1.png/workspace-time/bar/medium/workspace-time"));
+                is("/var/composum/assets/test/assets/site-1/theuuidofthereplicatedversion/images" +
+                        "/image-1.png/workspace-time/bar/workspace-time/medium"));
     }
 
-    /** Creates a new asset. */
     @Test
     public void createNewAsset() throws Exception {
         InputStream stream = getClass().getClassLoader().getResourceAsStream(
@@ -150,7 +154,8 @@ public class AdaptiveImageServiceTest {
         assertNotNull(stream);
         Resource assetResource = assetService.createImageAsset(beanContext, "/test/assets/site-1/images",
                 "newasset.png", "bar", stream);
-        ec.onFailure(() -> JcrTestUtils.printResourceRecursivelyAsJson(assetResource));
+        ec.onFailure(() -> JcrTestUtils.printResourceRecursivelyAsJson(context.resourceResolver(), assetResource.getPath()));
+        ec.onFailure(() -> JcrTestUtils.printResourceRecursivelyAsJson(context.resourceResolver(), AssetsConstants.PATH_TRANSIENTS));
         // the meta node is specified as autocreated, but Jackrabbit doesn't create it for unknown reasons in this
         // test. :-( So we have to do it manually to be able to commit.
         // FIXME(hps,25.10.19) what about autocreated meta? Autocreating it doesn't work right now as it is
@@ -163,6 +168,15 @@ public class AdaptiveImageServiceTest {
         ImageAsset asset = new ImageAsset(beanContext, assetResource);
         AssetRendition rendition = service.getOrCreateRendition(asset, "bar", "medium");
         ec.checkThat(IOUtils.toByteArray(rendition.getStream()).length, is(161679));
+    }
+
+    @Test
+    public void accessInvalidAsset() throws Exception {
+        ImageAsset asset = new ImageAsset(beanContext, asset1Resource);
+        ec.checkThat(service.getRendition(asset, "bar", "invalid"), nullValue());
+        ec.checkThat(service.getRendition(asset, "invalid", "medium"), nullValue());
+        ec.checkThat(service.getOrCreateRendition(asset, "bar", "invalid"), nullValue());
+        ec.checkThat(service.getOrCreateRendition(asset, "invalid", "medium"), nullValue());
     }
 
 }

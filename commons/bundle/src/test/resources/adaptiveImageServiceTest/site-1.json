@@ -23,6 +23,7 @@
           "jcr:primaryType": "cpa:Rendition",
           "jcr:createdBy": "admin",
           "jcr:created": "Tue Jul 04 2017 18:00:47 GMT+0200",
+          "valid": "true",
           "sling:resourceType": "composum/assets/manager/image/rendition"
         }
       },
@@ -62,6 +63,7 @@
           "jcr:primaryType": "cpa:Rendition",
           "jcr:createdBy": "admin",
           "jcr:created": "Tue Jul 04 2017 18:00:47 GMT+0200",
+          "valid": "true",
           "sling:resourceType": "composum/assets/manager/image/rendition"
         }
       }

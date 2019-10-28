@@ -25,6 +25,10 @@ import java.io.InputStream;
 import java.util.Calendar;
 import java.util.List;
 
+/**
+ * Models a rendition of an asset variation. The resource can be at /content if it's an original, or at
+ * {@value AssetsConstants#PATH_TRANSIENTS} if it's a transient rendering.
+ */
 public class AssetRendition extends AssetHandle<RenditionConfig> {
 
     public static final String NODE_TYPE = AssetsConstants.NODE_TYPE_RENDITION;
@@ -41,7 +45,7 @@ public class AssetRendition extends AssetHandle<RenditionConfig> {
     public AssetRendition(@Nonnull BeanContext context, @Nonnull Resource resource, @Nonnull AssetVariation variation) {
         super(context, resource);
         this.variation = variation;
-        this.config = variation.getChildConfig(resource);
+        this.config = variation.getChildConfig(getConfigTargetPath());
     }
 
     @Override
@@ -50,8 +54,13 @@ public class AssetRendition extends AssetHandle<RenditionConfig> {
     }
 
     @Override
-    public ConfigHandle getChildConfig(Resource resource) {
+    public ConfigHandle getChildConfig(String targetPath) {
         return null;
+    }
+
+    @Override
+    protected String getConfigTargetPath() {
+        return getVariation().getName() + "/" + getName();
     }
 
     @Nonnull
@@ -62,23 +71,17 @@ public class AssetRendition extends AssetHandle<RenditionConfig> {
     @Override
     @Nonnull
     public String getTransientsPath() {
-        if (transientsPath == null) {
-            StringBuilder pathBuf = new StringBuilder(getVariation().getTransientsPath()).append("/").append(getName());
-            AssetRendition original = getOriginal();
-            if (original != null && original.getFile() != null) {
-                String originalversion = versionMarker(original.getFile().getResource());
-                if (StringUtils.isNotBlank(originalversion)) {
-                    pathBuf.append("/").append(originalversion);
-                }
-            }
-            transientsPath = pathBuf.toString();
-        }
-        return transientsPath;
+        return getVariation().getTransientsPath() + "/" + getName();
     }
 
+    /** The original of the rendition - which is the original of the variation. */
     @Nullable
     public AssetRendition getOriginal() {
         return getVariation().getOriginal();
+    }
+
+    public boolean isOriginal() {
+        return this.equals(getOriginal());
     }
 
     @Nonnull

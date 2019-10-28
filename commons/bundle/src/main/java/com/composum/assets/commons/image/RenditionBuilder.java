@@ -13,9 +13,11 @@ import com.composum.assets.commons.handle.AbstractAsset;
 import com.composum.assets.commons.handle.AssetRendition;
 import com.composum.assets.commons.handle.AssetVariation;
 import com.composum.assets.commons.handle.ImageAsset;
+import com.composum.assets.commons.service.AdaptiveImageService;
 import com.composum.sling.core.BeanContext;
 import com.composum.sling.core.concurrent.LazyCreationService;
 import com.composum.sling.core.util.ResourceUtil;
+import com.google.common.collect.ImmutableMap;
 import org.apache.jackrabbit.JcrConstants;
 import org.apache.sling.api.resource.ModifiableValueMap;
 import org.apache.sling.api.resource.PersistenceException;
@@ -24,6 +26,7 @@ import org.apache.sling.api.resource.ResourceResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import javax.jcr.RepositoryException;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -35,51 +38,61 @@ public class RenditionBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(RenditionBuilder.class);
 
-    public static final Map<String, Object> CRUD_VARIATION_PROPS;
+    protected static final Map<String, Object> VARIATION_PROPS;
 
     static {
-        CRUD_VARIATION_PROPS = new HashMap<>();
-        CRUD_VARIATION_PROPS.put(ResourceUtil.PROP_PRIMARY_TYPE, AssetsConstants.NODE_TYPE_VARIATION);
-        CRUD_VARIATION_PROPS.put(ResourceUtil.PROP_RESOURCE_TYPE, AssetVariation.RESOURCE_TYPE);
+        VARIATION_PROPS = new HashMap<>();
+        VARIATION_PROPS.put(ResourceUtil.PROP_PRIMARY_TYPE, AssetsConstants.NODE_TYPE_VARIATION);
+        VARIATION_PROPS.put(ResourceUtil.PROP_RESOURCE_TYPE, AssetVariation.RESOURCE_TYPE);
     }
 
-    public static final Map<String, Object> CRUD_RENDITION_PROPS;
+    protected static final Map<String, Object> RENDITION_PROPS;
 
     static {
-        CRUD_RENDITION_PROPS = new HashMap<>();
-        CRUD_RENDITION_PROPS.put(ResourceUtil.PROP_PRIMARY_TYPE, AssetsConstants.NODE_TYPE_RENDITION);
-        CRUD_RENDITION_PROPS.put(ResourceUtil.PROP_RESOURCE_TYPE, AssetRendition.RESOURCE_TYPE);
-        CRUD_RENDITION_PROPS.put(AbstractAsset.VALID, false);
-        CRUD_RENDITION_PROPS.put(JcrConstants.JCR_MIXINTYPES, new String[]{JcrConstants.MIX_LOCKABLE});
+        RENDITION_PROPS = new HashMap<>();
+        RENDITION_PROPS.put(ResourceUtil.PROP_PRIMARY_TYPE, AssetsConstants.NODE_TYPE_RENDITION);
+        RENDITION_PROPS.put(ResourceUtil.PROP_RESOURCE_TYPE, AssetRendition.RESOURCE_TYPE);
+        RENDITION_PROPS.put(AbstractAsset.VALID, false);
+        RENDITION_PROPS.put(JcrConstants.JCR_MIXINTYPES, new String[]{JcrConstants.MIX_LOCKABLE});
     }
 
-    public static final Map<String, Object> CRUD_FILE_PROPS;
+    protected static final Map<String, Object> FILE_PROPS;
 
     static {
-        CRUD_FILE_PROPS = new HashMap<>();
-        CRUD_FILE_PROPS.put(ResourceUtil.PROP_PRIMARY_TYPE, "nt:file");
+        FILE_PROPS = new HashMap<>();
+        FILE_PROPS.put(ResourceUtil.PROP_PRIMARY_TYPE, "nt:file");
     }
 
-    public static final Map<String, Object> CRUD_RESOURCE_PROPS;
+    protected static final Map<String, Object> RESOURCE_PROPS;
 
     static {
-        CRUD_RESOURCE_PROPS = new HashMap<>();
-        CRUD_RESOURCE_PROPS.put(ResourceUtil.PROP_PRIMARY_TYPE, "nt:resource");
-        CRUD_RESOURCE_PROPS.put(JcrConstants.JCR_MIXINTYPES,
+        RESOURCE_PROPS = new HashMap<>();
+        RESOURCE_PROPS.put(ResourceUtil.PROP_PRIMARY_TYPE, "nt:resource");
+        RESOURCE_PROPS.put(JcrConstants.JCR_MIXINTYPES,
                 new String[]{ResourceUtil.TYPE_VERSIONABLE, ResourceUtil.TYPE_LAST_MODIFIED});
     }
 
-    protected final BuilderContext context;
-    protected final ImageAsset asset;
-    protected final AssetConfig assetConfig;
-    protected final VariationConfig variationConfig;
-    protected final RenditionConfig renditionConfig;
-    protected final String renditionName;
-    protected final String variationName;
-    protected final String renditionPath;
-    protected final String variationPath;
+    protected static final Map<String, Object> FOLDER_PROPS =
+            ImmutableMap.of(ResourceUtil.PROP_PRIMARY_TYPE, ResourceUtil.TYPE_SLING_FOLDER);
 
-    public RenditionBuilder(ImageAsset asset, RenditionConfig config, BuilderContext context)
+    @Nonnull
+    protected final BuilderContext context;
+    @Nonnull
+    protected final ImageAsset asset;
+    @Nonnull
+    protected final AssetConfig assetConfig;
+    @Nonnull
+    protected final VariationConfig variationConfig;
+    @Nonnull
+    protected final BeanContext.Service beanContext;
+    @Nonnull
+    protected final RenditionConfig renditionConfig;
+    @Nonnull
+    protected final String transientsPath;
+    @Nonnull
+    protected final AssetVariation variation;
+
+    public RenditionBuilder(@Nonnull ImageAsset asset, @Nonnull RenditionConfig config, @Nonnull BuilderContext context)
             throws PersistenceException {
 
         if (!asset.getResource().isValid()) {
@@ -89,43 +102,35 @@ public class RenditionBuilder {
         this.asset = asset;
         renditionConfig = config;
         this.context = context;
+        beanContext = new BeanContext.Service(asset.getResolver());
 
         variationConfig = renditionConfig.getVariation();
         assetConfig = variationConfig.getAssetConfig();
 
-        renditionName = renditionConfig.getName();
-        variationName = variationConfig.getName();
+        variation = asset.giveVariation(variationConfig);
+        AssetRendition rendition = variation.giveRendition(renditionConfig);
+        transientsPath = rendition.getTransientsPath();
 
-        variationPath = asset.getPath() + "/" + variationName;
-        renditionPath = variationPath + "/" + renditionName;
     }
 
     /** Retrieves or creates a rendition. */
     public AssetRendition getOrCreateRendition() throws RepositoryException, PersistenceException {
-        return context.getLazyCreationService().getOrCreate(asset.getResolver(), renditionPath,
-                getRetrievalStrategy(), getCreationStrategy(), getInitializationStrategy(), getParentStrategy());
-    }
-
-    protected void createRendition(ResourceResolver resolver, Resource renditionPath)
-            throws IOException, RepositoryException {
-        BeanContext.Service beanContext = new BeanContext.Service(resolver);
-        AssetVariation variation = new AssetVariation(beanContext, renditionPath.getParent(), asset);
-        buildRenditionContent(resolver, variation, beanContext);
+        return context.getLazyCreationService().getOrCreate(asset.getResolver(), transientsPath,
+                getRetrievalStrategy(), getCreationStrategy(), getInitializationStrategy(), getParentCreationStrategy());
     }
 
     /**
      * Build the rendition into the rendition resource and switch to valid state.
      */
-    protected void buildRenditionContent(ResourceResolver resolver, AssetVariation variation,
-                                         BeanContext beanContext)
+    protected void createRendition(ResourceResolver resolver, Resource renditionTransientPath)
             throws IOException, RepositoryException {
-        AssetRendition rendition = variation.getRendition(renditionName);
+        AssetRendition rendition = variation.giveRendition(renditionConfig);
         AssetRendition original;
         if (!rendition.isValid() && !rendition.equals(original = rendition.getOriginal())) {
 
             if (original != null) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("Building rendition '" + renditionPath + "'...");
+                    LOG.debug("Building rendition transient '" + transientsPath + "'...");
                 }
 
                 RenditionReader reader = new RenditionReader();
@@ -138,24 +143,25 @@ public class RenditionBuilder {
                 RenditionWriter writer = new RenditionWriter();
                 InputStream imageStream = writer.writeImage(rendition, image, context);
 
-                Resource fileResource = resolver.create(rendition.getResource(), asset.getName(), CRUD_FILE_PROPS);
-                Resource contentResource = resolver.create(fileResource, "jcr:content", CRUD_RESOURCE_PROPS);
+                Resource transientResource = resolver.getResource(rendition.getTransientsPath());
+                Resource fileResource = resolver.create(transientResource, asset.getName(), FILE_PROPS);
+                Resource contentResource = resolver.create(fileResource, "jcr:content", RESOURCE_PROPS);
 
                 ModifiableValueMap contentValues = contentResource.adaptTo(ModifiableValueMap.class);
                 contentValues.put("jcr:data", imageStream);
                 contentValues.put("jcr:mimeType", rendition.getMimeType());
                 resolver.commit();
 
-                Resource renditionResource = resolver.getResource(rendition.getPath());
+                Resource renditionResource = resolver.getResource(rendition.getTransientsPath());
                 contentValues = renditionResource.adaptTo(ModifiableValueMap.class);
                 contentValues.put(AbstractAsset.VALID, true);
                 resolver.commit();
                 if (LOG.isInfoEnabled()) {
-                    LOG.info("New rendition '" + renditionPath + "' built successfully.");
+                    LOG.info("New rendition '" + renditionConfig.getName() + "' built successfully.");
                 }
 
             } else {
-                LOG.error("No original found to build rendition '" + renditionPath + "'.");
+                LOG.error("No original found to build rendition '" + rendition.getPath() + "'.");
             }
         }
 
@@ -165,18 +171,28 @@ public class RenditionBuilder {
         return new LazyCreationService.RetrievalStrategy<AssetRendition>() {
             @Override
             public AssetRendition get(ResourceResolver resolver, String path) throws RepositoryException {
-                return context.getService().getRendition(asset, variationConfig.getName(), renditionName);
+                AdaptiveImageService service = context.getService();
+                String variationName = variationConfig.getName();
+                String renditionName = renditionConfig.getName();
+                return service.getRendition(asset, variationName, renditionName);
             }
         };
     }
 
-    protected LazyCreationService.ParentCreationStrategy getParentStrategy() {
+    protected LazyCreationService.ParentCreationStrategy getParentCreationStrategy() {
         return new LazyCreationService.ParentCreationStrategy() {
             @Override
             public Resource createParent(ResourceResolver resolver, Resource parentsParent, String parentName,
                                          int level) throws RepositoryException, PersistenceException {
                 LOG.debug("Creating parent {}/{}", parentsParent.getPath(), parentName);
-                Map<String, Object> props = CRUD_VARIATION_PROPS;
+                Map<String, Object> props;
+                switch (level) {
+                    case 2:
+                        props = VARIATION_PROPS;
+                        break;
+                    default:
+                        props = FOLDER_PROPS;
+                }
                 return resolver.create(parentsParent, parentName, props);
             }
         };
@@ -188,7 +204,7 @@ public class RenditionBuilder {
             public Resource create(ResourceResolver resolver, Resource parent, String name) throws RepositoryException,
                     PersistenceException {
                 LOG.debug("Creating {}/{}", parent.getPath(), name);
-                return resolver.create(parent, name, CRUD_RENDITION_PROPS);
+                return resolver.create(parent, name, RENDITION_PROPS);
             }
         };
     }
@@ -201,7 +217,7 @@ public class RenditionBuilder {
                 try {
                     RenditionBuilder.this.createRendition(resolver, resource);
                 } catch (IOException e) {
-                    throw new PersistenceException("Error creating " + resource.getPath(), e);
+                    throw new PersistenceException("Error initializing " + resource.getPath(), e);
                 }
             }
         };
