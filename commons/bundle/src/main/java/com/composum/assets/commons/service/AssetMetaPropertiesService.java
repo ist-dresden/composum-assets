@@ -41,6 +41,8 @@ import java.util.Date;
 import java.util.Dictionary;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -122,6 +124,11 @@ public class AssetMetaPropertiesService implements MetaPropertiesService {
             }
             ModifiableValueMap values = metaResource.adaptTo(ModifiableValueMap.class);
             if (values != null) {
+                for (String key : new LinkedHashSet<>(values.keySet())) {
+                    if (!key.startsWith("jcr:")) {
+                        values.remove(key);
+                    }
+                }
                 for (Map.Entry<String, Object> entry : metadata.entrySet()) {
                     String key = entry.getKey();
                     key = key.replace('/', '-').replace(':', '.');
