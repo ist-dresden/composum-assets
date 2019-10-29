@@ -176,7 +176,7 @@ public abstract class AbstractAsset extends AssetHandle<AssetConfig> {
         if (transientsPath == null) {
             StringBuilder transientsPathBuilder = new StringBuilder();
             Resource stepResource = resource;
-            while (stepResource != null) {
+            while (stepResource != null && !"/".equals(stepResource.getPath())) {
                 String versionnodename = versionMarker(stepResource);
                 if (versionnodename != null) {
                     transientsPathBuilder.insert(0, versionnodename);
@@ -187,7 +187,6 @@ public abstract class AbstractAsset extends AssetHandle<AssetConfig> {
                 transientsPathBuilder.insert(0, "/");
                 stepResource = stepResource.getParent();
             }
-            transientsPathBuilder.deleteCharAt(0); // the slash coming from the root resource
             transientsPathBuilder.insert(0, AssetsConstants.PATH_TRANSIENTS);
             transientsPath = transientsPathBuilder.toString();
         }
