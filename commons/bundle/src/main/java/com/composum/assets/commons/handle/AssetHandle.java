@@ -141,8 +141,14 @@ public abstract class AssetHandle<Config extends ConfigHandle> extends AbstractS
                     if (ResourceUtil.isNodeType(subnode, ResourceUtil.MIX_LAST_MODIFIED)) {
                         lastmodif = ResourceHandle.use(subnode)
                                 .getProperty(ResourceUtil.PROP_LAST_MODIFIED, Calendar.class);
+                        if (lastmodif != null) { break; }
+                        // jcr:created is only a last modification date if the resource is mix:lastModified as well.
+                        if (ResourceUtil.isNodeType(subnode, ResourceUtil.MIX_CREATED)) {
+                            lastmodif = ResourceHandle.use(subnode)
+                                    .getProperty(ResourceUtil.PROP_CREATED, Calendar.class);
+                        }
+                        if (lastmodif != null) { break; }
                     }
-                    if (lastmodif != null) { break; }
                 }
             }
 
@@ -152,7 +158,7 @@ public abstract class AssetHandle<Config extends ConfigHandle> extends AbstractS
                     versionnodename = AssetsConstants.NODE_WORKSPACECONFIGURED + "-" + lastmodif.getTimeInMillis() / 1000;
                 } else {
                     LOG.warn("Workspace node {} should have {} to have reliable assets rendering.",
-                            resource.getPath(), ResourceUtil.TYPE_LAST_MODIFIED);
+                            resource.getPath(), ResourceUtil.TYPE_LAST_MODIFIED + " and " + ResourceUtil.TYPE_CREATED);
                 }
             }
         }

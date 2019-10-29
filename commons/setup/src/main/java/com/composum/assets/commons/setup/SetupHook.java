@@ -127,8 +127,10 @@ public class SetupHook implements InstallHook {
             NodeType assetContentType = nodeTypeManager.getNodeType("cpa:AssetContent");
             NodeType assetResourceType = nodeTypeManager.getNodeType("cpa:AssetResource");
             if (!assetContentType.isNodeType(org.apache.jackrabbit.JcrConstants.MIX_VERSIONABLE)
-                    || !assetResourceType.isNodeType(org.apache.jackrabbit.JcrConstants.MIX_VERSIONABLE)) {
-                LOG.info("Updating nodetypes - cpa:AssetContent / cpa:AssetResource is not yet versionable.");
+                    || !assetResourceType.isNodeType(org.apache.jackrabbit.JcrConstants.MIX_VERSIONABLE)
+                    || !assetResourceType.isNodeType(JcrConstants.MIX_CREATED)
+            ) {
+                LOG.info("Updating asset nodetypes neccesary.");
                 try (VaultPackage vaultPackage = ctx.getPackage()) {
                     Archive archive = vaultPackage.getArchive();
                     try (InputStream stream = archive.openInputStream(archive.getEntry("/META-INF/vault/nodetypes.cnd"))) {
@@ -139,7 +141,7 @@ public class SetupHook implements InstallHook {
                     }
                 }
             } else {
-                LOG.info("No nodetype update needed - cpa:AssetContent is already versionable.");
+                LOG.info("No asset nodetype update needed.");
             }
         } catch (Exception rex) {
             LOG.error(rex.getMessage(), rex);
