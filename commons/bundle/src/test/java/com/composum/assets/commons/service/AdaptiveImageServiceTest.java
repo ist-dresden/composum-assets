@@ -10,12 +10,15 @@ import com.composum.sling.core.concurrent.SemaphoreSequencer;
 import com.composum.sling.core.util.ResourceUtil;
 import com.composum.sling.platform.testing.testutil.ErrorCollectorAlwaysPrintingFailures;
 import com.composum.sling.platform.testing.testutil.JcrTestUtils;
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.IOUtils;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
+import org.apache.sling.api.resource.ModifiableValueMap;
 import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.apache.sling.testing.mock.sling.junit.SlingContext;
+import org.jetbrains.annotations.Nullable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -23,6 +26,8 @@ import org.junit.Test;
 
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
+import javax.jcr.version.Version;
+import javax.jcr.version.VersionManager;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
@@ -177,6 +182,25 @@ public class AdaptiveImageServiceTest {
         ec.checkThat(service.getRendition(asset, "invalid", "medium"), nullValue());
         ec.checkThat(service.getOrCreateRendition(asset, "bar", "invalid"), nullValue());
         ec.checkThat(service.getOrCreateRendition(asset, "invalid", "medium"), nullValue());
+    }
+
+    /**
+     * Checks whether an assetcontent is actually versionable - in earlier versions the metadata outocreation did
+     * not work, and then a checkin failed for some reason.
+     */
+    @Test
+    public void checkinAsset() throws Exception {
+        String path = "/test/assets/site-1/images/image-1.png/wide/original/image-1.png/jcr:content";
+        Resource resource = context.resourceResolver().getResource(path);
+        context.resourceResolver().create(resource, "meta", ImmutableMap.of(ResourceUtil.PROP_PRIMARY_TYPE,
+                AssetsConstants.NODE_TYPE_META_DATA));
+        resource.adaptTo(ModifiableValueMap.class).put(ResourceUtil.PROP_MIXINTYPES,
+                new String[]{AssetsConstants.MIXIN_TYPE_ASSET_RESOURCE});
+        context.resourceResolver().commit();
+        JcrTestUtils.printResourceRecursivelyAsJson(context.resourceResolver(), path);
+        VersionManager versionManager = context.resourceResolver().adaptTo(Session.class).getWorkspace().getVersionManager();
+        Version version = versionManager.checkin(path);
+        assertNotNull(version);
     }
 
 }
