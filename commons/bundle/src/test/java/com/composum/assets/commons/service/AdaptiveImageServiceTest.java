@@ -8,7 +8,6 @@ import com.composum.sling.core.BeanContext;
 import com.composum.sling.core.concurrent.LazyCreationServiceImpl;
 import com.composum.sling.core.concurrent.SemaphoreSequencer;
 import com.composum.sling.core.util.ResourceUtil;
-import com.composum.sling.platform.staging.ReleaseChangeEventPublisher;
 import com.composum.sling.platform.staging.ReleasedVersionable;
 import com.composum.sling.platform.staging.StagingConstants;
 import com.composum.sling.platform.staging.StagingReleaseManager;
