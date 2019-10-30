@@ -20,10 +20,10 @@
 
 [cpa:AssetResource] > sling:Resource, mix:created, mix:lastModified, mix:versionable
   mixin
-  + meta = cpa:MetaData mandatory autocreated
+  + meta (cpa:MetaData) = cpa:MetaData mandatory autocreated
 
 [cpa:AssetContent] > mix:created, mix:lastModified, mix:versionable, nt:unstructured
-  + meta = cpa:MetaData mandatory autocreated
+  + meta (cpa:MetaData) = cpa:MetaData mandatory autocreated
 
 [cpa:Asset] > sling:Folder
   + jcr:content (cpa:AssetContent) = cpa:AssetContent *

@@ -28,13 +28,7 @@
         }
       },
       "jcr:content": {
-        "jcr:primaryType": "cpa:AssetContent",
-        "meta": {
-          "jcr:primaryType": "cpa:MetaData",
-          "sourceUrl": "https://de.wikipedia.org/wiki/Testbild",
-          "source": "Wikipedia",
-          "sling:resourceType": "composum/assets/manager/image/meta"
-        }
+        "jcr:primaryType": "cpa:AssetContent"
       }
     },
     "image-1.png": {
@@ -43,13 +37,7 @@
       "jcr:created": "Tue Jul 04 2017 18:00:47 GMT+0200",
       "sling:resourceType": "composum/assets/image",
       "jcr:content": {
-        "jcr:primaryType": "cpa:AssetContent",
-        "meta": {
-          "jcr:primaryType": "cpa:MetaData",
-          "sourceUrl": "https://de.wikipedia.org/wiki/Testbild",
-          "source": "Wikipedia",
-          "sling:resourceType": "composum/assets/manager/image/meta"
-        }
+        "jcr:primaryType": "cpa:AssetContent"
       },
       "wide": {
         "jcr:primaryType": "cpa:Variation",
