@@ -17,9 +17,6 @@ import com.composum.sling.core.ResourceHandle;
 import com.composum.sling.core.util.MimeTypeUtil;
 import com.composum.sling.core.util.ResourceUtil;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.Service;
 import org.apache.jackrabbit.JcrConstants;
 import org.apache.sling.api.resource.ModifiableValueMap;
 import org.apache.sling.api.resource.PersistenceException;
@@ -27,6 +24,8 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.tika.mime.MimeType;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,9 +40,9 @@ import java.util.Map;
 
 import static com.composum.assets.commons.handle.AssetHandle.IMAGE_RESOURCE_TYPE;
 
-@Component
-@Service
-@SuppressWarnings("deprecation")
+@Component(
+        service = AssetsService.class
+)
 public class DefaultAssetsService implements AssetsService {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultAssetsService.class);
@@ -165,7 +164,7 @@ public class DefaultAssetsService implements AssetsService {
         Resource assetResource = resolver.getResource(pathAndName);
         deleteAsset(assetResource);
         Resource parent = getOrCreateFolder(resolver, parentPath);
-        LOG.info("image.create: " + pathAndName);
+        LOG.info("image.create: {}", pathAndName);
         assetResource = resolver.create(parent, name, IMAGE_PROPERTIES);
         Resource content = resolver.create(assetResource, ResourceUtil.CONTENT_NODE, IMAGE_CONTENT_PROPERTIES);
         ImageAsset imageAsset = new ImageAsset(context, assetResource);

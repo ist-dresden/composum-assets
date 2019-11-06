@@ -178,13 +178,6 @@ public class AdaptiveImageServiceTest {
                 "newasset.png", "bar", stream);
         ec.onFailure(() -> JcrTestUtils.printResourceRecursivelyAsJson(resolver, assetResource.getPath()));
         ec.onFailure(() -> JcrTestUtils.printResourceRecursivelyAsJson(resolver, AssetsConstants.PATH_TRANSIENTS));
-        // the meta node is specified as autocreated, but Jackrabbit doesn't create it for unknown reasons in this
-        // test. :-( So we have to do it manually to be able to commit.
-        // FIXME(hps,25.10.19) what about autocreated meta? Autocreating it doesn't work right now as it is
-        // configured in the nodetypes.cnd, but when I insert the base type, I get ItemExistsException on the JSON
-        // import.
-        context.build().resource("test/assets/site-1/images/newasset.png/jcr:content/meta",
-                ResourceUtil.PROP_PRIMARY_TYPE, AssetsConstants.NODE_TYPE_META_DATA);
         resolver.commit();
 
         ImageAsset asset = new ImageAsset(beanContext, assetResource);

@@ -6,25 +6,27 @@
 package com.composum.assets.commons.event;
 
 import com.composum.sling.core.event.AbstractChangeObserver;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.Service;
 import org.apache.sling.api.resource.LoginException;
 import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ResourceResolverFactory;
 import org.apache.sling.jcr.api.SlingRepository;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.observation.EventListener;
 
 import static com.composum.assets.commons.AssetsConstants.ASSETS_SERVICE_USER;
 
-@Component(immediate = true)
-@Service
+@Component(
+        service = {EventListener.class},
+        immediate = true
+)
 public class AssetChangeObserver extends AbstractChangeObserver {
 
     private static final Logger LOG = LoggerFactory.getLogger(AssetChangeObserver.class);

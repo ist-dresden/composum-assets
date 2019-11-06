@@ -11,11 +11,10 @@ import com.composum.assets.commons.config.aspect.Size;
 import com.composum.assets.commons.config.aspect.Watermark;
 import com.composum.assets.commons.config.transform.Blur;
 import com.composum.assets.commons.handle.AssetRendition;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.ReferenceCardinality;
-import org.apache.felix.scr.annotations.ReferencePolicy;
-import org.apache.felix.scr.annotations.Service;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,9 +30,10 @@ import java.util.Map;
  * This implementation is collecting the set of available ImageTransformer services which are used to perform
  * the image transformation operations according to the asset configuration set if the image asset.
  */
-@SuppressWarnings("deprecation")
-@Component(immediate = true)
-@Service()
+@Component(
+        service = {RenditionTransformer.class},
+        immediate = true
+)
 public class DefaultRenditionTransformer implements RenditionTransformer {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultRenditionTransformer.class);
@@ -45,10 +45,10 @@ public class DefaultRenditionTransformer implements RenditionTransformer {
     /**
      * injection of the ImageTransformer services provided by the OSGi configuration
      */
-    @Reference(referenceInterface = ImageTransformer.class,
-            cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE,
+    @Reference(service = ImageTransformer.class,
+            cardinality = ReferenceCardinality.MULTIPLE,
             policy = ReferencePolicy.DYNAMIC)
-    protected Map<String, List<ImageTransformer>> imageTransformers;
+    protected volatile Map<String, List<ImageTransformer>> imageTransformers;
 
     /**
      * Gets or initializes the transformers configuration.
@@ -78,7 +78,7 @@ public class DefaultRenditionTransformer implements RenditionTransformer {
         if (transformers == null) {
             imageTransformers.put(operation, transformers = new ArrayList<>());
         }
-        LOG.info("transformer.bind: [" + operation + "] " + transformer.getClass().getName());
+        LOG.info("transformer.bind: [{}] {}", operation, transformer.getClass().getName());
         transformers.add(transformer);
     }
 
@@ -94,7 +94,7 @@ public class DefaultRenditionTransformer implements RenditionTransformer {
     protected synchronized void unbindImageTransformer(String operation, final ImageTransformer transformer) {
         List<ImageTransformer> transformers = getImageTransformers().get(operation);
         if (transformers != null && transformers.contains(transformer)) {
-            LOG.info("transformer.unbind: [" + operation + "] " + transformer.getClass().getName());
+            LOG.info("transformer.unbind: [{}] {}", operation, transformer.getClass().getName());
             transformers.remove(transformer);
         }
     }
@@ -118,11 +118,11 @@ public class DefaultRenditionTransformer implements RenditionTransformer {
         }
         if (transformer != null) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("do transform [" + operation + "] using " + transformer.getClass().getName());
+                LOG.debug("do transform [{}] using {}", operation, transformer.getClass().getName());
             }
             return transformer.transform(this, image, operation, options);
         } else {
-            LOG.warn("no transfomer configured for operation: " + operation);
+            LOG.warn("no transfomer configured for operation: {}", operation);
             return image;
         }
     }
@@ -141,7 +141,7 @@ public class DefaultRenditionTransformer implements RenditionTransformer {
     public BufferedImage transform(AssetRendition rendition, BufferedImage image, BuilderContext context) {
         RenditionConfig config = rendition.getConfig();
         if (LOG.isDebugEnabled()) {
-            LOG.debug("rendition transformation: " + config);
+            LOG.debug("rendition transformation: {}", config);
         }
         int imageWidth = image.getWidth();
         int imageHeight = image.getHeight();

@@ -7,9 +7,6 @@ import com.composum.sling.core.filter.StringFilter;
 import com.composum.sling.core.util.NodeUtil;
 import com.composum.sling.core.util.PropertyUtil;
 import com.composum.sling.core.util.ResourceUtil;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.Service;
 import org.apache.jackrabbit.JcrConstants;
 import org.apache.sling.api.resource.LoginException;
 import org.apache.sling.api.resource.PersistenceException;
@@ -17,12 +14,15 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ResourceResolverFactory;
 import org.apache.sling.jcr.api.SlingRepository;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.observation.EventListener;
 import java.text.SimpleDateFormat;
 
 import static com.composum.assets.commons.AssetsConstants.ASSETS_SERVICE_USER;
@@ -30,8 +30,10 @@ import static com.composum.assets.commons.AssetsConstants.ASSETS_SERVICE_USER;
 /**
  * the observer to adjust the meta data of an image if the image content is changed
  */
-@Component(immediate = true)
-@Service
+@Component(
+        immediate = true,
+        service = EventListener.class
+)
 public class AdjustMetaDataObserver extends AbstractChangeObserver {
 
     private static final Logger LOG = LoggerFactory.getLogger(AdjustMetaDataObserver.class);

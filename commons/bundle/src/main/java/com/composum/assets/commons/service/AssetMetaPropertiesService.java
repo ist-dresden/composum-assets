@@ -11,23 +11,25 @@ import com.composum.assets.commons.util.TikaMetaData;
 import com.composum.sling.core.filter.StringFilter;
 import com.composum.sling.core.util.ResourceUtil;
 import com.composum.sling.core.util.SlingResourceUtil;
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Modified;
-import org.apache.felix.scr.annotations.Property;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.Service;
 import org.apache.jackrabbit.JcrConstants;
 import org.apache.sling.api.resource.ModifiableValueMap;
 import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ValueMap;
-import org.apache.sling.commons.osgi.PropertiesUtil;
+import org.osgi.framework.Constants;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Modified;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.metatype.annotations.AttributeDefinition;
+import org.osgi.service.metatype.annotations.Designate;
+import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import javax.imageio.ImageIO;
 import javax.jcr.Binary;
 import javax.jcr.Node;
@@ -38,56 +40,25 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Dictionary;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
 @Component(
+        service = MetaPropertiesService.class,
         name = "Composum Assets - Meta Data Extraction Service",
-        immediate = true,
-        metatype = true
+        property = {
+                Constants.SERVICE_DESCRIPTION + "=delivers renditions of image assets for the configured variations",
+        },
+        immediate = true
 )
-@Service
+@Designate(ocd = AssetMetaPropertiesService.Configuration.class)
 public class AssetMetaPropertiesService implements MetaPropertiesService {
 
     private static final Logger LOG = LoggerFactory.getLogger(AssetMetaPropertiesService.class);
 
-    public static final String IMAGE_META_DATA_FILTER = "assets.metadata.filter.image";
-
-    @Property(
-            name = IMAGE_META_DATA_FILTER,
-            label = "Image Meta Data Names",
-            description = "the list of patterns with the meta data property names to import",
-            value = {
-                    "^[Cc]ontent[ -]?[Tt]ype$",
-                    "^([Ff]ile ?)?[Ss]ize$",
-                    "^([Ii]mage ?)?([Ww]idth|[Hh]eight)$",
-                    "^[Dd]escription$",
-                    "^[Cc]opyright( ?[Uu]rl)?$",
-                    "^[Aa]uthor( ?[Uu]rl)?$",
-                    "^[Cc]redits( ?[Uu]rl)?$",
-                    "^[Ll]icense( ?[Uu]rl)?$",
-                    "^[Oo]rigin( ?[Uu]rl)?$",
-                    "^[Ss]ource( ?[Uu]rl)?$",
-                    "^[Ll]ocation( ?[Uu]rl)?$",
-                    "^([Gg]oogle)?[Ee]arth$",
-                    "^[Oo]rientation$",
-                    "^([Ll]ast[ -]?)?[Mm]odified$",
-                    "^[Dd]ate(/[Tt]ime)?( ?[Oo]riginal)?$",
-                    "^[Dd]imension( [\\w\\s]+)?$",
-                    "^[Tt]ransparency( [\\w\\s]+)?$",
-                    "^.*[Cc]olor ?[Ss]pace.*$",
-                    "^[Dd]ata( [\\w\\s]+)$",
-                    "^[Cc]ompression( [\\w\\s]+)?$",
-                    "^([\\w\\s]+ )?[Qq]uality$",
-                    "^([Uu]ser ?)?[Cc]omments?$",
-                    "^([XxYy][ -])?[Rr]esolution([ -][Uu]nits)?$"
-            }
-    )
     protected StringFilter imageMetaDataFilter;
 
     public static final Map<String, Object> CRUD_META_PROPERTIES;
@@ -109,7 +80,7 @@ public class AssetMetaPropertiesService implements MetaPropertiesService {
         void adjustMetaProperties(ResourceResolver resolver, Resource resource);
     }
 
-    public abstract class AbstractMetaStrategy implements MetaStrategy {
+    public abstract static class AbstractMetaStrategy implements MetaStrategy {
 
         protected void prepareMetaData(Resource contentResource, TikaMetaData metadata) {
         }
@@ -140,7 +111,7 @@ public class AssetMetaPropertiesService implements MetaPropertiesService {
         }
     }
 
-    public abstract class FileResourceStrategy extends AbstractMetaStrategy {
+    public abstract static class FileResourceStrategy extends AbstractMetaStrategy {
 
         @Override
         public boolean isMatching(Resource resource) {
@@ -236,7 +207,7 @@ public class AssetMetaPropertiesService implements MetaPropertiesService {
         }
     }
 
-    public class VideoFileStrategy extends FileResourceStrategy {
+    public static class VideoFileStrategy extends FileResourceStrategy {
 
         @Override
         protected boolean isMatchingMimeType(String mimeType) {
@@ -294,14 +265,49 @@ public class AssetMetaPropertiesService implements MetaPropertiesService {
 
     @Activate
     @Modified
-    protected void activate(ComponentContext context) {
-        Dictionary properties = context.getProperties();
-        imageMetaDataFilter = new StringFilter.WhiteList(
-                PropertiesUtil.toStringArray(properties.get(IMAGE_META_DATA_FILTER)));
+    protected void activate(ComponentContext context, @Nonnull Configuration configuration) {
+        imageMetaDataFilter = new StringFilter.WhiteList(configuration.assetsMetadataFilterImage());
         strategies = new ArrayList<>();
         strategies.add(new ImageAssetStrategy());
         strategies.add(new SimpleImageStrategy());
         strategies.add(new VideoFileStrategy());
         strategies.add(new FolderStrategy());
     }
+
+    @ObjectClassDefinition(
+            name = "Composum Assets - Meta Data Extraction Service Configuration",
+            description = "delivers renditions of image assets for the configured variations"
+    )
+    public @interface Configuration {
+        @AttributeDefinition(
+                name = "Image Meta Data Names",
+                description = "the list of patterns with the meta data property names to import"
+        )
+        String[] assetsMetadataFilterImage() default {
+                "^[Cc]ontent[ -]?[Tt]ype$",
+                "^([Ff]ile ?)?[Ss]ize$",
+                "^([Ii]mage ?)?([Ww]idth|[Hh]eight)$",
+                "^[Dd]escription$",
+                "^[Cc]opyright( ?[Uu]rl)?$",
+                "^[Aa]uthor( ?[Uu]rl)?$",
+                "^[Cc]redits( ?[Uu]rl)?$",
+                "^[Ll]icense( ?[Uu]rl)?$",
+                "^[Oo]rigin( ?[Uu]rl)?$",
+                "^[Ss]ource( ?[Uu]rl)?$",
+                "^[Ll]ocation( ?[Uu]rl)?$",
+                "^([Gg]oogle)?[Ee]arth$",
+                "^[Oo]rientation$",
+                "^([Ll]ast[ -]?)?[Mm]odified$",
+                "^[Dd]ate(/[Tt]ime)?( ?[Oo]riginal)?$",
+                "^[Dd]imension( [\\w\\s]+)?$",
+                "^[Tt]ransparency( [\\w\\s]+)?$",
+                "^.*[Cc]olor ?[Ss]pace.*$",
+                "^[Dd]ata( [\\w\\s]+)$",
+                "^[Cc]ompression( [\\w\\s]+)?$",
+                "^([\\w\\s]+ )?[Qq]uality$",
+                "^([Uu]ser ?)?[Cc]omments?$",
+                "^([XxYy][ -])?[Rr]esolution([ -][Uu]nits)?$"
+        };
+    }
+
 }

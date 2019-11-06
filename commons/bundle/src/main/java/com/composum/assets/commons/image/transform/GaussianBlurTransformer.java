@@ -3,8 +3,7 @@ package com.composum.assets.commons.image.transform;
 import com.composum.assets.commons.config.transform.Blur;
 import com.composum.assets.commons.image.ImageTransformer;
 import com.composum.assets.commons.image.RenditionTransformer;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Service;
+import org.osgi.service.component.annotations.Component;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.ConvolveOp;
@@ -18,8 +17,10 @@ import java.util.Set;
  * the BLUR transformer service based on a gaussian blur algorithm
  */
 @SuppressWarnings("deprecation")
-@Component(configurationFactory = true, immediate = true)
-@Service()
+@Component(
+        service = ImageTransformer.class,
+        immediate = true
+)
 public class GaussianBlurTransformer implements ImageTransformer {
 
     public static final Set<String> OP_SET = Collections.singleton(OP_BLUR);

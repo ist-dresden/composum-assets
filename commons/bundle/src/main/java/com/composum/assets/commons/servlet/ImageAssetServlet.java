@@ -11,29 +11,39 @@ import com.composum.assets.commons.util.AdaptiveUtil;
 import com.composum.sling.clientlibs.handle.FileHandle;
 import com.composum.sling.core.BeanContext;
 import com.composum.sling.core.util.ResourceUtil;
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Modified;
-import org.apache.felix.scr.annotations.sling.SlingServlet;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.servlets.HttpConstants;
+import org.apache.sling.api.servlets.ServletResolverConstants;
 import org.apache.sling.api.servlets.SlingSafeMethodsServlet;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Modified;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import javax.servlet.Servlet;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 
-@SlingServlet(
-        name = "Composum Assets Image Servlet",
-        resourceTypes = "sling/servlet/default",
-        methods = {"GET"},
-        selectors = {"asset"},
-        extensions = {"jpg", "jpeg", "png", "gif"}
+@Component(
+        service = Servlet.class,
+        property = {
+                Constants.SERVICE_DESCRIPTION + "=Composum Assets Image Servlet",
+                ServletResolverConstants.SLING_SERVLET_RESOURCE_TYPES + "=" + ServletResolverConstants.DEFAULT_RESOURCE_TYPE,
+                ServletResolverConstants.SLING_SERVLET_METHODS + "=" + HttpConstants.METHOD_GET,
+                ServletResolverConstants.SLING_SERVLET_SELECTORS + "=asset",
+                ServletResolverConstants.SLING_SERVLET_EXTENSIONS + "=jpg",
+                ServletResolverConstants.SLING_SERVLET_EXTENSIONS + "=jpeg",
+                ServletResolverConstants.SLING_SERVLET_EXTENSIONS + "=png",
+                ServletResolverConstants.SLING_SERVLET_EXTENSIONS + "=gif",
+        }
 )
 public class ImageAssetServlet extends SlingSafeMethodsServlet {
 

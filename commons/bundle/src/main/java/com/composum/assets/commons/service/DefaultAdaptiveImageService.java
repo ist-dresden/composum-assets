@@ -18,53 +18,47 @@ import com.composum.assets.commons.image.RenditionTransformer;
 import com.composum.sling.core.ResourceHandle;
 import com.composum.sling.core.concurrent.LazyCreationService;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Properties;
-import org.apache.felix.scr.annotations.Property;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.Service;
 import org.apache.sling.api.resource.LoginException;
 import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ResourceResolverFactory;
-import org.apache.sling.commons.osgi.PropertiesUtil;
+import org.osgi.framework.Constants;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.metatype.annotations.AttributeDefinition;
+import org.osgi.service.metatype.annotations.Designate;
+import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import javax.jcr.RepositoryException;
 import javax.jcr.query.Query;
 import java.io.IOException;
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/** The Composum Assets - Image Service supports renditions of image assets". */
 @Component(
-        label = "Composum Assets - Image Service",
-        description = "supports renditions of image assets",
-        immediate = true,
-        metatype = true
+        service = AdaptiveImageService.class,
+        name = "Composum Assets - Image Service",
+        property = {
+                Constants.SERVICE_DESCRIPTION + "=supports renditions of image assets",
+        },
+        immediate = true
 )
-@Service
-@Properties({
-        @Property(
-                name = DefaultAdaptiveImageService.THREAD_POOL_SIZE,
-                label = "Thread Pool Size",
-                description = "the maximum number of threads used to create image renditions",
-                intValue = DefaultAdaptiveImageService.THREAD_POOL_SIZE_DEFAULT),
-})
 @SuppressWarnings("deprecation")
+@Designate(ocd = DefaultAdaptiveImageService.Configuration.class)
 public class DefaultAdaptiveImageService implements AdaptiveImageService {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultAdaptiveImageService.class);
-
-    public static final String THREAD_POOL_SIZE = "thread.pool.size";
-
-    public static final int THREAD_POOL_SIZE_DEFAULT = 9;
 
     @Reference
     protected ResourceResolverFactory resolverFactory;
@@ -78,10 +72,18 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
     protected RenditionTransformer renditionTransformer;
 
     @Activate
-    protected void activate(ComponentContext context) throws Exception {
-        Dictionary<String, Object> properties = context.getProperties();
-        int threadPoolSize = PropertiesUtil.toInteger(properties.get(THREAD_POOL_SIZE), THREAD_POOL_SIZE_DEFAULT);
-        executorService = Executors.newFixedThreadPool(threadPoolSize);
+    @Modified
+    protected void activate(@Nonnull ComponentContext context, @Nonnull Configuration configuration) {
+        if (executorService != null) {
+            executorService.shutdown();
+        }
+        executorService = Executors.newFixedThreadPool(configuration.threadPoolSize());
+    }
+
+    @Deactivate
+    protected void deactivate() {
+        executorService.shutdown();
+        executorService = null;
     }
 
     @Override
@@ -163,9 +165,7 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
             throws Exception {
 
         path = path.trim();
-        if (LOG.isInfoEnabled()) {
-            LOG.info("dropRenditions('" + path + "','" + variationKey + "','" + renditionKey + "')...");
-        }
+        LOG.info("dropRenditions('{}','{}','{}')...", path, variationKey, renditionKey);
 
         try (ResourceResolver resolver = createServiceResolver()) {
 
@@ -190,7 +190,7 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
             queryString = query.toString();
 
             if (LOG.isDebugEnabled()) {
-                LOG.debug("dropRenditions.query '" + queryString + "'");
+                LOG.debug("dropRenditions.query '{}'", queryString);
             }
             iterator = resolver.findResources(queryString, Query.XPATH);
             while (iterator.hasNext()) {
@@ -199,7 +199,7 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
                     dropRendition(resolver, resource, variationKey);
                 } catch (PersistenceException | RuntimeException ex) {
                     // we drop all other stuff even if there was something broken.
-                    LOG.error("Failure dropping rendition" + resource, ex);
+                    LOG.error("Failure dropping rendition " + resource, ex);
                     fault = ex;
                 }
             }
@@ -209,16 +209,14 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
                     .append(",").append(AssetVariation.NODE_TYPE).append(")");
             queryString = query.toString();
 
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("dropVariations.query '" + queryString + "'");
-            }
+            LOG.debug("dropVariations.query '{}'", queryString);
             iterator = resolver.findResources(queryString, Query.XPATH);
             while (iterator.hasNext()) {
                 ResourceHandle resource = ResourceHandle.use(iterator.next());
                 try {
                     dropVariation(resolver, resource);
                 } catch (PersistenceException | RuntimeException ex) {
-                    LOG.error("Failure dropping variation" + resource, ex);
+                    LOG.error("Failure dropping variation " + resource, ex);
                     fault = ex;
                 }
             }
@@ -237,13 +235,13 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
             ResourceHandle variation = rendition.getParent();
             if (StringUtils.isBlank(variationKey) || variationKey.equals(variation.getName())) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("dropRendition(" + rendition.getPath() + ")...");
+                    LOG.debug("dropRendition({})...", rendition.getPath());
                 }
                 resolver.delete(rendition);
             }
         } else {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("keepRendition(" + rendition.getPath() + ") - rendition is protected");
+                LOG.debug("keepRendition({}) - rendition is protected", rendition.getPath());
             }
         }
     }
@@ -252,7 +250,7 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
             throws PersistenceException {
         if (!variation.listChildren().hasNext()) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("dropVariation(" + variation.getPath() + ")...");
+                LOG.debug("dropVariation({})...", variation.getPath());
             }
             resolver.delete(variation);
         }
@@ -275,4 +273,18 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
     protected ResourceResolver createServiceResolver() throws LoginException {
         return resolverFactory.getAdministrativeResourceResolver(null);
     }
+
+    @ObjectClassDefinition(
+            name = "Composum Assets - Image Service Configuration",
+            description = "delivers renditions of image assets for the configured variations"
+    )
+    public @interface Configuration {
+
+        @AttributeDefinition(
+                name = "Thread Pool Size",
+                description = "the maximum number of threads used to create image renditions"
+        )
+        int threadPoolSize() default 9;
+    }
+
 }

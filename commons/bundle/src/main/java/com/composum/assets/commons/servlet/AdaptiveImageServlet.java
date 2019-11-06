@@ -23,11 +23,6 @@ import com.composum.sling.core.util.MimeTypeUtil;
 import com.composum.sling.core.util.ResourceUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Modified;
-import org.apache.felix.scr.annotations.Property;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.sling.SlingServlet;
 import org.apache.jackrabbit.JcrConstants;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
@@ -35,52 +30,57 @@ import org.apache.sling.api.request.RequestPathInfo;
 import org.apache.sling.api.resource.LoginException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
+import org.apache.sling.api.servlets.HttpConstants;
+import org.apache.sling.api.servlets.ServletResolverConstants;
 import org.apache.sling.api.servlets.SlingSafeMethodsServlet;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Modified;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.metatype.annotations.AttributeDefinition;
+import org.osgi.service.metatype.annotations.Designate;
+import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import javax.jcr.Binary;
 import javax.jcr.RepositoryException;
+import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Calendar;
-import java.util.Dictionary;
 
-@SlingServlet(
+/** The Composum Assets - Adaptive Image Servlet delivers renditions of image assets for the configured variations. */
+@Component(
+        service = Servlet.class,
         name = "Composum Assets - Adaptive Image Servlet",
-        description = "delivers renditions of image assets for the configured variations",
-        resourceTypes = "sling/servlet/default",
-        methods = {"GET"},
-        selectors = {"adaptive"},
-        extensions = {"jpg", "jpeg", "png", "gif"},
-        metatype = true
+        property = {
+                Constants.SERVICE_DESCRIPTION + "=delivers renditions of image assets for the configured variations",
+                ServletResolverConstants.SLING_SERVLET_RESOURCE_TYPES + "=" + ServletResolverConstants.DEFAULT_RESOURCE_TYPE,
+                ServletResolverConstants.SLING_SERVLET_METHODS + "=" + HttpConstants.METHOD_GET,
+                ServletResolverConstants.SLING_SERVLET_SELECTORS + "=adaptive",
+                ServletResolverConstants.SLING_SERVLET_EXTENSIONS + "=jpg",
+                ServletResolverConstants.SLING_SERVLET_EXTENSIONS + "=jpeg",
+                ServletResolverConstants.SLING_SERVLET_EXTENSIONS + "=png",
+                ServletResolverConstants.SLING_SERVLET_EXTENSIONS + "=gif",
+        }
 )
+@Designate(ocd = AdaptiveImageServlet.Configuration.class)
 public class AdaptiveImageServlet extends SlingSafeMethodsServlet {
-
-    public static final String DELIVER_SIMPLE_IMAGES = "simple.deviver";
-    @Property(name = DELIVER_SIMPLE_IMAGES,
-            label = "Simple Images",
-            description = "delivers the content of simple images if set to 'true'",
-            boolValue = true)
-    private boolean deliverSimpleImages = true;
-
-    public static final String REDIRECT_UNWANTED = "redirect.unwanted";
-    @Property(name = REDIRECT_UNWANTED,
-            label = "Redirect",
-            description = "redirects unwanted requests to the most similar supported URL if set to 'true'",
-            boolValue = true)
-    private boolean redirectUnwanted = true;
 
     private static final Logger LOG = LoggerFactory.getLogger(AdaptiveImageServlet.class);
 
-    protected BundleContext bundleContext;
-
     public static final StringFilter.BlackList SELECTORS_FILTER = new StringFilter.BlackList("adaptive");
+
+    protected BundleContext bundleContext;
+    protected Configuration config;
 
     @Reference
     protected AdaptiveImageService adaptiveImageService;
@@ -89,8 +89,8 @@ public class AdaptiveImageServlet extends SlingSafeMethodsServlet {
     protected SequencerService<SequencerService.Token> sequencer;
 
     @Override
-    protected void doGet(SlingHttpServletRequest request,
-                         SlingHttpServletResponse response) throws ServletException,
+    protected void doGet(@Nonnull SlingHttpServletRequest request,
+                         @Nonnull SlingHttpServletResponse response) throws ServletException,
             IOException {
 
         BeanContext context = new BeanContext.Servlet(getServletContext(), bundleContext, request, response);
@@ -135,14 +135,13 @@ public class AdaptiveImageServlet extends SlingSafeMethodsServlet {
                                 .findRenditionConfig(asset, selectors[0], selectors[1]);
                         VariationConfig variationConfig = renditionConfig.getVariation();
 
-                        if (redirectUnwanted) {
+                        if (config.redirectUnwanted()) {
                             String matchingUrl = AdaptiveUtil.getImageUri(asset,
                                     variationConfig.getName(), renditionConfig.getName());
                             matchingUrl = LinkUtil.getUrl(request, matchingUrl);
                             response.setHeader(HttpUtil.HEADER_LOCATION, matchingUrl);
                             if (LOG.isInfoEnabled()) {
-                                LOG.info("no rendition found for '" + request.getRequestURI()
-                                        + "' redirecting to '" + matchingUrl + "'...");
+                                LOG.info("no rendition found for '{}' redirecting to '{}'...", request.getRequestURI(), matchingUrl);
                             }
 
                             response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
@@ -150,8 +149,7 @@ public class AdaptiveImageServlet extends SlingSafeMethodsServlet {
                         }
 
                         if (LOG.isInfoEnabled()) {
-                            LOG.info("no rendition found for '" + request.getRequestURI() + "' delivering '"
-                                    + variationConfig.getName() + "/" + renditionConfig.getName() + "'...");
+                            LOG.info("no rendition found for '{}' delivering '{}/{}'...", request.getRequestURI(), variationConfig.getName(), renditionConfig.getName());
                         }
 
                         rendition = adaptiveImageService.getOrCreateRendition(
@@ -203,7 +201,7 @@ public class AdaptiveImageServlet extends SlingSafeMethodsServlet {
                 return;
             }
 
-        } else if (deliverSimpleImages &&
+        } else if (config.deliverSimpleImages() &&
                 ResourceUtil.isResourceType(resource, JcrConstants.NT_FILE) &&
                 MimeTypeUtil.isMimeType(resource, AssetsConstants.IMAGE_MIME_TYPE_PATTERN)) {
 
@@ -211,7 +209,7 @@ public class AdaptiveImageServlet extends SlingSafeMethodsServlet {
             if (content != null) {
                 ValueMap contentValues = content.getValueMap();
 
-                Calendar lastModified = contentValues.get(JcrConstants.JCR_LASTMODIFIED, (Calendar) null);
+                Calendar lastModified = contentValues.get(JcrConstants.JCR_LASTMODIFIED, Calendar.class);
 
                 if (!HttpUtil.isModifiedSince(ifModifiedSince, lastModified)) {
                     response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
@@ -255,10 +253,29 @@ public class AdaptiveImageServlet extends SlingSafeMethodsServlet {
 
     @Activate
     @Modified
-    protected void activate(ComponentContext context) {
+    protected void activate(ComponentContext context, Configuration config) {
         this.bundleContext = context.getBundleContext();
-        Dictionary properties = context.getProperties();
-        deliverSimpleImages = (Boolean) properties.get(DELIVER_SIMPLE_IMAGES);
-        redirectUnwanted = (Boolean) properties.get(REDIRECT_UNWANTED);
+        this.config = config;
     }
+
+    @ObjectClassDefinition(
+            name = "Composum Assets - Adaptive Image Servlet",
+            description = "delivers renditions of image assets for the configured variations"
+    )
+    public @interface Configuration {
+
+        @AttributeDefinition(
+                name = "Simple Images",
+                description = "delivers the content of simple images if set to 'true'"
+        )
+        boolean deliverSimpleImages() default true;
+
+        @AttributeDefinition(
+                name = "Redirect",
+                description = "redirects unwanted requests to the most similar supported URL if set to 'true'"
+        )
+        boolean redirectUnwanted() default true;
+
+    }
+
 }

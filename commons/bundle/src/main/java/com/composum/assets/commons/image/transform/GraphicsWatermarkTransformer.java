@@ -4,14 +4,10 @@ import com.composum.assets.commons.config.aspect.GenericAspect;
 import com.composum.assets.commons.config.aspect.Watermark;
 import com.composum.assets.commons.image.ImageTransformer;
 import com.composum.assets.commons.image.RenditionTransformer;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Service;
+import org.osgi.service.component.annotations.Component;
 
-import java.awt.AlphaComposite;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import javax.annotation.Nonnull;
+import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.Collections;
@@ -21,13 +17,14 @@ import java.util.Set;
 /**
  * the SCALE transformer service based on the JDK Graphics algorithms
  */
-@SuppressWarnings("deprecation")
-@Component(configurationFactory = true, immediate = true)
-@Service()
+@Component(
+        immediate = true
+)
 public class GraphicsWatermarkTransformer implements ImageTransformer {
 
     public static final Set<String> OP_SET = Collections.singleton(OP_WATERMARK);
 
+    @Nonnull
     @Override
     public Set<String> getOperations() {
         return OP_SET;
