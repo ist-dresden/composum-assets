@@ -11,6 +11,7 @@ import com.composum.assets.commons.config.aspect.Size;
 import com.composum.assets.commons.config.aspect.Watermark;
 import com.composum.assets.commons.config.transform.Blur;
 import com.composum.assets.commons.handle.AssetRendition;
+import com.composum.platform.commons.util.LockAsAutoCloseable;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -18,12 +19,14 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * The RenditionTransformer is performing the build of each rendition requested by the AdaptiveImageServlet.
@@ -42,28 +45,19 @@ public class DefaultRenditionTransformer implements RenditionTransformer {
 
     public static final Crop ASPECT_RATIO_CROP = new Crop();
 
+    /** Maps operations to transformer list. Always access locked by {@link #readWriteLock}. */
+    protected Map<String, List<ImageTransformer>> imageTransformers = new HashMap<>();
+
+    /** For imageTransformers, since it's a complicated datastructure to update. */
+    protected ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+
     /**
-     * injection of the ImageTransformer services provided by the OSGi configuration
+     * Registers a ImageTransformer service implementation.
+     * Injection of the ImageTransformer services provided by the OSGi configuration.
      */
     @Reference(service = ImageTransformer.class,
             cardinality = ReferenceCardinality.MULTIPLE,
             policy = ReferencePolicy.DYNAMIC)
-    protected volatile Map<String, List<ImageTransformer>> imageTransformers;
-
-    /**
-     * Gets or initializes the transformers configuration.
-     */
-    @Nonnull
-    protected Map<String, List<ImageTransformer>> getImageTransformers() {
-        if (imageTransformers == null) {
-            imageTransformers = new HashMap<>();
-        }
-        return imageTransformers;
-    }
-
-    /**
-     * Registers a ImageTransformer service implementation.
-     */
     protected void bindImageTransformer(final ImageTransformer transformer) {
         for (String operation : transformer.getOperations()) {
             bindImageTransformer(operation, transformer);
@@ -73,13 +67,15 @@ public class DefaultRenditionTransformer implements RenditionTransformer {
     /**
      * Registers a ImageTransformer service implementation for one operation.
      */
-    protected synchronized void bindImageTransformer(String operation, final ImageTransformer transformer) {
-        List<ImageTransformer> transformers = getImageTransformers().get(operation);
-        if (transformers == null) {
-            imageTransformers.put(operation, transformers = new ArrayList<>());
+    protected void bindImageTransformer(String operation, final ImageTransformer transformer) {
+        try (LockAsAutoCloseable ignored = LockAsAutoCloseable.lock(readWriteLock.readLock())) {
+            List<ImageTransformer> transformers = imageTransformers.get(operation);
+            if (transformers == null) {
+                imageTransformers.put(operation, transformers = Collections.synchronizedList(new ArrayList<>()));
+            }
+            LOG.info("transformer.bind: [{}] {}", operation, transformer.getClass().getName());
+            transformers.add(transformer);
         }
-        LOG.info("transformer.bind: [{}] {}", operation, transformer.getClass().getName());
-        transformers.add(transformer);
     }
 
     /**
@@ -91,11 +87,13 @@ public class DefaultRenditionTransformer implements RenditionTransformer {
         }
     }
 
-    protected synchronized void unbindImageTransformer(String operation, final ImageTransformer transformer) {
-        List<ImageTransformer> transformers = getImageTransformers().get(operation);
-        if (transformers != null && transformers.contains(transformer)) {
-            LOG.info("transformer.unbind: [{}] {}", operation, transformer.getClass().getName());
-            transformers.remove(transformer);
+    protected void unbindImageTransformer(String operation, final ImageTransformer transformer) {
+        try (LockAsAutoCloseable ignored = LockAsAutoCloseable.lock(readWriteLock.readLock())) {
+            List<ImageTransformer> transformers = imageTransformers.get(operation);
+            if (transformers != null && transformers.contains(transformer)) {
+                LOG.info("transformer.unbind: [{}] {}", operation, transformer.getClass().getName());
+                transformers.remove(transformer);
+            }
         }
     }
 
@@ -105,14 +103,16 @@ public class DefaultRenditionTransformer implements RenditionTransformer {
     @Override
     public BufferedImage transform(BufferedImage image, String operation, Object options) {
         ImageTransformer transformer = null;
-        List<ImageTransformer> transformers = getImageTransformers().get(operation);
-        if (transformers != null) {
-            int rating = 0;
-            for (ImageTransformer t : transformers) {
-                int r = t.rating(operation, options);
-                if (r > rating) {
-                    rating = r;
-                    transformer = t;
+        try (LockAsAutoCloseable ignored = LockAsAutoCloseable.lock(readWriteLock.readLock())) {
+            List<ImageTransformer> transformers = imageTransformers.get(operation);
+            if (transformers != null) {
+                int rating = 0;
+                for (ImageTransformer t : transformers) {
+                    int r = t.rating(operation, options);
+                    if (r > rating) {
+                        rating = r;
+                        transformer = t;
+                    }
                 }
             }
         }
