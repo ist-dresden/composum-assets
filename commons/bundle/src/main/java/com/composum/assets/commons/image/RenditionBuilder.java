@@ -14,7 +14,6 @@ import com.composum.assets.commons.handle.AssetRendition;
 import com.composum.assets.commons.handle.AssetVariation;
 import com.composum.assets.commons.handle.ImageAsset;
 import com.composum.assets.commons.service.AdaptiveImageService;
-import com.composum.sling.core.BeanContext;
 import com.composum.sling.core.concurrent.LazyCreationService;
 import com.composum.sling.core.util.ResourceUtil;
 import com.google.common.collect.ImmutableMap;
@@ -84,8 +83,6 @@ public class RenditionBuilder {
     @Nonnull
     protected final VariationConfig variationConfig;
     @Nonnull
-    protected final BeanContext.Service beanContext;
-    @Nonnull
     protected final RenditionConfig renditionConfig;
     @Nonnull
     protected final String transientsPath;
@@ -102,7 +99,6 @@ public class RenditionBuilder {
         this.asset = asset;
         renditionConfig = config;
         this.context = context;
-        beanContext = new BeanContext.Service(asset.getResolver());
 
         variationConfig = renditionConfig.getVariation();
         assetConfig = variationConfig.getAssetConfig();
@@ -122,7 +118,7 @@ public class RenditionBuilder {
     /**
      * Build the rendition into the rendition resource and switch to valid state.
      */
-    protected void createRendition(ResourceResolver resolver, Resource renditionTransientPath)
+    protected void createRendition(ResourceResolver resolver)
             throws IOException, RepositoryException {
         AssetRendition rendition = variation.giveRendition(renditionConfig);
         AssetRendition original;
@@ -150,6 +146,9 @@ public class RenditionBuilder {
                 ModifiableValueMap contentValues = contentResource.adaptTo(ModifiableValueMap.class);
                 contentValues.put("jcr:data", imageStream);
                 contentValues.put("jcr:mimeType", rendition.getMimeType());
+                resolver.commit();
+
+                context.getMetaPropertiesService().adjustMetaProperties(resolver, fileResource);
                 resolver.commit();
 
                 Resource renditionResource = resolver.getResource(rendition.getTransientsPath());
@@ -215,7 +214,7 @@ public class RenditionBuilder {
             public void initialize(ResourceResolver resolver, Resource resource) throws RepositoryException, PersistenceException {
                 LOG.debug("Initializing {}/{}", resource.getPath());
                 try {
-                    RenditionBuilder.this.createRendition(resolver, resource);
+                    RenditionBuilder.this.createRendition(resolver);
                 } catch (IOException e) {
                     throw new PersistenceException("Error initializing " + resource.getPath(), e);
                 }

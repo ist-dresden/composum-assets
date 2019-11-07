@@ -33,6 +33,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import javax.jcr.Node;
 import javax.jcr.Session;
@@ -87,6 +88,7 @@ public class AdaptiveImageServiceTest {
                 "/test/assets/site-1/images/image-1.png/wide/original/image-1.png");
         context.load().binaryFile("/adaptiveImageServiceTest/images/image-2.png/square/original/image-2.png",
                 "/test/assets/site-1/images/image-2.png/square/original/image-2.png");
+        context.registerService(MetaPropertiesService.class, Mockito.mock(MetaPropertiesService.class));
         context.registerInjectActivateService(new SemaphoreSequencer());
         context.registerInjectActivateService(new LazyCreationServiceImpl());
         context.registerInjectActivateService(new DefaultRenditionTransformer());

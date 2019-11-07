@@ -126,7 +126,8 @@ public class SetupHook implements InstallHook {
             NodeTypeManager nodeTypeManager = session.getWorkspace().getNodeTypeManager();
             NodeType assetContentType = nodeTypeManager.getNodeType("cpa:AssetContent");
             NodeType assetResourceType = nodeTypeManager.getNodeType("cpa:AssetResource");
-            if (!assetContentType.isNodeType(org.apache.jackrabbit.JcrConstants.MIX_VERSIONABLE)
+            if (
+                    !assetContentType.isNodeType(org.apache.jackrabbit.JcrConstants.MIX_VERSIONABLE)
                     || !assetResourceType.isNodeType(org.apache.jackrabbit.JcrConstants.MIX_VERSIONABLE)
                     || !assetResourceType.isNodeType(JcrConstants.MIX_CREATED)
             ) {

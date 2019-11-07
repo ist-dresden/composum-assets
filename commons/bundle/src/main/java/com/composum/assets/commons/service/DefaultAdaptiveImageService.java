@@ -48,9 +48,8 @@ import java.util.concurrent.Executors;
 /** The Composum Assets - Image Service supports renditions of image assets". */
 @Component(
         service = AdaptiveImageService.class,
-        name = "Composum Assets - Image Service",
         property = {
-                Constants.SERVICE_DESCRIPTION + "=supports renditions of image assets",
+                Constants.SERVICE_DESCRIPTION + "=Composum Assets - Image Service: supports renditions of image assets",
         },
         immediate = true
 )
@@ -65,6 +64,9 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
 
     @Reference
     protected LazyCreationService lazyCreationService;
+
+    @Reference
+    protected MetaPropertiesService metaPropertiesService;
 
     protected ExecutorService executorService;
 
@@ -152,9 +154,10 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
             PersistenceException,
             RepositoryException {
         HashMap<String, Object> hints = new HashMap<>();
-        BuilderContext context = new BuilderContext(this, lazyCreationService, executorService, hints);
+        BuilderContext context = new BuilderContext(this, lazyCreationService, metaPropertiesService, executorService, hints);
         RenditionBuilder builder = new RenditionBuilder(asset, renditionConfig, context);
         AssetRendition rendition = builder.getOrCreateRendition();
+        // FIXME(hps,07.11.19) call AdjustMetadataService somewhere
         LOG.debug("Rendition created: {}", rendition);
         return rendition;
     }

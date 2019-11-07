@@ -60,9 +60,9 @@ import java.util.Calendar;
 /** The Composum Assets - Adaptive Image Servlet delivers renditions of image assets for the configured variations. */
 @Component(
         service = Servlet.class,
-        name = "Composum Assets - Adaptive Image Servlet",
         property = {
-                Constants.SERVICE_DESCRIPTION + "=delivers renditions of image assets for the configured variations",
+                Constants.SERVICE_DESCRIPTION + "=Composum Assets - Adaptive Image Servlet: delivers renditions of " +
+                        "image assets for the configured variations",
                 ServletResolverConstants.SLING_SERVLET_RESOURCE_TYPES + "=" + ServletResolverConstants.DEFAULT_RESOURCE_TYPE,
                 ServletResolverConstants.SLING_SERVLET_METHODS + "=" + HttpConstants.METHOD_GET,
                 ServletResolverConstants.SLING_SERVLET_SELECTORS + "=adaptive",

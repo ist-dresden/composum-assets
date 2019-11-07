@@ -30,10 +30,10 @@ import static com.composum.assets.commons.AssetsConstants.ASSETS_SERVICE_USER;
 /**
  * the observer to adjust the meta data of an image if the image content is changed
  */
-@Component(
+/* @Component(
         immediate = true,
         service = EventListener.class
-)
+) */
 public class AdjustMetaDataObserver extends AbstractChangeObserver {
 
     private static final Logger LOG = LoggerFactory.getLogger(AdjustMetaDataObserver.class);

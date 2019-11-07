@@ -48,9 +48,9 @@ import java.util.Map;
 
 @Component(
         service = MetaPropertiesService.class,
-        name = "Composum Assets - Meta Data Extraction Service",
         property = {
-                Constants.SERVICE_DESCRIPTION + "=delivers renditions of image assets for the configured variations",
+                Constants.SERVICE_DESCRIPTION + "=Composum Assets - Meta Data Extraction Service: delivers " +
+                        "renditions of image assets for the configured variations",
         },
         immediate = true
 )
