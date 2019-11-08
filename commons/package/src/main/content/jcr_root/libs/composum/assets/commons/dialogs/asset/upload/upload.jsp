@@ -3,7 +3,7 @@
 <%@taglib prefix="cpn" uri="http://sling.composum.com/cpnl/1.0" %>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <sling:defineObjects/>
-<cpn:component var="folder" type="com.composum.assets.commons.model.AssetsFolder">
+<cpn:component var="folder" type="com.composum.assets.commons.pages.model.AssetsFolder">
     <div class="composum-assets_pages-dialog composum-pages-stage-edit-dialog dialog-asset-upload dialog modal fade"
          role="dialog" aria-hidden="true">
         <div class="modal-dialog">
@@ -28,36 +28,33 @@
                             </div>
                         </div>
 
-                        <div class="row">
-                            <div class="col-xs-9">
-                                <div class="form-group composum-pages-edit-widget_pathfield assets-dialog-form_path">
-                                    <cpn:text tagName="label" class="control-label composum-pages-edit-widget_label"
-                                              value="Parent Folder" i18n="true"/>
-                                    <div class="input-group widget path-widget" data-rules="required">
-                                        <input name="path" class="form-control" type="text"/>
-                                        <span class="input-group-btn"><button
-                                                class="select btn btn-default" type="button"
-                                                title="${cpn:i18n(slingRequest,'Select Repository Path')}">...</button></span>
-                                    </div>
-                                </div>
+                        <div class="form-group composum-pages-edit-widget_pathfield assets-dialog-form_path">
+                            <cpn:text tagName="label" class="control-label composum-pages-edit-widget_label"
+                                      value="Asset Path" i18n="true"/>
+                            <div class="input-group widget path-widget" data-rules="required">
+                                <input name="path" class="form-control" type="text"/>
+                                <span class="input-group-btn"><button
+                                        class="select btn btn-default" type="button"
+                                        title="${cpn:i18n(slingRequest,'Select Repository Path')}">...</button></span>
                             </div>
-                            <div class="col-xs-3">
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-4">
                                 <cpn:div test="${folder.assetConfigAvailable}"
                                          class="form-group composum-pages-edit-widget_select assets-dialog-form_variation">
                                     <cpn:text tagName="label" class="control-label composum-pages-edit-widget_label"
                                               value="Variation" i18n="true"/>
                                     <select name="variation" class="widget select-widget form-control">
                                         <c:forEach items="${folder.variations}" var="variation">
-                                            <option>${cpn:text(variation.name)}</option>
+                                            <option ${variation.defaultConfig?'selected="selected"':''}>${cpn:text(variation.name)}</option>
                                         </c:forEach>
                                     </select>
                                 </cpn:div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-xs-9">
+                            <div class="col-xs-4">
                             </div>
-                            <div class="col-xs-3">
+                            <div class="col-xs-4">
                                 <div class="form-group composum-pages-edit-widget_textfield assets-dialog-form_mime-type">
                                     <cpn:text tagName="label" class="control-label composum-pages-edit-widget_label"
                                               value="Mime Type" i18n="true"/>

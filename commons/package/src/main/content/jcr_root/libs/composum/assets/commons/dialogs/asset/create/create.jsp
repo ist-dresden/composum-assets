@@ -3,7 +3,7 @@
 <%@taglib prefix="cpn" uri="http://sling.composum.com/cpnl/1.0" %>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <sling:defineObjects/>
-<cpn:component var="folder" type="com.composum.assets.commons.model.AssetsFolder">
+<cpn:component var="folder" type="com.composum.assets.commons.pages.model.AssetsFolder">
     <div class="composum-assets_pages-dialog composum-pages-stage-edit-dialog dialog-asset-create dialog modal fade"
          role="dialog" aria-hidden="true">
         <div class="modal-dialog">
@@ -48,7 +48,7 @@
                                               value="Variation" i18n="true"/>
                                     <select name="variation" class="widget select-widget form-control">
                                         <c:forEach items="${folder.variations}" var="variation">
-                                            <option>${cpn:text(variation.name)}</option>
+                                            <option ${variation.defaultConfig?'selected="selected"':''}>${cpn:text(variation.name)}</option>
                                         </c:forEach>
                                     </select>
                                 </cpn:div>
@@ -58,10 +58,10 @@
                             <div class="col-xs-9">
                                 <div class="form-group composum-pages-edit-widget_textfield assets-dialog-form_name">
                                     <label class="control-label composum-pages-edit-widget_label"><span
-                                            class="label-text">${cpn:i18n(slingRequest,'Resource Name')}</span><span
+                                            class="label-text">${cpn:i18n(slingRequest,'Asset Name')}</span><span
                                             class="composum-pages-edit-widget_hint widget-hint">${cpn:i18n(slingRequest,'add a name if the file name is not the right choice')}</span></label>
                                     <input name="name" class="widget text-field-widget form-control" type="text"
-                                           placeholder="enter node name"/>
+                                           placeholder="enter asset name"/>
                                 </div>
                             </div>
                             <div class="col-xs-3">

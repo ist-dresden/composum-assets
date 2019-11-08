@@ -3,12 +3,11 @@
  *
  * This software may be modified and distributed under the terms of the MIT license.
  */
-package com.composum.assets.commons.model;
+package com.composum.assets.commons.pages.model;
 
 import com.composum.assets.commons.config.AssetConfig;
 import com.composum.assets.commons.config.VariationConfig;
 import com.composum.assets.commons.util.AssetConfigUtil;
-import com.composum.sling.core.AbstractSlingBean;
 import com.composum.sling.core.BeanContext;
 import com.composum.sling.core.ResourceHandle;
 import org.apache.sling.api.resource.Resource;
@@ -18,7 +17,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AssetsFolder extends AbstractSlingBean {
+public class AssetsFolder extends PagesFrameModel {
 
     private transient Boolean assetConfigAvailable;
     private transient AssetConfig assetConfig;
@@ -41,7 +40,7 @@ public class AssetsFolder extends AbstractSlingBean {
     @Nullable
     public AssetConfig getAssetConfig() {
         if (assetConfig == null) {
-            List<ResourceHandle> cascade = AssetConfigUtil.assetConfigCascade(resource);
+            List<ResourceHandle> cascade = AssetConfigUtil.assetConfigCascade(getResource());
             if (cascade.size() > 0) {
                 assetConfig = new AssetConfig(cascade);
             }

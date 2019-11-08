@@ -202,7 +202,7 @@ public class DefaultAssetsService implements AssetsService {
             Resource content = resolver.create(assetResource, ResourceUtil.CONTENT_NODE, IMAGE_CONTENT_PROPERTIES);
             ImageAsset imageAsset = new ImageAsset(context, assetResource);
             AssetVariation variation = imageAsset.getOrCreateVariationForOriginal(null);
-            AssetRendition rendition = variation.getOrCreateOriginal();
+            AssetRendition rendition = variation.getOrCreateOriginal(null);
             session.move(tmpPath, rendition.getPath() + "/" + name);
             resolver.refresh();
         }
@@ -240,7 +240,7 @@ public class DefaultAssetsService implements AssetsService {
                                       @Nonnull final InputStream imageData)
             throws Exception {
         AssetVariation variation = imageAsset.getOrCreateVariationForOriginal(variationKey);
-        AssetRendition rendition = variation.getOrCreateOriginal();
+        AssetRendition rendition = variation.getOrCreateOriginal(variationKey);
         FileHandle file = rendition.getFile();
         if (file == null) {
             Resource renditionResource = rendition.getResource();

@@ -96,9 +96,14 @@ public class AssetVariation extends AssetHandle<VariationConfig> {
 
     @Nullable
     public AssetRendition getOriginal() {
+        return getOriginal(null);
+    }
+
+    @Nullable
+    public AssetRendition getOriginal(@Nullable final String variation) {
         Resource originalResource = findChildByCategoryOrName(resource, AssetRendition.NODE_TYPE, ConfigHandle.ORIGINAL);
         AssetRendition original = originalResource != null ? new AssetRendition(context, originalResource, this) : null;
-        if (original == null) {
+        if (original == null && StringUtils.isBlank(variation)) {
             original = getAsset().retrieveOriginal(this);
         }
         return original;
@@ -143,9 +148,11 @@ public class AssetVariation extends AssetHandle<VariationConfig> {
         return rendition;
     }
 
-    /** Creates an original rendition - which is stored in the /content resource tree. */
-    public AssetRendition getOrCreateOriginal() throws PersistenceException {
-        AssetRendition rendition = getOriginal();
+    /**
+     * Creates an original rendition - which is stored in the /content resource tree.
+     */
+    public AssetRendition getOrCreateOriginal(@Nullable final String variation) throws PersistenceException {
+        AssetRendition rendition = getOriginal(variation);
         if (rendition == null) {
             Resource variationResource = getResource();
             Resource renditionResource = getResolver().create(variationResource, "original", RENDITION_PROPERTIES);
