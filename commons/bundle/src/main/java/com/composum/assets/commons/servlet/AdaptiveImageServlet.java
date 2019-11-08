@@ -27,7 +27,6 @@ import org.apache.jackrabbit.JcrConstants;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.request.RequestPathInfo;
-import org.apache.sling.api.resource.LoginException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.servlets.HttpConstants;
@@ -155,7 +154,7 @@ public class AdaptiveImageServlet extends SlingSafeMethodsServlet {
                         rendition = adaptiveImageService.getOrCreateRendition(
                                 asset, renditionConfig.getVariation().getName(), renditionConfig.getName());
                     }
-                } catch (RepositoryException | LoginException | IOException ex) {
+                } catch (RepositoryException | IOException ex) {
                     LOG.error(ex.getMessage(), ex);
                 }
 

@@ -1,5 +1,6 @@
 package com.composum.assets.commons.setup;
 
+import com.composum.sling.core.setup.util.SetupUtil;
 import com.composum.sling.core.usermanagement.core.UserManagementService;
 import org.apache.jackrabbit.api.JackrabbitSession;
 import org.apache.jackrabbit.api.security.user.Authorizable;
@@ -30,10 +31,11 @@ import javax.jcr.query.QueryResult;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import static java.util.Collections.emptyList;
 
 public class SetupHook implements InstallHook {
 
@@ -43,18 +45,16 @@ public class SetupHook implements InstallHook {
 
     public static final String ASSETS_SERVICE_USER = "composum-assets-service";
 
-    public static final String ADMINISTRATORS_GROUP = "administrators";
-
+    public static final Map<String, List<String>> ASSETS_USERS;
     public static final Map<String, List<String>> ASSETS_SYSTEM_USERS;
-
-    static {
-        ASSETS_SYSTEM_USERS = new LinkedHashMap<>();
-        ASSETS_SYSTEM_USERS.put(ASSETS_SYSTEM_USERS_PATH + ASSETS_SERVICE_USER, Collections.emptyList());
-    }
-
     public static final Map<String, List<String>> ASSETS_GROUPS;
 
+    public static final String SITE_CONFIGURATION_QUERY = "/jcr:root//element(*,cpp:SiteConfiguration)";
+
     static {
+        ASSETS_USERS = new LinkedHashMap<>();
+        ASSETS_SYSTEM_USERS = new LinkedHashMap<>();
+        ASSETS_SYSTEM_USERS.put(ASSETS_SYSTEM_USERS_PATH + ASSETS_SERVICE_USER, emptyList());
         ASSETS_GROUPS = new LinkedHashMap<>();
     }
 
@@ -62,9 +62,13 @@ public class SetupHook implements InstallHook {
     @Override
     public void execute(InstallContext ctx) throws PackageException {
         switch (ctx.getPhase()) {
+            case PREPARE:
+                LOG.info("prepare: execute...");
+                SetupUtil.setupGroupsAndUsers(ctx, ASSETS_GROUPS, ASSETS_SYSTEM_USERS, ASSETS_USERS);
+                LOG.info("prepare: execute ends.");
+                break;
             case INSTALLED:
                 LOG.info("installed: execute...");
-                setupGroupsAndUsers(ctx);
                 // updateNodeTypes should be the last actions since we need a session.save() there.
                 updateNodeTypes(ctx);
                 LOG.info("installed: execute ends.");
@@ -111,7 +115,9 @@ public class SetupHook implements InstallHook {
         for (NodeIterator it = result.getNodes(); it.hasNext(); ) {
             Node node = it.nextNode();
             if (node.isNodeType("cpa:AssetConfiguration")) {
-                while (node != null && !node.getName().equals(JcrConstants.JCR_CONTENT)) { node = node.getParent(); }
+                while (node != null && !node.getName().equals(JcrConstants.JCR_CONTENT)) {
+                    node = node.getParent();
+                }
                 if (node != null && !node.isNodeType(JcrConstants.MIX_VERSIONABLE)) {
                     LOG.info("Adding {} to {}", JcrConstants.MIX_VERSIONABLE, node.getPath());
                     node.addMixin(JcrConstants.MIX_VERSIONABLE);
@@ -128,8 +134,8 @@ public class SetupHook implements InstallHook {
             NodeType assetResourceType = nodeTypeManager.getNodeType("cpa:AssetResource");
             if (
                     !assetContentType.isNodeType(org.apache.jackrabbit.JcrConstants.MIX_VERSIONABLE)
-                    || !assetResourceType.isNodeType(org.apache.jackrabbit.JcrConstants.MIX_VERSIONABLE)
-                    || !assetResourceType.isNodeType(JcrConstants.MIX_CREATED)
+                            || !assetResourceType.isNodeType(org.apache.jackrabbit.JcrConstants.MIX_VERSIONABLE)
+                            || !assetResourceType.isNodeType(JcrConstants.MIX_CREATED)
             ) {
                 LOG.info("Updating asset nodetypes neccesary.");
                 try (VaultPackage vaultPackage = ctx.getPackage()) {

@@ -32,6 +32,30 @@
                 </configuration>
             </plugin>
 
+            <!-- embed utilities -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>embed</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.composum.sling.core.setup</groupId>
+                                    <artifactId>composum-sling-core-setup-util</artifactId>
+                                    <outputDirectory>${project.build.directory}/classes</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
 
@@ -41,6 +65,12 @@
         <dependency>
             <groupId>com.composum.sling.core</groupId>
             <artifactId>composum-sling-user-management</artifactId>
+        </dependency>
+
+        <!-- Setup utilities -->
+        <dependency>
+            <groupId>com.composum.sling.core.setup</groupId>
+            <artifactId>composum-sling-core-setup-util</artifactId>
         </dependency>
 
         <!-- Apache Sling -->

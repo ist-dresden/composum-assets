@@ -50,7 +50,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -111,7 +110,9 @@ public class AssetsServlet extends NodeTreeServlet {
         return true;
     }
 
-    /** setup of the servlet operation set for this servlet instance */
+    /**
+     * setup of the servlet operation set for this servlet instance
+     */
     @Override
     public void init() throws ServletException {
         super.init();
@@ -229,9 +230,8 @@ public class AssetsServlet extends NodeTreeServlet {
             RequestParameterMap parameters = request.getRequestParameterMap();
 
             RequestParameter file = parameters.getValue(PARAM_FILE);
-            if (file != null) {
-
-                InputStream imageStream = file.getInputStream();
+            InputStream imageStream;
+            if (file != null && (imageStream = file.getInputStream()) != null) {
 
                 String path = request.getParameter(PARAM_PATH);
                 String name = request.getParameter(PARAM_NAME);
@@ -496,12 +496,7 @@ public class AssetsServlet extends NodeTreeServlet {
     @SuppressWarnings("Duplicates")
     protected List<Resource> prepareTreeItems(ResourceHandle resource, List<Resource> items) {
         if (!nodesConfig.getOrderableNodesFilter().accept(resource)) {
-            Collections.sort(items, new Comparator<Resource>() {
-                @Override
-                public int compare(Resource r1, Resource r2) {
-                    return getSortName(r1).compareTo(getSortName(r2));
-                }
-            });
+            items.sort(Comparator.comparing(this::getSortName));
         }
         return items;
     }

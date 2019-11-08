@@ -194,7 +194,7 @@ public abstract class AbstractAsset extends AssetHandle<AssetConfig> {
     }
 
     /**
-     * the SelfConfig uses the asset itself as configuration (used if not configuration found)
+     * the SelfConfig uses the asset itself as configuration (used if no configuration found)
      */
     public static class SelfConfig extends AssetConfig {
 

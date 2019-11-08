@@ -9,7 +9,7 @@ import com.composum.assets.commons.config.RenditionConfig;
 import com.composum.assets.commons.handle.AssetRendition;
 import com.composum.assets.commons.handle.ImageAsset;
 import com.composum.assets.commons.image.RenditionTransformer;
-import org.apache.sling.api.resource.LoginException;
+import org.apache.sling.api.resource.PersistenceException;
 
 import javax.jcr.RepositoryException;
 import java.io.IOException;
@@ -27,11 +27,11 @@ public interface AdaptiveImageService {
 
     AssetRendition getOrCreateRendition(ImageAsset asset,
                                         String variationKey, String renditionKey)
-            throws LoginException, RepositoryException, IOException;
+            throws RepositoryException, IOException;
 
     void dropRenditions(String path,
                         String variationKey, String renditionKey)
-            throws Exception;
+            throws PersistenceException;
 
     RenditionTransformer getRenditionTransformer();
 }

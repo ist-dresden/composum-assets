@@ -29,6 +29,8 @@ import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import java.io.InputStream;
@@ -37,6 +39,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.composum.assets.commons.handle.AssetHandle.IMAGE_RESOURCE_TYPE;
 
@@ -142,22 +145,31 @@ public class DefaultAssetsService implements AssetsService {
     protected AdaptiveImageService adaptiveImageService;
 
     @Override
-    public void uploadImageAsset(BeanContext context, String parentPath, String name,
-                                 String variation, InputStream imageData)
+    @Nonnull
+    public Resource uploadImageAsset(@Nonnull final BeanContext context,
+                                     @Nonnull final String assetOrParentPath, @Nullable final String name,
+                                     @Nonnull final String variation, @Nonnull final InputStream imageData)
             throws Exception {
         ResourceResolver resolver = context.getResolver();
-        String pathAndName = parentPath + "/" + name;
+        String pathAndName = assetOrParentPath + (StringUtils.isNotBlank(name) ? ("/" + name) : "");
         Resource assetResource = resolver.getResource(pathAndName);
-        if (assetResource == null || !ResourceUtil.isNodeType(assetResource, AssetsConstants.NODE_TYPE_ASSET)) {
-            createImageAsset(context, parentPath, name, variation, imageData);
+        if (!ResourceUtil.isNodeType(assetResource, AssetsConstants.NODE_TYPE_ASSET)) {
+            if (StringUtils.isNotBlank(name)) {
+                return createImageAsset(context, assetOrParentPath, name, variation, imageData);
+            } else {
+                throw new PersistenceException("name missed for asset creation");
+            }
         } else {
             changeImageAsset(context, assetResource, variation, imageData);
+            return assetResource;
         }
     }
 
     @Override
-    public Resource createImageAsset(BeanContext context, String parentPath, String name,
-                                     String variation, InputStream imageData)
+    @Nonnull
+    public Resource createImageAsset(@Nonnull final BeanContext context,
+                                     @Nonnull final String parentPath, @Nonnull final String name,
+                                     @Nonnull final String variation, @Nonnull final InputStream imageData)
             throws Exception {
         ResourceResolver resolver = context.getResolver();
         String pathAndName = parentPath + "/" + name;
@@ -173,17 +185,17 @@ public class DefaultAssetsService implements AssetsService {
     }
 
     @Override
-    public void transformToImageAsset(BeanContext context, Resource imageResource)
+    public void transformToImageAsset(@Nonnull final BeanContext context, @Nonnull final Resource imageResource)
             throws PersistenceException, RepositoryException {
         if (!ResourceUtil.isNodeType(imageResource, AssetsConstants.NODE_TYPE_ASSET)) {
             ResourceResolver resolver = context.getResolver();
-            Resource parent = imageResource.getParent();
+            Resource parent = Objects.requireNonNull(imageResource.getParent());
             String assetPath = imageResource.getPath();
             String name = imageResource.getName();
             String tmpPath = getAssetTmpPath(resolver, name);
             // CRUD not possible because the resolvers 'move' performs 'copy' internally
             // and the file is referenceable... - exception on copying the 'uuid'!
-            Session session = resolver.adaptTo(Session.class);
+            Session session = Objects.requireNonNull(resolver.adaptTo(Session.class));
             session.move(assetPath, tmpPath);
             resolver.refresh();
             Resource assetResource = resolver.create(parent, name, IMAGE_PROPERTIES);
@@ -197,7 +209,7 @@ public class DefaultAssetsService implements AssetsService {
     }
 
     @Override
-    public void transformToSimpleImage(BeanContext context, Resource assetResource)
+    public void transformToSimpleImage(@Nonnull final BeanContext context, @Nonnull final Resource assetResource)
             throws PersistenceException, RepositoryException {
         if (!ResourceUtil.isNodeType(assetResource, JcrConstants.NT_FILE)) {
             ResourceResolver resolver = context.getResolver();
@@ -208,7 +220,7 @@ public class DefaultAssetsService implements AssetsService {
             String filePath = file.getPath();
             String tmpPath = getAssetTmpPath(resolver, assetResource.getName());
             // CRUD not possible because - see above...
-            Session session = resolver.adaptTo(Session.class);
+            Session session = Objects.requireNonNull(resolver.adaptTo(Session.class));
             session.move(filePath, tmpPath);
             session.removeItem(assetPath);
             session.move(tmpPath, assetPath);
@@ -217,14 +229,15 @@ public class DefaultAssetsService implements AssetsService {
     }
 
     @Override
-    public void changeImageAsset(BeanContext context, Resource assetResource,
-                                 String variation, InputStream imageData)
+    public void changeImageAsset(@Nonnull final BeanContext context, @Nonnull final Resource assetResource,
+                                 @Nonnull final String variation, @Nonnull final InputStream imageData)
             throws Exception {
         ImageAsset imageAsset = new ImageAsset(context, assetResource);
         storeImageOriginal(imageAsset, variation, imageData);
     }
 
-    protected void storeImageOriginal(ImageAsset imageAsset, String variationKey, InputStream imageData)
+    protected void storeImageOriginal(@Nonnull final ImageAsset imageAsset, @Nonnull final String variationKey,
+                                      @Nonnull final InputStream imageData)
             throws Exception {
         AssetVariation variation = imageAsset.getOrCreateVariationForOriginal(variationKey);
         AssetRendition rendition = variation.getOrCreateOriginal();
@@ -246,7 +259,7 @@ public class DefaultAssetsService implements AssetsService {
     }
 
     @Override
-    public void deleteAsset(Resource assetResource)
+    public void deleteAsset(@Nullable final Resource assetResource)
             throws PersistenceException {
         if (assetResource != null && !ResourceUtil.isNonExistingResource(assetResource)) {
             LOG.info("asset.delete: " + assetResource.getPath());
@@ -255,7 +268,8 @@ public class DefaultAssetsService implements AssetsService {
     }
 
     @Override
-    public void setDefaultConfiguration(BeanContext context, Resource configResource, boolean commit)
+    public void setDefaultConfiguration(@Nonnull final BeanContext context,
+                                        @Nonnull final Resource configResource, boolean commit)
             throws PersistenceException {
         String configPath = configResource.getPath();
         Resource folder = configResource.getParent();
@@ -263,25 +277,33 @@ public class DefaultAssetsService implements AssetsService {
         for (Resource sibling : configList) {
             if (!sibling.getPath().equals(configPath)) {
                 ValueMap values = sibling.adaptTo(ModifiableValueMap.class);
-                List<String> categories = new ArrayList<>();
-                boolean changed = false;
-                for (String category : values.get(ConfigHandle.CATEGORIES, new String[0])) {
-                    if (!ConfigHandle.DEFAULT.equals(category)) {
-                        categories.add(category);
-                    } else {
-                        changed = true;
+                if (values != null) {
+                    List<String> categories = new ArrayList<>();
+                    boolean changed = false;
+                    for (String category : values.get(ConfigHandle.CATEGORIES, new String[0])) {
+                        if (!ConfigHandle.DEFAULT.equals(category)) {
+                            categories.add(category);
+                        } else {
+                            changed = true;
+                        }
                     }
-                }
-                if (changed) {
-                    values.put(ConfigHandle.CATEGORIES, categories.toArray());
+                    if (changed) {
+                        values.put(ConfigHandle.CATEGORIES, categories.toArray());
+                    }
+                } else {
+                    throw new PersistenceException("configuration not modifiable: '" + sibling.getPath() + "'");
                 }
             }
         }
         ValueMap values = configResource.adaptTo(ModifiableValueMap.class);
-        List<String> categories = new ArrayList<>(Arrays.asList(values.get(ConfigHandle.CATEGORIES, new String[0])));
-        if (!categories.contains(ConfigHandle.DEFAULT)) {
-            categories.add(ConfigHandle.DEFAULT);
-            values.put(ConfigHandle.CATEGORIES, categories.toArray());
+        if (values != null) {
+            List<String> categories = new ArrayList<>(Arrays.asList(values.get(ConfigHandle.CATEGORIES, new String[0])));
+            if (!categories.contains(ConfigHandle.DEFAULT)) {
+                categories.add(ConfigHandle.DEFAULT);
+                values.put(ConfigHandle.CATEGORIES, categories.toArray());
+            }
+        } else {
+            throw new PersistenceException("configuration not modifiable: '" + configResource.getPath() + "'");
         }
         if (commit) {
             ResourceResolver resolver = context.getResolver();
@@ -290,7 +312,8 @@ public class DefaultAssetsService implements AssetsService {
     }
 
     @Override
-    public Resource getOrCreateConfiguration(BeanContext context, String path, boolean commit)
+    public Resource getOrCreateConfiguration(@Nonnull final BeanContext context,
+                                             @Nonnull final String path, boolean commit)
             throws PersistenceException {
         Resource config = null;
         ResourceResolver resolver = context.getResolver();
@@ -318,15 +341,15 @@ public class DefaultAssetsService implements AssetsService {
     }
 
     @Override
-    public Resource copyConfigNode(BeanContext context, Resource parent, Resource template, boolean commit)
+    public Resource copyConfigNode(@Nonnull final BeanContext context, @Nonnull final Resource parent,
+                                   @Nonnull final Resource template, boolean commit)
             throws PersistenceException {
-        Resource configNode = null;
-        if (parent != null && template != null) {
-            String name = template.getName();
-            configNode = createConfigNode(context, parent, name, false);
-            if (configNode != null) {
-                ResourceResolver resolver = context.getResolver();
-                ModifiableValueMap values = configNode.adaptTo(ModifiableValueMap.class);
+        String name = template.getName();
+        Resource configNode = createConfigNode(context, parent, name, false);
+        if (configNode != null) {
+            ResourceResolver resolver = context.getResolver();
+            ModifiableValueMap values = configNode.adaptTo(ModifiableValueMap.class);
+            if (values != null) {
                 ValueMap templateValues = template.getValueMap();
                 for (Map.Entry<String, Object> entry : templateValues.entrySet()) {
                     String key = entry.getKey();
@@ -334,6 +357,43 @@ public class DefaultAssetsService implements AssetsService {
                         values.put(key, entry.getValue());
                     }
                 }
+            } else {
+                throw new PersistenceException("configuration not modifiable: '" + configNode.getPath() + "'");
+            }
+            if (commit) {
+                resolver.commit();
+            }
+        }
+        return configNode;
+    }
+
+    @Override
+    @Nullable
+    public Resource createConfigNode(@Nonnull final BeanContext context,
+                                     @Nonnull Resource parent, @Nonnull final String name, boolean commit)
+            throws PersistenceException {
+        Resource configNode = null;
+        String parentType = ResourceUtil.getPrimaryType(parent);
+        String childType = CONFIG_CHILD_TYPE.get(parentType);
+        if (childType == null) {
+            if (AssetsConstants.NODE_TYPE_RENDITION_CONFIG.equals(parentType)) {
+                // if the parent is a rendition config create a sibling
+                parent = Objects.requireNonNull(parent.getParent());
+                configNode = parent.getChild(name);
+                parentType = ResourceUtil.getPrimaryType(parent);
+                childType = CONFIG_CHILD_TYPE.get(parentType);
+            } else {
+                // otherwise we assume that the parent is a folder
+                // which should be transformed into a configuration node
+                return getOrCreateConfiguration(context, parent.getPath(), commit);
+            }
+        }
+        if (StringUtils.isNotBlank(name)) {
+            configNode = parent.getChild(name);
+            if (configNode == null && StringUtils.isNotBlank(childType)) {
+                ResourceResolver resolver = context.getResolver();
+                LOG.info("folder.createConfigNode: " + parent.getPath() + ":" + name);
+                configNode = resolver.create(parent, name, CONFIG_PROPERTIES.get(childType));
                 if (commit) {
                     resolver.commit();
                 }
@@ -343,42 +403,7 @@ public class DefaultAssetsService implements AssetsService {
     }
 
     @Override
-    public Resource createConfigNode(BeanContext context, Resource parent, String name, boolean commit)
-            throws PersistenceException {
-        Resource configNode = null;
-        if (parent != null) {
-            String parentType = ResourceUtil.getPrimaryType(parent);
-            String childType = CONFIG_CHILD_TYPE.get(parentType);
-            if (childType == null) {
-                if (AssetsConstants.NODE_TYPE_RENDITION_CONFIG.equals(parentType)) {
-                    // if the parent is a rendition config create a sibling
-                    parent = parent.getParent();
-                    configNode = parent.getChild(name);
-                    parentType = ResourceUtil.getPrimaryType(parent);
-                    childType = CONFIG_CHILD_TYPE.get(parentType);
-                } else {
-                    // otherwise we assume that the parent is a folder
-                    // which should be transformed into a configuration node
-                    return getOrCreateConfiguration(context, parent.getPath(), commit);
-                }
-            }
-            if (StringUtils.isNotBlank(name)) {
-                configNode = parent.getChild(name);
-                if (configNode == null && StringUtils.isNotBlank(childType)) {
-                    ResourceResolver resolver = context.getResolver();
-                    LOG.info("folder.createConfigNode: " + parent.getPath() + ":" + name);
-                    configNode = resolver.create(parent, name, CONFIG_PROPERTIES.get(childType));
-                    if (commit) {
-                        resolver.commit();
-                    }
-                }
-            }
-        }
-        return configNode;
-    }
-
-    @Override
-    public void deleteConfigNode(BeanContext context, Resource configNode, boolean commit)
+    public void deleteConfigNode(@Nonnull final BeanContext context, @Nullable Resource configNode, boolean commit)
             throws PersistenceException {
         if (configNode != null) {
             ResourceResolver resolver = context.getResolver();
@@ -396,7 +421,7 @@ public class DefaultAssetsService implements AssetsService {
         }
     }
 
-    protected Resource getOrCreateFolder(ResourceResolver resolver, String path)
+    protected Resource getOrCreateFolder(@Nonnull final ResourceResolver resolver, @Nonnull final String path)
             throws PersistenceException {
         Resource resource = resolver.getResource(path);
         if (resource == null) {
@@ -409,12 +434,12 @@ public class DefaultAssetsService implements AssetsService {
         return resource;
     }
 
-    protected String getAssetTmpPath(ResourceResolver resolver, String name)
+    protected String getAssetTmpPath(@Nonnull final ResourceResolver resolver, @Nonnull final String name)
             throws PersistenceException {
         return getAssetTmpFolder(resolver).getPath() + "/" + name;
     }
 
-    protected Resource getAssetTmpFolder(ResourceResolver resolver)
+    protected Resource getAssetTmpFolder(@Nonnull final ResourceResolver resolver)
             throws PersistenceException {
         return getOrCreateFolder(resolver, "/var/tmp/assets");
     }

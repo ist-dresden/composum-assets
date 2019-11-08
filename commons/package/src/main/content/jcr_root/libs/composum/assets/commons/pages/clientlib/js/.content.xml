@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0"
         jcr:primaryType="sling:OrderedFolder"
-        embed="[composum/assets/manager/pages/js/pages.js]">
+        embed="[composum/assets/commons/js/commons.js,
+                composum/assets/commons/pages/js/pages.js]">
 </jcr:root>

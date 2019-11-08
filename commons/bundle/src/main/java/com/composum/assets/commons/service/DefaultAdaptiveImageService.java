@@ -42,10 +42,13 @@ import javax.jcr.query.Query;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/** The Composum Assets - Image Service supports renditions of image assets". */
+/**
+ * The Composum Assets - Image Service supports renditions of image assets".
+ */
 @Component(
         service = AdaptiveImageService.class,
         property = {
@@ -136,7 +139,7 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
     @Override
     public AssetRendition getOrCreateRendition(ImageAsset asset,
                                                String variationKey, String renditionKey)
-            throws LoginException, RepositoryException, IOException {
+            throws RepositoryException, IOException {
 
         AssetRendition rendition = getRendition(asset, variationKey, renditionKey);
 
@@ -150,9 +153,8 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
         return rendition;
     }
 
-    protected AssetRendition createRendition(ImageAsset asset, RenditionConfig renditionConfig) throws
-            PersistenceException,
-            RepositoryException {
+    protected AssetRendition createRendition(ImageAsset asset, RenditionConfig renditionConfig)
+            throws PersistenceException, RepositoryException {
         HashMap<String, Object> hints = new HashMap<>();
         BuilderContext context = new BuilderContext(this, lazyCreationService, metaPropertiesService, executorService, hints);
         RenditionBuilder builder = new RenditionBuilder(asset, renditionConfig, context);
@@ -165,14 +167,14 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
     @Override
     public void dropRenditions(String path,
                                String variationKey, String renditionKey)
-            throws Exception {
+            throws PersistenceException {
 
         path = path.trim();
         LOG.info("dropRenditions('{}','{}','{}')...", path, variationKey, renditionKey);
 
-        try (ResourceResolver resolver = createServiceResolver()) {
+        try (ResourceResolver resolver = resolverFactory.getServiceResourceResolver(null)) {
 
-            Exception fault = null;
+            PersistenceException fault = null;
             Iterator<Resource> iterator;
             StringBuilder query;
             String queryString;
@@ -200,10 +202,14 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
                 ResourceHandle resource = ResourceHandle.use(iterator.next());
                 try {
                     dropRendition(resolver, resource, variationKey);
-                } catch (PersistenceException | RuntimeException ex) {
+                } catch (PersistenceException ex) {
                     // we drop all other stuff even if there was something broken.
                     LOG.error("Failure dropping rendition " + resource, ex);
                     fault = ex;
+                } catch (RuntimeException ex) {
+                    // we drop all other stuff even if there was something broken.
+                    LOG.error("Failure dropping rendition " + resource, ex);
+                    fault = new PersistenceException(ex.getMessage(), ex);
                 }
             }
 
@@ -218,9 +224,12 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
                 ResourceHandle resource = ResourceHandle.use(iterator.next());
                 try {
                     dropVariation(resolver, resource);
-                } catch (PersistenceException | RuntimeException ex) {
+                } catch (PersistenceException ex) {
                     LOG.error("Failure dropping variation " + resource, ex);
                     fault = ex;
+                } catch (RuntimeException ex) {
+                    LOG.error("Failure dropping variation " + resource, ex);
+                    fault = new PersistenceException(ex.getMessage(), ex);
                 }
             }
 
@@ -229,13 +238,16 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
             if (fault != null) {
                 throw fault;
             }
+        } catch (LoginException ex) {
+            LOG.error(ex.getMessage());
+            throw new PersistenceException(ex.getMessage());
         }
     }
 
     protected void dropRendition(ResourceResolver resolver, ResourceHandle rendition, String variationKey)
             throws PersistenceException {
         if (!isProtected(rendition)) {
-            ResourceHandle variation = rendition.getParent();
+            ResourceHandle variation = Objects.requireNonNull(rendition.getParent());
             if (StringUtils.isBlank(variationKey) || variationKey.equals(variation.getName())) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("dropRendition({})...", rendition.getPath());
@@ -271,10 +283,6 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
             }
         }
         return false;
-    }
-
-    protected ResourceResolver createServiceResolver() throws LoginException {
-        return resolverFactory.getAdministrativeResourceResolver(null);
     }
 
     @ObjectClassDefinition(
