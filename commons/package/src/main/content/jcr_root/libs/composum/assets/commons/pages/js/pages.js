@@ -19,6 +19,7 @@
                     asset: {
                         _create: '/asset/create.html',
                         _upload: '/asset/upload.html',
+                        _delete: '/asset/delete.html',
                         _config: '/asset/config.html'
                     },
                     folder: {
@@ -38,6 +39,10 @@
 
                 upload: function (event, name, path, type) {
                     pages.openAssetUploadDialog(name, path, type);
+                },
+
+                delete: function (event, name, path, type) {
+                    pages.openAssetDeleteDialog(name, path, type);
                 },
 
                 config: function (event, name, path, type) {
@@ -71,6 +76,17 @@
             }
         });
 
+        pages.AssetDeleteDialog = assets.AssetDeleteDialog.extend({
+
+            triggerEvents: function (result, defaultEvents) {
+                window.composum.pages.actions.dialog.triggerEvents(this, result, defaultEvents);
+            },
+
+            getDefaultSuccessEvents: function () {
+                return window.composum.pages.const.event.content.deleted;
+            }
+        });
+
         pages.openAssetCreateDialog = function (name, path, type, setupDialog) {
             var u = pages.const.uri.dialog;
             window.composum.pages.dialogHandler.openEditDialog(u.commons + u.asset._create,
@@ -83,6 +99,14 @@
             var u = pages.const.uri.dialog;
             window.composum.pages.dialogHandler.openEditDialog(u.commons + u.asset._upload,
                 pages.AssetUploadDialog, name, path, type, undefined/*context*/, function (dialog) {
+                    dialog.setPath(path);
+                });
+        };
+
+        pages.openAssetDeleteDialog = function (name, path, type, setupDialog) {
+            var u = pages.const.uri.dialog;
+            window.composum.pages.dialogHandler.openEditDialog(u.commons + u.asset._delete,
+                pages.AssetDeleteDialog, name, path, type, undefined/*context*/, function (dialog) {
                     dialog.setPath(path);
                 });
         };

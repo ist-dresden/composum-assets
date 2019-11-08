@@ -68,22 +68,38 @@
         assets.AssetCreateDialog = assets.AssetUploadDialog.extend({});
 
         /**
-         * the dialog to manage an assets configuration
+         * the dialog to delete an asset
          */
-        assets.AssetConfigDialog = assets.AssetUploadDialog.extend({
+        assets.AssetDeleteDialog = assets.AssetsFormDialog.extend({
 
             initView: function () {
-                assets.AssetUploadDialog.prototype.initView.apply(this);
+                var c = assets.const.commons.css.dialog;
+                assets.AssetsFormDialog.prototype.initView.apply(this);
+                this.$path = this.$('.' + c.base + c._path + ' input');
+            },
+
+            setPath: function (path) {
+                this.$path.val(path);
+            }
+        });
+
+        /**
+         * the dialog to manage an assets configuration
+         */
+        assets.AssetConfigDialog = assets.AssetsFormDialog.extend({
+
+            initView: function () {
+                assets.AssetsFormDialog.prototype.initView.apply(this);
             }
         });
 
         /**
          * the dialog to manage an assets configuration folder node
          */
-        assets.AssetsConfigurationDialog = assets.AssetUploadDialog.extend({
+        assets.AssetsConfigurationDialog = assets.AssetsFormDialog.extend({
 
             initView: function () {
-                assets.AssetUploadDialog.prototype.initView.apply(this);
+                assets.AssetsFormDialog.prototype.initView.apply(this);
             }
         });
 

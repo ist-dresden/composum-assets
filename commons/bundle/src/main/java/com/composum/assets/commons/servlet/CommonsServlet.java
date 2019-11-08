@@ -69,10 +69,8 @@ public class CommonsServlet extends AbstractServiceServlet {
     }
 
     public enum Operation {
-        createImage, uploadImage,
-        toImageAsset, toSimpleImage,
-        createConfig, copyConfig, deleteConfig, configDefault,
-        refreshMeta
+        createImage, uploadImage, deleteImage, toImageAsset, toSimpleImage,
+        createConfig, copyConfig, deleteConfig, configDefault, refreshMeta
     }
 
     protected AssetsOperationSet operations = new AssetsOperationSet();
@@ -109,6 +107,8 @@ public class CommonsServlet extends AbstractServiceServlet {
                 Operation.createImage, new CreateImageAssetOperation());
         operations.setOperation(ServletOperationSet.Method.POST, Extension.json,
                 Operation.uploadImage, new UploadImageOriginalOperation());
+        operations.setOperation(ServletOperationSet.Method.POST, Extension.json,
+                Operation.deleteImage, new DeleteImageAssetOperation());
         operations.setOperation(ServletOperationSet.Method.POST, Extension.json,
                 Operation.toImageAsset, new TransformToImageAssetOperation());
         operations.setOperation(ServletOperationSet.Method.POST, Extension.json,
@@ -220,6 +220,25 @@ public class CommonsServlet extends AbstractServiceServlet {
                                     @Nonnull String variation, @Nonnull InputStream imageData)
                 throws Exception {
             return assetsService.uploadImageAsset(context, path, name, variation, imageData);
+        }
+    }
+
+    public class DeleteImageAssetOperation implements ServletOperation {
+
+        @Override
+        public void doIt(SlingHttpServletRequest request, SlingHttpServletResponse response,
+                         ResourceHandle resource)
+                throws RepositoryException, IOException {
+            Status status = new Status(request, response);
+
+            try (ResourceResolver resolver = resource.getResourceResolver()) {
+
+                BeanContext context = new BeanContext.Servlet(getServletContext(), bundleContext, request, response);
+                assetsService.deleteAsset(resource);
+                resolver.commit();
+            }
+
+            status.sendJson();
         }
     }
 
