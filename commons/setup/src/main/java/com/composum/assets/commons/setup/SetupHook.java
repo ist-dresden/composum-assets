@@ -65,6 +65,7 @@ public class SetupHook implements InstallHook {
             case INSTALLED:
                 LOG.info("installed: execute...");
                 setupGroupsAndUsers(ctx);
+                addVersionableMixinToAssetConfigurationNodes(ctx);
                 // updateNodeTypes should be the last actions since we need a session.save() there.
                 updateNodeTypes(ctx);
                 LOG.info("installed: execute ends.");
@@ -93,7 +94,6 @@ public class SetupHook implements InstallHook {
                 }
             }
             session.save();
-            addVersionableMixinToAssetContentNodes(session);
         } catch (RepositoryException | RuntimeException rex) {
             LOG.error(rex.getMessage(), rex);
             throw new PackageException(rex);
@@ -104,19 +104,27 @@ public class SetupHook implements InstallHook {
      * We want all jcr:content nodes containing an cpa:AssetConfiguration to be versionable so that they can be
      * published. Thus, we need to add a mix:versionable if need be.
      */
-    protected void addVersionableMixinToAssetContentNodes(JackrabbitSession session) throws RepositoryException {
-        QueryManager queryManager = session.getWorkspace().getQueryManager();
-        Query query = queryManager.createQuery("select * from [cpa:AssetConfiguration]", Query.JCR_SQL2);
-        QueryResult result = query.execute();
-        for (NodeIterator it = result.getNodes(); it.hasNext(); ) {
-            Node node = it.nextNode();
-            if (node.isNodeType("cpa:AssetConfiguration")) {
+    protected void addVersionableMixinToAssetConfigurationNodes(InstallContext ctx) throws PackageException {
+        try {
+            Session session = ctx.getSession();
+            boolean updated = false;
+            QueryManager queryManager = session.getWorkspace().getQueryManager();
+            Query query = queryManager.createQuery("select * from [cpa:AssetConfiguration]", Query.JCR_SQL2);
+            QueryResult result = query.execute();
+            for (NodeIterator it = result.getNodes(); it.hasNext(); ) {
+                Node node = it.nextNode();
+                if (node.isNodeType("cpa:AssetConfiguration")) {
                 while (node != null && !node.getName().equals(JcrConstants.JCR_CONTENT)) { node = node.getParent(); }
-                if (node != null && !node.isNodeType(JcrConstants.MIX_VERSIONABLE)) {
-                    LOG.info("Adding {} to {}", JcrConstants.MIX_VERSIONABLE, node.getPath());
-                    node.addMixin(JcrConstants.MIX_VERSIONABLE);
+                    if (node != null && !node.isNodeType(JcrConstants.MIX_VERSIONABLE)) {
+                        LOG.info("Adding {} to {}", JcrConstants.MIX_VERSIONABLE, node.getPath());
+                        node.addMixin(JcrConstants.MIX_VERSIONABLE);
+                        updated = true;
+                    }
                 }
             }
+            if (updated) { session.save(); }
+        } catch (RepositoryException e) {
+            throw new PackageException(e);
         }
     }
 
@@ -126,8 +134,7 @@ public class SetupHook implements InstallHook {
             NodeTypeManager nodeTypeManager = session.getWorkspace().getNodeTypeManager();
             NodeType assetContentType = nodeTypeManager.getNodeType("cpa:AssetContent");
             NodeType assetResourceType = nodeTypeManager.getNodeType("cpa:AssetResource");
-            if (
-                    !assetContentType.isNodeType(org.apache.jackrabbit.JcrConstants.MIX_VERSIONABLE)
+            if (!assetContentType.isNodeType(org.apache.jackrabbit.JcrConstants.MIX_VERSIONABLE)
                     || !assetResourceType.isNodeType(org.apache.jackrabbit.JcrConstants.MIX_VERSIONABLE)
                     || !assetResourceType.isNodeType(JcrConstants.MIX_CREATED)
             ) {

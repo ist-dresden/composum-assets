@@ -33,6 +33,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+/** Builds the transient renditions in {@value AssetsConstants#PATH_TRANSIENTS} from the originals in /content. */
 public class RenditionBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(RenditionBuilder.class);
