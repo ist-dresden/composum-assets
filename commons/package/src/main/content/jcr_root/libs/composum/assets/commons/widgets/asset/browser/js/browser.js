@@ -5,7 +5,8 @@
 (function (window) {
     'use strict';
 
-    window.assets = window.assets || {};
+    window.composum = window.composum|| {};
+    window.composum.assets = window.composum.assets || {};
 
     (function (assets, widgets, core) {
 
@@ -116,6 +117,6 @@
 
         widgets.register('.widget.asset-browser-widget', assets.BrowserWidget);
 
-    })(window.assets, window.widgets, window.core);
+    })(window.composum.assets, window.widgets, window.core);
 
 })(window);

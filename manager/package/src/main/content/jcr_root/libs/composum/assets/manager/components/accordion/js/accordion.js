@@ -4,8 +4,9 @@
 (function(window) {
     'use strict';
 
-    window.assets = window.assets || {};
-    window.assets.widgets = window.assets.widgets || {};
+    window.composum = window.composum|| {};
+    window.composum.assets = window.composum.assets || {};
+    window.composum.assets.widgets = window.composum.assets.widgets || {};
 
     (function (widgets, assets, core) {
 
@@ -45,6 +46,6 @@
         window.widgets.register(widgets.const.accordion.css.selector, widgets.AccordionItem, {
         });
 
-    })(window.assets.widgets, window.assets, window.core);
+    })(window.composum.assets.widgets, window.composum.assets, window.core);
 
 })(window);

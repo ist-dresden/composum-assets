@@ -5,7 +5,8 @@
 'use strict';
 (function (window) {
 
-    window.assets = window.assets || {};
+    window.composum = window.composum|| {};
+    window.composum.assets = window.composum.assets || {};
 
     (function (assets, core) {
 
@@ -22,6 +23,6 @@
 
         assets.pageView = core.getView('body.assets.page.view', assets.AssetPageView);
 
-    })(window.assets, window.core);
+    })(window.composum.assets, window.core);
 
 })(window);

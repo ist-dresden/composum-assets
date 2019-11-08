@@ -7,8 +7,9 @@
 
     window.composum = window.composum|| {};
     window.composum.assets = window.composum.assets || {};
+    window.composum.assets.pages = window.composum.assets.pages || {};
 
-    (function (assets, core) {
+    (function (assets, pages, core) {
 
         assets.current = {};
 
@@ -256,6 +257,6 @@
 
         assets.detailView = core.getView('#assets-view', assets.DetailView);
 
-    })(window.composum.assets, window.core);
+    })(window.composum.assets.pages, window.composum.pages, window.core);
 
 })(window);

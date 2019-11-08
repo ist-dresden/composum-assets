@@ -5,7 +5,8 @@
 (function (window) {
     'use strict';
 
-    window.assets = window.assets || {};
+    window.composum = window.composum|| {};
+    window.composum.assets = window.composum.assets || {};
 
     (function (assets, core) {
 
@@ -16,6 +17,6 @@
             }
         });
 
-    })(window.assets, window.core);
+    })(window.composum.assets, window.core);
 
 })(window);

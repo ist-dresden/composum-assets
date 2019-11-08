@@ -4,4 +4,4 @@
         depends="[fonts/awesome/4.7.0/css/font-awesome.css,
                   composum/nodes/commons/components/clientlibs/base,
                   category:composum.assets.commons]"
-        embed="[composum/assets/commons/widgets/demo/page/page.css]"/>
+        embed="[composum/assets/commons/widgets/demo/page/css/page.css]"/>

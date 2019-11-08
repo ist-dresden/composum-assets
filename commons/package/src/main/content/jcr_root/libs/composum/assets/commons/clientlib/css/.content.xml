@@ -4,6 +4,6 @@
         depends="[jslibs/bootstrap/(3.*:3.4.1)/css/bootstrap.css,
                   jslibs/bootstrap/(3.*:3.4.1)/css/bootstrap-theme.css,
                   composum/nodes/commons/components/clientlibs/components]"
-        embed="[composum/assets/commons/widgets/asset/finder/finder.css,
-                composum/assets/commons/widgets/asset/browser/browser.css,
-                composum/assets/commons/widgets/asset/select/select.css]"/>
+        embed="[composum/assets/commons/widgets/asset/finder/css/finder.css,
+                composum/assets/commons/widgets/asset/browser/css/browser.css,
+                composum/assets/commons/widgets/asset/select/css/select.css]"/>

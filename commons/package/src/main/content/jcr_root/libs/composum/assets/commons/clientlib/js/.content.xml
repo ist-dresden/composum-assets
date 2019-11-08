@@ -7,7 +7,7 @@
                   jslibs/bootstrap/(3.*:3.4.1)/js/bootstrap.js,
                   composum/nodes/commons/components/clientlibs/components]"
         embed="[composum/assets/commons/js/commons.js,
-                composum/assets/commons/widgets/asset/finder/finder.js,
-                composum/assets/commons/widgets/asset/browser/browser.js,
-                composum/assets/commons/widgets/asset/select/select.js,
-                composum/assets/commons/dialogs/asset/select/select.js]"/>
+                composum/assets/commons/widgets/asset/finder/js/finder.js,
+                composum/assets/commons/widgets/asset/browser/js/browser.js,
+                composum/assets/commons/widgets/asset/select/js/select.js,
+                composum/assets/commons/dialogs/asset/select/js/select.js]"/>
