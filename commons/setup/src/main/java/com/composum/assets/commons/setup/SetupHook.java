@@ -11,6 +11,12 @@ import org.apache.jackrabbit.vault.packaging.InstallHook;
 import org.apache.jackrabbit.vault.packaging.PackageException;
 import org.apache.jackrabbit.vault.packaging.VaultPackage;
 import org.apache.jackrabbit.vault.util.JcrConstants;
+import org.apache.sling.api.resource.LoginException;
+import org.apache.sling.api.resource.ModifiableValueMap;
+import org.apache.sling.api.resource.PersistenceException;
+import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ResourceResolver;
+import org.apache.sling.api.resource.ResourceResolverFactory;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -30,10 +36,13 @@ import javax.jcr.query.QueryResult;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class SetupHook implements InstallHook {
 
@@ -65,7 +74,7 @@ public class SetupHook implements InstallHook {
             case INSTALLED:
                 LOG.info("installed: execute...");
                 setupGroupsAndUsers(ctx);
-                addVersionableMixinToAssetConfigurationNodes(ctx);
+                addVersionableMixinToVariousNodes(ctx);
                 // updateNodeTypes should be the last actions since we need a session.save() there.
                 updateNodeTypes(ctx);
                 LOG.info("installed: execute ends.");
@@ -103,28 +112,55 @@ public class SetupHook implements InstallHook {
     /**
      * We want all jcr:content nodes containing an cpa:AssetConfiguration to be versionable so that they can be
      * published. Thus, we need to add a mix:versionable if need be.
+     * Also updating the nodetypes to versionable fails with missing mandatory properties if they aren't versionable.
+     * So we have to add a versionable mixin before updating. :-(
      */
-    protected void addVersionableMixinToAssetConfigurationNodes(InstallContext ctx) throws PackageException {
+    protected void addVersionableMixinToVariousNodes(InstallContext ctx) throws PackageException {
+        AtomicReference<ResourceResolver> serviceResolver = new AtomicReference<>();
         try {
             Session session = ctx.getSession();
-            boolean updated = false;
             QueryManager queryManager = session.getWorkspace().getQueryManager();
-            Query query = queryManager.createQuery("select * from [cpa:AssetConfiguration]", Query.JCR_SQL2);
-            QueryResult result = query.execute();
-            for (NodeIterator it = result.getNodes(); it.hasNext(); ) {
-                Node node = it.nextNode();
-                if (node.isNodeType("cpa:AssetConfiguration")) {
-                while (node != null && !node.getName().equals(JcrConstants.JCR_CONTENT)) { node = node.getParent(); }
-                    if (node != null && !node.isNodeType(JcrConstants.MIX_VERSIONABLE)) {
-                        LOG.info("Adding {} to {}", JcrConstants.MIX_VERSIONABLE, node.getPath());
-                        node.addMixin(JcrConstants.MIX_VERSIONABLE);
-                        updated = true;
+
+            for (String type : Arrays.asList("cpa:AssetConfiguration", "cpa:AssetResource", "cpa:AssetContent")) {
+                Query query = queryManager.createQuery("select * from [" + type + "]", Query.JCR_SQL2);
+                QueryResult result = query.execute();
+                for (NodeIterator it = result.getNodes(); it.hasNext(); ) {
+                    Node node = it.nextNode();
+                    if (node.isNodeType("cpa:AssetConfiguration")) {
+                        while (node != null && !node.getName().equals(JcrConstants.JCR_CONTENT)) {
+                            node = node.getParent();
+                        }
                     }
+                    makeVersionable(node, serviceResolver);
+                }
+                if (serviceResolver.get() != null) {
+                    serviceResolver.get().commit();
+                    session.save();
                 }
             }
-            if (updated) { session.save(); }
-        } catch (RepositoryException e) {
+        } catch (RepositoryException | LoginException | PersistenceException e) {
             throw new PackageException(e);
+        } finally {
+            if (serviceResolver.get() != null) {
+                serviceResolver.get().close();
+            }
+        }
+    }
+
+    protected void makeVersionable(Node node, AtomicReference<ResourceResolver> serviceResolverHolder) throws RepositoryException, LoginException {
+        if (node != null && !node.isNodeType(JcrConstants.MIX_VERSIONABLE)) {
+            LOG.info("Adding {} to {}", JcrConstants.MIX_VERSIONABLE, node.getPath());
+            // this surprisingly throws up with missing mandatory properties, so we do it with resources:
+            // node.addMixin(JcrConstants.MIX_VERSIONABLE);
+            if (serviceResolverHolder.get() == null) {
+                serviceResolverHolder.set(getService(ResourceResolverFactory.class).getAdministrativeResourceResolver(null));
+            }
+            Resource resource = serviceResolverHolder.get().getResource(node.getPath());
+            ModifiableValueMap mvm = resource.adaptTo(ModifiableValueMap.class);
+            String[] mixins = mvm.get(JcrConstants.JCR_MIXINTYPES, new String[0]);
+            List<String> mixinList = new ArrayList<String>(Arrays.asList(mixins));
+            mixinList.add(JcrConstants.MIX_VERSIONABLE);
+            mvm.put(JcrConstants.JCR_MIXINTYPES, mixinList.toArray(new String[0]));
         }
     }
 
