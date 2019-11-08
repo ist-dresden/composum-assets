@@ -48,9 +48,6 @@ public class SetupHook implements InstallHook {
     public static final Map<String, List<String>> ASSETS_USERS;
     public static final Map<String, List<String>> ASSETS_SYSTEM_USERS;
     public static final Map<String, List<String>> ASSETS_GROUPS;
-
-    public static final String SITE_CONFIGURATION_QUERY = "/jcr:root//element(*,cpp:SiteConfiguration)";
-
     static {
         ASSETS_USERS = new LinkedHashMap<>();
         ASSETS_SYSTEM_USERS = new LinkedHashMap<>();
@@ -69,6 +66,7 @@ public class SetupHook implements InstallHook {
                 break;
             case INSTALLED:
                 LOG.info("installed: execute...");
+                checkVersionableMixinToAssetConfigurationNodes(ctx);
                 // updateNodeTypes should be the last actions since we need a session.save() there.
                 updateNodeTypes(ctx);
                 LOG.info("installed: execute ends.");
@@ -97,7 +95,6 @@ public class SetupHook implements InstallHook {
                 }
             }
             session.save();
-            addVersionableMixinToAssetContentNodes(session);
         } catch (RepositoryException | RuntimeException rex) {
             LOG.error(rex.getMessage(), rex);
             throw new PackageException(rex);
@@ -108,21 +105,27 @@ public class SetupHook implements InstallHook {
      * We want all jcr:content nodes containing an cpa:AssetConfiguration to be versionable so that they can be
      * published. Thus, we need to add a mix:versionable if need be.
      */
-    protected void addVersionableMixinToAssetContentNodes(JackrabbitSession session) throws RepositoryException {
-        QueryManager queryManager = session.getWorkspace().getQueryManager();
-        Query query = queryManager.createQuery("select * from [cpa:AssetConfiguration]", Query.JCR_SQL2);
-        QueryResult result = query.execute();
-        for (NodeIterator it = result.getNodes(); it.hasNext(); ) {
-            Node node = it.nextNode();
-            if (node.isNodeType("cpa:AssetConfiguration")) {
-                while (node != null && !node.getName().equals(JcrConstants.JCR_CONTENT)) {
-                    node = node.getParent();
-                }
-                if (node != null && !node.isNodeType(JcrConstants.MIX_VERSIONABLE)) {
-                    LOG.info("Adding {} to {}", JcrConstants.MIX_VERSIONABLE, node.getPath());
-                    node.addMixin(JcrConstants.MIX_VERSIONABLE);
+    protected void checkVersionableMixinToAssetConfigurationNodes(InstallContext ctx) throws PackageException {
+        try {
+            Session session = ctx.getSession();
+            QueryManager queryManager = session.getWorkspace().getQueryManager();
+            Query query = queryManager.createQuery("select * from [cpa:AssetConfiguration]", Query.JCR_SQL2);
+            QueryResult result = query.execute();
+            for (NodeIterator it = result.getNodes(); it.hasNext(); ) {
+                Node node = it.nextNode();
+                if (node.isNodeType("cpa:AssetConfiguration")) {
+                    while (node != null && !node.getName().equals(JcrConstants.JCR_CONTENT)) {
+                        node = node.getParent();
+                    }
+                    if (node != null && !node.isNodeType(JcrConstants.MIX_VERSIONABLE)) {
+                        LOG.warn("Consider adding {} to {} to have the asset configuration versioned",
+                                JcrConstants.MIX_VERSIONABLE, node.getPath());
+                        // Strangely Node.addMixin fails with missing mandatory properties. :-(
+                    }
                 }
             }
+        } catch (RepositoryException e) {
+            throw new PackageException(e);
         }
     }
 
@@ -132,10 +135,9 @@ public class SetupHook implements InstallHook {
             NodeTypeManager nodeTypeManager = session.getWorkspace().getNodeTypeManager();
             NodeType assetContentType = nodeTypeManager.getNodeType("cpa:AssetContent");
             NodeType assetResourceType = nodeTypeManager.getNodeType("cpa:AssetResource");
-            if (
-                    !assetContentType.isNodeType(org.apache.jackrabbit.JcrConstants.MIX_VERSIONABLE)
-                            || !assetResourceType.isNodeType(org.apache.jackrabbit.JcrConstants.MIX_VERSIONABLE)
-                            || !assetResourceType.isNodeType(JcrConstants.MIX_CREATED)
+            if (!assetContentType.isNodeType(org.apache.jackrabbit.JcrConstants.MIX_VERSIONABLE)
+                    || !assetResourceType.isNodeType(org.apache.jackrabbit.JcrConstants.MIX_VERSIONABLE)
+                    || !assetResourceType.isNodeType(JcrConstants.MIX_CREATED)
             ) {
                 LOG.info("Updating asset nodetypes neccesary.");
                 try (VaultPackage vaultPackage = ctx.getPackage()) {

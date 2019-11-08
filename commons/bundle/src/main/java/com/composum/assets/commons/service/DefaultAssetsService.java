@@ -250,6 +250,7 @@ public class DefaultAssetsService implements AssetsService {
             file = new FileHandle(fileResource);
         }
         file.storeContent(imageData);
+        file.updateLastModified();
         ResourceHandle fileContent = file.getContent();
         MimeType mimeType = MimeTypeUtil.getMimeType(fileContent);
         if (mimeType != null) {

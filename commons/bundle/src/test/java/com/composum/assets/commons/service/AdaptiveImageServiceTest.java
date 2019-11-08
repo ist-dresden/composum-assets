@@ -4,6 +4,12 @@ import com.composum.assets.commons.AssetsConstants;
 import com.composum.assets.commons.handle.AssetRendition;
 import com.composum.assets.commons.handle.ImageAsset;
 import com.composum.assets.commons.image.DefaultRenditionTransformer;
+import com.composum.assets.commons.image.ImageTransformer;
+import com.composum.assets.commons.image.transform.GaussianBlurTransformer;
+import com.composum.assets.commons.image.transform.GraphicsCropTransformer;
+import com.composum.assets.commons.image.transform.GraphicsScaleTransformer;
+import com.composum.assets.commons.image.transform.GraphicsWatermarkTransformer;
+import com.composum.assets.commons.image.transform.ImgScalrTransformer;
 import com.composum.sling.core.BeanContext;
 import com.composum.sling.core.concurrent.LazyCreationServiceImpl;
 import com.composum.sling.core.concurrent.SemaphoreSequencer;
@@ -28,6 +34,7 @@ import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ResourceResolverFactory;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.apache.sling.testing.mock.sling.junit.SlingContext;
+import org.hamcrest.Matchers;
 import org.jetbrains.annotations.NotNull;
 import org.junit.After;
 import org.junit.Before;
@@ -44,7 +51,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThan;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -84,11 +95,24 @@ public class AdaptiveImageServiceTest {
         resolver.commit();
         context.build().resource("/test/assets").commit();
         context.load().json("/adaptiveImageServiceTest/site-1.json", "/test/assets/site-1");
-        context.load().binaryFile("/adaptiveImageServiceTest/images/image-1.png/wide/original/image-1.png",
+
+        Resource file1 = context.load().binaryFile("/adaptiveImageServiceTest/images/image-1.png/wide/original/image-1.png",
                 "/test/assets/site-1/images/image-1.png/wide/original/image-1.png");
-        context.load().binaryFile("/adaptiveImageServiceTest/images/image-2.png/square/original/image-2.png",
+        ec.checkThat(IOUtils.toByteArray(file1.getValueMap().get("jcr:content/jcr:data", InputStream.class)).length,
+                is(120063));
+        Resource file2 = context.load().binaryFile("/adaptiveImageServiceTest/images/image-2.png/square/original/image-2.png",
                 "/test/assets/site-1/images/image-2.png/square/original/image-2.png");
+        ec.checkThat(IOUtils.toByteArray(file2.getValueMap().get("jcr:content/jcr:data", InputStream.class)).length,
+                is(155494));
+
         context.registerService(MetaPropertiesService.class, Mockito.mock(MetaPropertiesService.class));
+
+        context.registerInjectActivateService(new GraphicsScaleTransformer());
+        context.registerInjectActivateService(new GraphicsCropTransformer());
+        context.registerInjectActivateService(new ImgScalrTransformer());
+        context.registerInjectActivateService(new GaussianBlurTransformer());
+        context.registerInjectActivateService(new GraphicsWatermarkTransformer());
+
         context.registerInjectActivateService(new SemaphoreSequencer());
         context.registerInjectActivateService(new LazyCreationServiceImpl());
         context.registerInjectActivateService(new DefaultRenditionTransformer());
@@ -123,39 +147,49 @@ public class AdaptiveImageServiceTest {
         ec.checkThat(asset.getTransientsPath().replaceAll("workspace-[0-9]*", "workspace-time"),
                 is("/var/composum/assets/test/assets/site-1/theuuidofthereplicatedversion/images/image-1.png/workspace-time"));
         ec.onFailure(() -> JcrTestUtils.printResourceRecursivelyAsJson(resolver,
-                "/test/assets/site-1/images/image-1.png/thumbnail"));
+                "/var/composum/assets/test/assets/site-1/"));
 
-        AssetRendition rendition = service.getOrCreateRendition(asset, "thumbnail", "medium");
+        AssetRendition rendition = service.getOrCreateRendition(asset, "thumbnail", "small");
         assertNotNull(rendition);
         assertTrue(rendition.isValid());
         InputStream stream = rendition.getStream();
         assertNotNull(stream);
-        ec.checkThat(IOUtils.toByteArray(stream).length, is(189558));
+        ec.checkThat(IOUtils.toByteArray(stream).length, allOf(lessThan(5000), greaterThan(1000)));
     }
 
     @Test
     public void changeImage() throws Exception {
+        int origlength;
+        {
+            ImageAsset asset = new ImageAsset(beanContext, asset1Resource);
+            AssetRendition rendition = service.getOrCreateRendition(asset, "thumbnail", "medium");
+            origlength = IOUtils.toByteArray(rendition.getStream()).length;
+        }
+
         InputStream stream = getClass().getClassLoader().getResourceAsStream(
                 "adaptiveImageServiceTest/images/image-2.png/square/original/image-2.png");
         assertNotNull(stream);
         assetService.changeImageAsset(beanContext, asset1Resource, "wide", stream);
 
-        ImageAsset asset = new ImageAsset(beanContext, asset1Resource);
-        AssetRendition rendition = service.getOrCreateRendition(asset, "thumbnail", "medium");
-        ec.checkThat(IOUtils.toByteArray(rendition.getStream()).length, is(161679));
-    }
-
-    /** Differential-test for {@link #createOtherOriginal()} : situation without change (of size). */
-    @Test
-    public void noCreateOtherOriginal() throws Exception {
-        ImageAsset asset = new ImageAsset(beanContext, asset1Resource);
-        AssetRendition rendition = service.getOrCreateRendition(asset, "bar", "medium");
-        ec.checkThat(IOUtils.toByteArray(rendition.getStream()).length, is(189558));
+        int changedlength;
+        {
+            ImageAsset asset = new ImageAsset(beanContext, asset1Resource);
+            AssetRendition rendition = service.getOrCreateRendition(asset, "thumbnail", "medium");
+            changedlength = IOUtils.toByteArray(rendition.getStream()).length;
+        }
+        ec.checkThat(changedlength, not(is(origlength)));
     }
 
     /** Creates a new original for the variation bar. */
     @Test
     public void createOtherOriginal() throws Exception {
+        int origlength;
+        {
+            ImageAsset asset = new ImageAsset(beanContext, asset1Resource);
+            AssetRendition rendition = service.getOrCreateRendition(asset, "bar", "medium");
+            origlength = IOUtils.toByteArray(rendition.getStream()).length;
+        }
+
         InputStream stream = getClass().getClassLoader().getResourceAsStream(
                 "adaptiveImageServiceTest/images/image-2.png/square/original/image-2.png");
         assertNotNull(stream);
@@ -163,7 +197,8 @@ public class AdaptiveImageServiceTest {
 
         ImageAsset asset = new ImageAsset(beanContext, asset1Resource);
         AssetRendition rendition = service.getOrCreateRendition(asset, "bar", "medium");
-        ec.checkThat(IOUtils.toByteArray(rendition.getStream()).length, is(161679));
+        int newlength = IOUtils.toByteArray(rendition.getStream()).length;
+        ec.checkThat(newlength, allOf(lessThan(50000), greaterThan(10000), not(is(origlength))));
         JcrTestUtils.printResourceRecursivelyAsJson(rendition.getResource());
 
         ec.checkThat(rendition.getTransientsPath().replaceAll("workspace-[0-9]*", "workspace-time"),
@@ -184,7 +219,8 @@ public class AdaptiveImageServiceTest {
 
         ImageAsset asset = new ImageAsset(beanContext, assetResource);
         AssetRendition rendition = service.getOrCreateRendition(asset, "bar", "medium");
-        ec.checkThat(IOUtils.toByteArray(rendition.getStream()).length, is(161679));
+        ec.checkThat(IOUtils.toByteArray(rendition.getStream()).length,
+                allOf(lessThan(50000), greaterThan(10000)));
     }
 
     @Test
