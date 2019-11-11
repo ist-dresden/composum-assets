@@ -158,6 +158,9 @@ public class AdaptiveImageServiceTest {
         assertNotNull(stream);
         ec.checkThat(IOUtils.toByteArray(stream).length, allOf(lessThan(5000), greaterThan(1000)));
         ec.checkThat(rendition.getProperty(AssetsConstants.PROP_LAST_RENDERED, Calendar.class), notNullValue());
+        ec.checkThat(rendition.getProperty(AssetsConstants.PROP_ASSETPATH, String.class), is(asset.getPath()));
+        ec.checkThat(rendition.getProperty(AssetsConstants.PROP_VARIATIONNAME, String.class),
+                is(rendition.getVariation().getName()));
     }
 
     @Test

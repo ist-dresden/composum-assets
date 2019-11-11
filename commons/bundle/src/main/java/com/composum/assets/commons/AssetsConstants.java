@@ -29,6 +29,12 @@ public class AssetsConstants {
      */
     public static final String PROP_LAST_RENDERED = "cpa:lastRendered";
 
+    /** Property on a transient rendtion that contains the original path of the asset. */
+    public static final String PROP_ASSETPATH = "cpa:assetPath";
+
+    /** Property on a transient rendition that contains the name of the variation. */
+    public static final String PROP_VARIATIONNAME = "cpa:assetVariation";
+
     /// mime types
 
     public static final Pattern IMAGE_MIME_TYPE_PATTERN = Pattern.compile("^image/.+$");

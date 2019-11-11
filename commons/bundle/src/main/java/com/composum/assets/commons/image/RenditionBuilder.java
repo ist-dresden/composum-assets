@@ -151,6 +151,8 @@ public class RenditionBuilder {
 
                 Resource renditionResource = resolver.getResource(rendition.getTransientsPath());
                 contentValues = renditionResource.adaptTo(ModifiableValueMap.class);
+                contentValues.put(AssetsConstants.PROP_ASSETPATH, asset.getPath());
+                contentValues.put(AssetsConstants.PROP_VARIATIONNAME, variation.getName());
                 contentValues.put(AbstractAsset.VALID, true);
                 resolver.commit();
                 if (LOG.isInfoEnabled()) {

@@ -16,6 +16,8 @@
 
 [cpa:Rendition] > sling:Folder
   - cpa:lastRendered (DATE)
+  - cpa:assetPath (STRING)
+  - cpa:assetVariation (STRING)
 
 [cpa:RenditionConfig] > nt:unstructured, mix:created, mix:lastModified
 
