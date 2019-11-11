@@ -5,6 +5,7 @@
  */
 package com.composum.assets.commons.service;
 
+import com.composum.assets.commons.AssetsConstants;
 import com.composum.assets.commons.config.AssetConfig;
 import com.composum.assets.commons.config.ConfigHandle;
 import com.composum.assets.commons.config.RenditionConfig;
@@ -19,10 +20,12 @@ import com.composum.sling.core.ResourceHandle;
 import com.composum.sling.core.concurrent.LazyCreationService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.resource.LoginException;
+import org.apache.sling.api.resource.ModifiableValueMap;
 import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ResourceResolverFactory;
+import org.jetbrains.annotations.Nullable;
 import org.osgi.framework.Constants;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -40,11 +43,13 @@ import javax.annotation.Nonnull;
 import javax.jcr.RepositoryException;
 import javax.jcr.query.Query;
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The Composum Assets - Image Service supports renditions of image assets".
@@ -76,6 +81,8 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
     @Reference
     protected RenditionTransformer renditionTransformer;
 
+    protected Configuration config;
+
     @Activate
     @Modified
     protected void activate(@Nonnull ComponentContext context, @Nonnull Configuration configuration) {
@@ -83,12 +90,14 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
             executorService.shutdown();
         }
         executorService = Executors.newFixedThreadPool(configuration.threadPoolSize());
+        config = configuration;
     }
 
     @Deactivate
     protected void deactivate() {
         executorService.shutdown();
         executorService = null;
+        config = null;
     }
 
     @Override
@@ -107,6 +116,7 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
         if (null != rendition && rendition.isValid() &&
                 (lazyCreationService.isInitialized(rendition.getResource()) || rendition.isOriginal())
         ) {
+            updateLastRendered(rendition);
             return rendition;
         }
         return null;
@@ -159,9 +169,24 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
         BuilderContext context = new BuilderContext(this, lazyCreationService, metaPropertiesService, executorService, hints);
         RenditionBuilder builder = new RenditionBuilder(asset, renditionConfig, context);
         AssetRendition rendition = builder.getOrCreateRendition();
-        // FIXME(hps,07.11.19) call AdjustMetadataService somewhere
         LOG.debug("Rendition created: {}", rendition);
         return rendition;
+    }
+
+    protected void updateLastRendered(AssetRendition rendition) {
+        if (!rendition.isTransient()) { return; }
+        Calendar lastRendered = rendition.getProperty(AssetsConstants.PROP_LAST_RENDERED, Calendar.class);
+        long lastRenderedTime = lastRendered != null ? lastRendered.getTimeInMillis() : Long.MIN_VALUE;
+        if (lastRenderedTime < System.currentTimeMillis() - TimeUnit.SECONDS.toMillis(config.lastRenderTimestep())) {
+            try (ResourceResolver resolver = resolverFactory.getServiceResourceResolver(null)) {
+                Resource updateResource = resolver.getResource(rendition.getPath());
+                updateResource.adaptTo(ModifiableValueMap.class)
+                        .put(AssetsConstants.PROP_LAST_RENDERED, Calendar.getInstance());
+                resolver.commit();
+            } catch (LoginException | RuntimeException | PersistenceException e) {
+                LOG.error("Trouble updating last rendering time for " + rendition.getPath(), e);
+            }
+        }
     }
 
     @Override
@@ -293,9 +318,17 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
 
         @AttributeDefinition(
                 name = "Thread Pool Size",
-                description = "the maximum number of threads used to create image renditions"
+                description = "The maximum number of threads used to create image renditions."
         )
         int threadPoolSize() default 9;
+
+        @AttributeDefinition(
+                name = "Last Rendered Timelag",
+                description = "Minimum timestep the last rendering time of an asset rendering is updated for " +
+                        "performance reasons. On access, the last rendering time is only updated if it's this old in " +
+                        "seconds. default: 1 day (86400)."
+        )
+        int lastRenderTimestep() default 86400;
     }
 
 }

@@ -1,3 +1,5 @@
+// see https://jackrabbit.apache.org/jcr/node-type-notation.html
+
 <'nt'='http://www.jcp.org/jcr/nt/1.0'>
 <'mix'='http://www.jcp.org/jcr/mix/1.0'>
 <'jcr'='http://www.jcp.org/jcr/1.0'>
@@ -13,6 +15,7 @@
 [cpa:VariationConfig] > nt:unstructured, mix:created, mix:lastModified
 
 [cpa:Rendition] > sling:Folder
+  - cpa:lastRendered (DATE)
 
 [cpa:RenditionConfig] > nt:unstructured, mix:created, mix:lastModified
 

@@ -84,6 +84,10 @@ public class AssetRendition extends AssetHandle<RenditionConfig> {
         return this.equals(getOriginal());
     }
 
+    public boolean isTransient() {
+        return getPath().startsWith(AssetsConstants.PATH_TRANSIENTS);
+    }
+
     @Nonnull
     public AssetVariation getVariation() {
         return variation;

@@ -13,21 +13,27 @@ import java.util.regex.Pattern;
 
 public class AssetsConstants {
 
-    public static final String CPA_NAMESPACE = "cpa";
-    public static final String CPA_PREFIX = CPA_NAMESPACE + ":";
-    public static final String COMPOSUM_PREFIX = "composum-";
-    public static final String ASSETS_PREFIX = COMPOSUM_PREFIX + "assets-";
+    private static final String CPA_NAMESPACE = "cpa";
+    private static final String CPA_PREFIX = CPA_NAMESPACE + ":";
+    private static final String COMPOSUM_PREFIX = "composum-";
+    private static final String ASSETS_PREFIX = COMPOSUM_PREFIX + "assets-";
 
-    /** property names */
+    // property names
 
     public static final String PROP_VARIATION = "variation";
     public static final String PROP_RENDITION = "rendition";
 
-    /** mime types */
+    /**
+     * Property of a transient rendition where the time of the last rendering is saved - for
+     * performance reasons this is only updated once a week (configurable).
+     */
+    public static final String PROP_LAST_RENDERED = "cpa:lastRendered";
+
+    /// mime types
 
     public static final Pattern IMAGE_MIME_TYPE_PATTERN = Pattern.compile("^image/.+$");
 
-    /** node types */
+    /// node types
 
     public static final String VARIATION = "Variation";
     public static final String RENDITION = "Rendition";

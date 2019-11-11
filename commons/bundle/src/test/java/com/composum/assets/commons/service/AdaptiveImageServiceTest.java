@@ -50,12 +50,14 @@ import javax.jcr.version.VersionManager;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.Calendar;
 
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -155,6 +157,7 @@ public class AdaptiveImageServiceTest {
         InputStream stream = rendition.getStream();
         assertNotNull(stream);
         ec.checkThat(IOUtils.toByteArray(stream).length, allOf(lessThan(5000), greaterThan(1000)));
+        ec.checkThat(rendition.getProperty(AssetsConstants.PROP_LAST_RENDERED, Calendar.class), notNullValue());
     }
 
     @Test
@@ -165,6 +168,8 @@ public class AdaptiveImageServiceTest {
             AssetRendition rendition = service.getOrCreateRendition(asset, "thumbnail", "medium");
             origlength = IOUtils.toByteArray(rendition.getStream()).length;
         }
+        Thread.sleep(1100); // make sure modification time in seconds changes
+        // otherwise we won't get a new rendition.
 
         InputStream stream = getClass().getClassLoader().getResourceAsStream(
                 "adaptiveImageServiceTest/images/image-2.png/square/original/image-2.png");
