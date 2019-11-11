@@ -53,7 +53,6 @@ public class RenditionBuilder {
         RENDITION_PROPS.put(ResourceUtil.PROP_PRIMARY_TYPE, AssetsConstants.NODE_TYPE_RENDITION);
         RENDITION_PROPS.put(ResourceUtil.PROP_RESOURCE_TYPE, AssetRendition.RESOURCE_TYPE);
         RENDITION_PROPS.put(AbstractAsset.VALID, false);
-        RENDITION_PROPS.put(JcrConstants.JCR_MIXINTYPES, new String[]{JcrConstants.MIX_LOCKABLE});
     }
 
     protected static final Map<String, Object> FILE_PROPS;
@@ -68,8 +67,6 @@ public class RenditionBuilder {
     static {
         RESOURCE_PROPS = new HashMap<>();
         RESOURCE_PROPS.put(ResourceUtil.PROP_PRIMARY_TYPE, "nt:resource");
-        RESOURCE_PROPS.put(JcrConstants.JCR_MIXINTYPES,
-                new String[]{ResourceUtil.TYPE_VERSIONABLE, ResourceUtil.TYPE_LAST_MODIFIED});
     }
 
     protected static final Map<String, Object> FOLDER_PROPS =

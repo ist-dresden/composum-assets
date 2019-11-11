@@ -13,10 +13,10 @@ import java.util.regex.Pattern;
 
 public class AssetsConstants {
 
-    private static final String CPA_NAMESPACE = "cpa";
-    private static final String CPA_PREFIX = CPA_NAMESPACE + ":";
-    private static final String COMPOSUM_PREFIX = "composum-";
-    private static final String ASSETS_PREFIX = COMPOSUM_PREFIX + "assets-";
+    public static final String CPA_NAMESPACE = "cpa";
+    public static final String CPA_PREFIX = CPA_NAMESPACE + ":";
+    public static final String COMPOSUM_PREFIX = "composum-";
+    public static final String ASSETS_PREFIX = COMPOSUM_PREFIX + "assets-";
 
     // property names
 
