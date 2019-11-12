@@ -158,7 +158,7 @@ public class TransientRenditionsCleanupService implements Runnable {
     @Modified
     public void activate(Configuration configuration) {
         this.config = configuration;
-        LOG.info("activated");
+        LOG.info("activated or modified");
     }
 
     @Deactivate

@@ -1,5 +1,7 @@
 package com.composum.assets.commons.service;
 
+import com.composum.assets.commons.AssetsConfigImpl;
+import com.composum.assets.commons.AssetsConfiguration;
 import com.composum.assets.commons.AssetsConstants;
 import com.composum.assets.commons.handle.AssetRendition;
 import com.composum.assets.commons.handle.ImageAsset;
@@ -80,7 +82,6 @@ public class AdaptiveImageServiceTest {
 
     @Rule
     public final ErrorCollectorAlwaysPrintingFailures ec = new ErrorCollectorAlwaysPrintingFailures();
-    private ResourceResolver resourceResolver;
 
     /**
      * Uses content copied from the prototype site,
@@ -107,7 +108,10 @@ public class AdaptiveImageServiceTest {
         ec.checkThat(IOUtils.toByteArray(file2.getValueMap().get("jcr:content/jcr:data", InputStream.class)).length,
                 is(155494));
 
-        context.registerService(MetaPropertiesService.class, Mockito.mock(MetaPropertiesService.class));
+        AssetsConfigImpl assetsConfig = new AssetsConfigImpl();
+        assetsConfig.activate(AnnotationWithDefaults.of(AssetsConfigImpl.Configuration.class));
+        context.registerService(AssetsConfiguration.class, assetsConfig);
+        context.registerInjectActivateService(new AssetMetaPropertiesService());
 
         context.registerInjectActivateService(new GraphicsScaleTransformer());
         context.registerInjectActivateService(new GraphicsCropTransformer());
@@ -118,7 +122,7 @@ public class AdaptiveImageServiceTest {
         context.registerInjectActivateService(new SemaphoreSequencer());
         context.registerInjectActivateService(new LazyCreationServiceImpl());
         context.registerInjectActivateService(new DefaultRenditionTransformer());
-        service = context.registerInjectActivateService(new DefaultAdaptiveImageService());
+        this.service = context.registerInjectActivateService(new DefaultAdaptiveImageService());
         assetService = context.registerInjectActivateService(new DefaultAssetsService());
 
         beanContext = new BeanContext.Service(resolver);
@@ -161,6 +165,9 @@ public class AdaptiveImageServiceTest {
         ec.checkThat(rendition.getProperty(AssetsConstants.PROP_ASSETPATH, String.class), is(asset.getPath()));
         ec.checkThat(rendition.getProperty(AssetsConstants.PROP_VARIATIONNAME, String.class),
                 is(rendition.getVariation().getName()));
+        // checks that the AdjustMetaDataService generated the metadata
+        ec.checkThat(rendition.getProperty("image-1.png/jcr:content/meta/Content-Type", String.class), is("image/png"));
+        ec.checkThat(rendition.getProperty("image-1.png/jcr:content/meta/width", Integer.class), is(32));
     }
 
     @Test

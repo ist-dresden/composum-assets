@@ -102,7 +102,7 @@ public class AssetsConfigImpl implements AssetsConfiguration {
 
     @Activate
     @Modified
-    protected void activate(Configuration config) {
+    public void activate(Configuration config) {
         this.config = config;
         assetNodeFilter = ResourceFilterMapping.fromString(config.assetNodeFilterRule());
         assetPathFilter = ResourceFilterMapping.fromString(config.assetPathFilterRule());
@@ -111,7 +111,7 @@ public class AssetsConfigImpl implements AssetsConfiguration {
     }
 
     @Deactivate
-    protected void deactivate(ComponentContext context) {
+    public void deactivate(ComponentContext context) {
         this.config = null;
     }
 }

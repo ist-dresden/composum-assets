@@ -106,7 +106,8 @@ public class AssetMetaPropertiesService implements MetaPropertiesService {
                     values.put(key, entry.getValue());
                 }
             } else {
-                LOG.warn("Not modifable? {}", SlingResourceUtil.getPath(metaResource));
+                LOG.warn("Cannot adjust meta data - not modifiable by {}? {}",
+                        contentResource.getResourceResolver().getUserID(), SlingResourceUtil.getPath(metaResource));
             }
         }
     }

@@ -134,8 +134,7 @@ public class AdjustMetaDataResourceChangeListener extends AbstractResourceChange
             }
 
             if (!ignoredChanges.isEmpty() || !ignoredPaths.isEmpty()) {
-                // FIXME(hps,07.11.19) demote to debug after it's tested.
-                LOG.info("Ignoring changes {} {}", ignoredChanges, ignoredPaths);
+                LOG.debug("Ignoring changes {} {}", ignoredChanges, ignoredPaths);
             }
 
         } catch (RuntimeException e) {

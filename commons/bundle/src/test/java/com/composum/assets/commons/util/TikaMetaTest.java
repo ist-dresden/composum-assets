@@ -1,16 +1,23 @@
 package com.composum.assets.commons.util;
 
 import com.composum.sling.core.filter.StringFilter;
+import com.composum.sling.platform.testing.testutil.ErrorCollectorAlwaysPrintingFailures;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.sax.BodyContentHandler;
+import org.hamcrest.Matchers;
+import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.InputStream;
 
 public class TikaMetaTest {
+
+    @Rule
+    public final ErrorCollectorAlwaysPrintingFailures ec = new ErrorCollectorAlwaysPrintingFailures();
 
     public static final String[] FILES = new String[]{
             "/images/fire.JPG",
@@ -50,7 +57,7 @@ public class TikaMetaTest {
     public void testMetaData() throws Exception {
 
         for (String filename : FILES) {
-            System.out.println("\nFILE: " + filename);
+            System.out.println("========================== FILE: " + filename + " ==========================");
 
             Parser parser = new AutoDetectParser();
             BodyContentHandler handler = new BodyContentHandler();
@@ -61,19 +68,27 @@ public class TikaMetaTest {
                 parser.parse(inputstream, handler, metadata, context);
             }
 
-            System.out.println("----\naccepted\n----");
+            int countaccepted = 0;
+            System.out.println("-------------------------- accepted --------------------------");
             for (String name : metadata.names()) {
                 if (IMAGE_META_DATA.accept(name)) {
                     System.out.println(name + ": " + metadata.get(name));
+                    countaccepted++;
                 }
             }
-            System.out.println("----\nnot accepted\n----");
+
+            int countnotaccepted = 0;
+            System.out.println("-------------------------- not accepted --------------------------");
             for (String name : metadata.names()) {
                 if (!IMAGE_META_DATA.accept(name)) {
                     System.out.println(name + ": " + metadata.get(name));
+                    countnotaccepted++;
                 }
             }
             System.out.println("----");
+
+            ec.checkThat(filename, countaccepted, Matchers.greaterThan(0));
+            ec.checkThat(filename, countnotaccepted, Matchers.greaterThan(0));
         }
     }
 }

@@ -144,6 +144,9 @@ public class DefaultAssetsService implements AssetsService {
     @Reference
     protected AdaptiveImageService adaptiveImageService;
 
+    @Reference
+    protected MetaPropertiesService metaPropertiesService;
+
     @Override
     @Nonnull
     public Resource uploadImageAsset(@Nonnull final BeanContext context,
@@ -257,6 +260,7 @@ public class DefaultAssetsService implements AssetsService {
             fileContent.setProperty(ResourceUtil.PROP_MIME_TYPE, mimeType.toString());
         }
         adaptiveImageService.dropRenditions(imageAsset.getPath(), variationKey, null);
+        metaPropertiesService.adjustMetaProperties(file.getResource().getResourceResolver(), file.getResource());
     }
 
     @Override
