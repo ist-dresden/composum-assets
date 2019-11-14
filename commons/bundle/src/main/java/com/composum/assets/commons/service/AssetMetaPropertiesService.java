@@ -160,7 +160,7 @@ public class AssetMetaPropertiesService implements MetaPropertiesService {
                 adjustMixinTypes(contentResource);
                 addMetaData(contentResource, metadata);
             } catch (RepositoryException | IOException ex) {
-                LOG.error(ex.getMessage(), ex);
+                LOG.error("Error changing {}: {}", SlingResourceUtil.getPath(resource), ex, ex);
             }
         }
 
@@ -217,6 +217,12 @@ public class AssetMetaPropertiesService implements MetaPropertiesService {
 
         @Override
         public void adjustMetaProperties(ResourceResolver resolver, Resource resource) {
+            Resource contentResource = getContentResource(resource);
+            try {
+                adjustMixinTypes(contentResource);
+            } catch (RepositoryException ex) {
+                LOG.error("Error changing {}: {}", SlingResourceUtil.getPath(resource), ex, ex);
+            }
         }
     }
 

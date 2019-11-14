@@ -179,8 +179,13 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
         if (lastRenderedTime < System.currentTimeMillis() - TimeUnit.SECONDS.toMillis(config.lastRenderTimestep())) {
             try (ResourceResolver resolver = resolverFactory.getServiceResourceResolver(null)) {
                 Resource updateResource = resolver.getResource(rendition.getPath());
-                updateResource.adaptTo(ModifiableValueMap.class)
-                        .put(AssetsConstants.PROP_LAST_RENDERED, Calendar.getInstance());
+                if (updateResource != null) {
+                    updateResource.adaptTo(ModifiableValueMap.class)
+                            .put(AssetsConstants.PROP_LAST_RENDERED, Calendar.getInstance());
+                } else { // that should not be possible, but somehow happens. Why?
+                    LOG.error("Bug: Can't find resource in updateLastRendered: {}", rendition.getPath(),
+                            new Exception("Stacktrace, not thrown"));
+                }
                 resolver.commit();
             } catch (LoginException | RuntimeException | PersistenceException e) {
                 LOG.error("Trouble updating last rendering time for " + rendition.getPath(), e);
