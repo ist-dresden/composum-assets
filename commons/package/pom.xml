@@ -117,6 +117,9 @@
                                 <include>.*/org.apache.sling.serviceusermapping.impl.ServiceUserMapperImpl.amended-assets.config</include>
                             </includes>
                         </filter>
+                        <filter>
+                            <root>/conf/composum/assets/commons/acl</root>
+                        </filter>
                     </filters>
 
                     <embeddeds>

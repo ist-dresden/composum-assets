@@ -1,5 +1,6 @@
 package com.composum.assets.commons.setup;
 
+import com.composum.sling.core.service.RepositorySetupService;
 import com.composum.sling.core.setup.util.SetupUtil;
 import com.composum.sling.core.usermanagement.core.UserManagementService;
 import org.apache.jackrabbit.api.JackrabbitSession;
@@ -31,12 +32,14 @@ import javax.jcr.query.QueryResult;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import static java.util.Collections.emptyList;
 
+/** Setup for Assets module. */
 public class SetupHook implements InstallHook {
 
     private static final Logger LOG = LoggerFactory.getLogger(SetupHook.class);
@@ -45,9 +48,12 @@ public class SetupHook implements InstallHook {
 
     public static final String ASSETS_SERVICE_USER = "composum-assets-service";
 
+    private static final String SERVICE_ACLS = "/conf/composum/assets/commons/acl/service.json";
+
     public static final Map<String, List<String>> ASSETS_USERS;
     public static final Map<String, List<String>> ASSETS_SYSTEM_USERS;
     public static final Map<String, List<String>> ASSETS_GROUPS;
+
     static {
         ASSETS_USERS = new LinkedHashMap<>();
         ASSETS_SYSTEM_USERS = new LinkedHashMap<>();
@@ -66,6 +72,7 @@ public class SetupHook implements InstallHook {
                 break;
             case INSTALLED:
                 LOG.info("installed: execute...");
+                setupAcls(ctx);
                 checkVersionableMixinToAssetConfigurationNodes(ctx);
                 // updateNodeTypes should be the last actions since we need a session.save() there.
                 updateNodeTypes(ctx);
@@ -96,6 +103,18 @@ public class SetupHook implements InstallHook {
             }
             session.save();
         } catch (RepositoryException | RuntimeException rex) {
+            LOG.error(rex.getMessage(), rex);
+            throw new PackageException(rex);
+        }
+    }
+
+    protected void setupAcls(InstallContext ctx) throws PackageException {
+        RepositorySetupService setupService = SetupUtil.getService(RepositorySetupService.class);
+        try {
+            Session session = ctx.getSession();
+            setupService.addJsonAcl(session, SERVICE_ACLS, null);
+            session.save();
+        } catch (Exception rex) {
             LOG.error(rex.getMessage(), rex);
             throw new PackageException(rex);
         }
@@ -133,13 +152,9 @@ public class SetupHook implements InstallHook {
         try {
             Session session = ctx.getSession();
             NodeTypeManager nodeTypeManager = session.getWorkspace().getNodeTypeManager();
-            NodeType assetContentType = nodeTypeManager.getNodeType("cpa:AssetContent");
-            NodeType assetResourceType = nodeTypeManager.getNodeType("cpa:AssetResource");
-            if (!assetContentType.isNodeType(org.apache.jackrabbit.JcrConstants.MIX_VERSIONABLE)
-                    || !assetResourceType.isNodeType(org.apache.jackrabbit.JcrConstants.MIX_VERSIONABLE)
-                    || !assetResourceType.isNodeType(JcrConstants.MIX_CREATED)
-            ) {
-                LOG.info("Updating asset nodetypes neccesary.");
+            boolean updateIsNecessary = isUpdateIsNecessary(nodeTypeManager);
+            if (updateIsNecessary) {
+                LOG.info("Updating asset nodetypes necessary.");
                 try (VaultPackage vaultPackage = ctx.getPackage()) {
                     Archive archive = vaultPackage.getArchive();
                     try (InputStream stream = archive.openInputStream(archive.getEntry("/META-INF/vault/nodetypes.cnd"))) {
@@ -149,6 +164,9 @@ public class SetupHook implements InstallHook {
                         }
                     }
                 }
+                if (isUpdateIsNecessary(nodeTypeManager)) {
+                    LOG.error("Bug: after updating nodetypes we have still updateIsNecessary=true");
+                }
             } else {
                 LOG.info("No asset nodetype update needed.");
             }
@@ -156,6 +174,18 @@ public class SetupHook implements InstallHook {
             LOG.error(rex.getMessage(), rex);
             throw new PackageException(rex);
         }
+    }
+
+    private boolean isUpdateIsNecessary(NodeTypeManager nodeTypeManager) throws RepositoryException {
+        NodeType assetContentType = nodeTypeManager.getNodeType("cpa:AssetContent");
+        NodeType assetResourceType = nodeTypeManager.getNodeType("cpa:AssetResource");
+        boolean assetResourceTypeHasDataHash =
+                Arrays.asList(assetResourceType.getPropertyDefinitions()).stream()
+                        .anyMatch((d) -> d.getName().equals("cpa:dataHash"));
+        return !assetContentType.isNodeType(org.apache.jackrabbit.JcrConstants.MIX_VERSIONABLE)
+                || !assetResourceType.isNodeType(org.apache.jackrabbit.JcrConstants.MIX_VERSIONABLE)
+                || !assetResourceType.isNodeType(JcrConstants.MIX_CREATED)
+                || !assetResourceTypeHasDataHash;
     }
 
 
