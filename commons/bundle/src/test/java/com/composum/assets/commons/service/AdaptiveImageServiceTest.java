@@ -26,6 +26,7 @@ import com.composum.sling.platform.staging.query.impl.QueryBuilderAdapterFactory
 import com.composum.sling.platform.testing.testutil.AnnotationWithDefaults;
 import com.composum.sling.platform.testing.testutil.ErrorCollectorAlwaysPrintingFailures;
 import com.composum.sling.platform.testing.testutil.JcrTestUtils;
+import com.composum.sling.platform.testing.testutil.SlingMatchers;
 import com.google.common.base.Function;
 import org.apache.commons.io.IOUtils;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
@@ -144,6 +145,9 @@ public class AdaptiveImageServiceTest {
         InputStream stream = rendition.getStream();
         assertNotNull(stream);
         ec.checkThat(IOUtils.toByteArray(stream).length, is(120063));
+        ec.checkThat(rendition.getImageUri(), SlingMatchers.stringMatchingPattern(
+                "/test/assets/site-1/images/image-1.adaptive.wide.original.png/[0-9a-z]{10,26}/image-1.png"));
+        // e.g. "/test/assets/site-1/images/image-1.adaptive.wide.original.png/i1piz0xupo1jh2re7fv8n281/image-1.png"
     }
 
     @Test
@@ -168,6 +172,9 @@ public class AdaptiveImageServiceTest {
         // checks that the AdjustMetaDataService generated the metadata
         ec.checkThat(rendition.getProperty("image-1.png/jcr:content/meta/Content-Type", String.class), is("image/png"));
         ec.checkThat(rendition.getProperty("image-1.png/jcr:content/meta/width", Integer.class), is(32));
+        ec.checkThat(rendition.getImageUri(), SlingMatchers.stringMatchingPattern(
+                "/test/assets/site-1/images/image-1.adaptive.thumbnail.small.png/[0-9a-z]{10,26}/image-1.png"));
+        // e.g. "/test/assets/site-1/images/image-1.adaptive.thumbnail.small.png/4rctiiaic4j1wk06kyhit0ogo/image-1.png"
     }
 
     @Test

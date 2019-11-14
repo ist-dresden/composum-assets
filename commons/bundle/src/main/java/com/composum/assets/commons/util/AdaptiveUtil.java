@@ -4,22 +4,27 @@ import com.composum.assets.commons.config.AssetConfig;
 import com.composum.assets.commons.config.RenditionConfig;
 import com.composum.assets.commons.config.VariationConfig;
 import com.composum.assets.commons.handle.AssetRendition;
+import com.composum.assets.commons.handle.AssetVariation;
 import com.composum.assets.commons.handle.ImageAsset;
 import com.composum.sling.core.util.HttpUtil;
 import com.composum.sling.core.util.ResourceUtil;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.request.RequestPathInfo;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigInteger;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -28,38 +33,43 @@ public class AdaptiveUtil {
     private static final Logger LOG = LoggerFactory.getLogger(AdaptiveUtil.class);
 
     public static String getImageUri(ImageAsset asset, String variationKey, String renditionKey) {
+        String uri = "";
         if (asset != null) {
-            String mimeType = asset.getMimeType();
-            if (mimeType != null) {
-                AssetConfig config = asset.getConfig();
-                VariationConfig variation = config.findVariation(variationKey);
-                if (variation != null) {
-                    RenditionConfig rendition = variation.findRendition(renditionKey);
-                    return getImageUri(asset,
-                            rendition.getVariation().getName(),
-                            rendition.getName(),
-                            mimeType);
-                } else {
-                    // use the original if no configuration available
-                    AssetRendition rendition = asset.getOriginal();
-                    return getImageUri(asset,
-                            rendition.getVariation().getName(),
-                            rendition.getName(),
-                            mimeType);
+            VariationConfig variationConfig = asset.getConfig().findVariation(variationKey);
+            RenditionConfig renditionConfig = variationConfig != null ?
+                    variationConfig.findRendition(renditionKey) : null;
+            AssetVariation variation = variationConfig != null ? asset.giveVariation(variationConfig) : null;
+            AssetRendition rendition = renditionConfig != null ? variation.giveRendition(renditionConfig) : null;
+            if (rendition == null && variation != null) {
+                rendition = variation.getOriginal();
+                if (rendition != null) {
+                    LOG.warn("No config available for asset {} variation {} rendition {}, using variation original",
+                            asset.getPath(), variationKey, renditionKey);
                 }
             }
+            if (rendition != null) {
+                uri = getImageUri(rendition);
+            }
+            if (StringUtils.isBlank(uri)) {
+                LOG.warn("No config available for asset {} variation {} rendition {}", asset.getPath(), variationKey,
+                        renditionKey);
+                // use the original if no configuration available
+                AssetRendition original = asset.getOriginal();
+                if (original != null) { uri = getImageUri(original); }
+            }
         }
-        return "";
+        return uri;
     }
 
     public static String getImageUri(AssetRendition rendition) {
         return getImageUri((ImageAsset) rendition.getAsset(),
                 rendition.getVariation().getName(),
                 rendition.getName(),
-                rendition.getMimeType());
+                rendition.getMimeType(), rendition.getTransientsPath());
     }
 
-    public static String getImageUri(ImageAsset asset, String variation, String rendition, String mimeType) {
+    protected static String getImageUri(ImageAsset asset, @Nonnull String variation, @Nonnull String rendition, String mimeType,
+                                        @Nonnull String renditionTransientsPath) {
         StringBuilder builder = new StringBuilder();
         String path = asset.getPath();
         String ext = mimeType.substring("image/".length());
@@ -75,21 +85,16 @@ public class AdaptiveUtil {
         builder.append('.').append(variation);
         builder.append('.').append(rendition);
         builder.append('.').append(ext);
-        builder.append('/').append(getCacheHash(asset));
+        builder.append('/').append(getCacheHash(renditionTransientsPath));
         builder.append('/').append(name);
         builder.append('.').append(ext);
         return builder.toString();
     }
 
-    public static String getCacheHash(ImageAsset asset) {
-        StringBuilder builder = new StringBuilder("T");
-        Calendar lastModified = asset.getLastModified();
-        if (lastModified != null) {
-            builder.append(lastModified.getTimeInMillis());
-        } else {
-            builder.append(new Date().getTime());
-        }
-        return builder.toString();
+    protected static String getCacheHash(@Nonnull String renditionTransientsPath) {
+        byte[] md5 = DigestUtils.md5(renditionTransientsPath);
+        BigInteger md5Int = new BigInteger(md5);
+        return md5Int.abs().toString(36);
     }
 
     public static void sendImageStream(HttpServletResponse response,
