@@ -39,7 +39,8 @@
             "allow": true,
             "privileges": [
               "jcr:read",
-              "rep:write"
+              "rep:write",
+              "jcr:versionManagement"
             ]
           }
         ]
@@ -87,7 +88,11 @@
         "acl": [
           {
             "allow": true,
-            "privileges": "rep:write"
+            "privileges": [
+              "jcr:read",
+              "rep:write",
+              "jcr:versionManagement"
+            ]
           }
         ]
       }
