@@ -8,13 +8,13 @@ package com.composum.assets.commons.handle;
 import com.composum.assets.commons.AssetsConstants;
 import com.composum.assets.commons.config.ConfigHandle;
 import com.composum.assets.commons.config.RenditionConfig;
-import com.composum.assets.commons.util.AdaptiveUtil;
 import com.composum.assets.commons.util.ImageUtil;
 import com.composum.sling.clientlibs.handle.FileHandle;
 import com.composum.sling.core.BeanContext;
 import com.composum.sling.core.ResourceHandle;
 import com.composum.sling.core.util.LinkUtil;
 import com.composum.sling.core.util.ResourceUtil;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.resource.Resource;
 
@@ -22,6 +22,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.jcr.RepositoryException;
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.util.Calendar;
 import java.util.List;
 
@@ -102,12 +103,28 @@ public class AssetRendition extends AssetHandle<RenditionConfig> {
         return ImageUtil.mimeTypeToCss(getMimeType());
     }
 
+    /** Builds an URI that can be satisfied with the {@link com.composum.assets.commons.servlet.AdaptiveImageServlet}. */
     public String getImageUri() {
-        String uri = "";
-        ImageAsset image = (ImageAsset) getAsset();
-        if (image != null) {
-            uri = AdaptiveUtil.getImageUri(this);
+        String rendition = this.getName();
+        StringBuilder builder = new StringBuilder();
+        String path = getAsset().getPath();
+        String ext = getMimeType().substring("image/".length());
+        if (ext.equals("jpeg")) {
+            ext = "jpg";
         }
+        if (path.endsWith("." + ext)) {
+            path = path.substring(0, path.length() - (ext.length() + 1));
+        }
+        String name = path.substring(path.lastIndexOf('/') + 1);
+        builder.append(path);
+        builder.append(".adaptive");
+        builder.append('.').append(getVariation().getName());
+        builder.append('.').append(rendition);
+        builder.append('.').append(ext);
+        builder.append('/').append(getCacheHash());
+        builder.append('/').append(name);
+        builder.append('.').append(ext);
+        String uri = builder.toString();
         return uri;
     }
 
@@ -115,6 +132,14 @@ public class AssetRendition extends AssetHandle<RenditionConfig> {
         String url = getImageUri();
         return LinkUtil.getUrl(getRequest(), url);
     }
+
+    protected String getCacheHash() {
+        String transientsPath = this.getTransientsPath();
+        byte[] md5 = DigestUtils.md5(transientsPath);
+        BigInteger md5Int = new BigInteger(md5);
+        return md5Int.abs().toString(36);
+    }
+
 
     public FileHandle getFile() {
         if (file == null) {

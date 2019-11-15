@@ -135,8 +135,7 @@ public class AdaptiveImageServlet extends SlingSafeMethodsServlet {
                         VariationConfig variationConfig = renditionConfig.getVariation();
 
                         if (config.redirectUnwanted()) {
-                            String matchingUrl = AdaptiveUtil.getImageUri(asset,
-                                    variationConfig.getName(), renditionConfig.getName());
+                            String matchingUrl = asset.getImageUri(variationConfig.getName(), renditionConfig.getName());
                             matchingUrl = LinkUtil.getUrl(request, matchingUrl);
                             response.setHeader(HttpUtil.HEADER_LOCATION, matchingUrl);
                             if (LOG.isInfoEnabled()) {

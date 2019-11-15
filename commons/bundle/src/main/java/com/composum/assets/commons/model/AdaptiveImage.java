@@ -115,10 +115,6 @@ public class AdaptiveImage extends AbstractSlingBean implements AdaptiveImageCom
         return metaData;
     }
 
-    protected String getImageUri(String variation, String rendition) {
-        return ImageUtil.getImageUri(getAsset(), variation, rendition);
-    }
-
     protected InheritedValues getConfiguration() {
         if (configuration == null) {
             configuration = new InheritedValues(getResource(), InheritedValues.Type.contentBased) ;

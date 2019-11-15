@@ -6,7 +6,6 @@ import com.composum.assets.commons.config.RenditionConfig;
 import com.composum.assets.commons.handle.ImageAsset;
 import com.composum.assets.commons.config.VariationConfig;
 import com.composum.assets.manager.config.RenditionConfigBean;
-import com.composum.assets.commons.util.AdaptiveUtil;
 import com.composum.sling.core.BeanContext;
 import com.composum.sling.core.filter.StringFilter;
 import com.composum.sling.core.util.LinkUtil;
@@ -42,6 +41,7 @@ public class ImageRenditionBean extends AbstractImageBean<RenditionConfig> {
         config = variationConfig.findRendition(resource.getName());
     }
 
+    @Override
     public RenditionConfig getConfig() {
         return config;
     }
@@ -56,7 +56,7 @@ public class ImageRenditionBean extends AbstractImageBean<RenditionConfig> {
         String uri = "";
         ImageAsset image = getAsset();
         if (image != null) {
-            uri = AdaptiveUtil.getImageUri(image, config.getVariation().getName(), config.getName());
+            uri = image.getImageUri(config.getVariation().getName(), config.getName());
         }
         return uri;
     }

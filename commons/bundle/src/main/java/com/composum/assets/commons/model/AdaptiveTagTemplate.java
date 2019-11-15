@@ -1,6 +1,6 @@
 package com.composum.assets.commons.model;
 
-import com.composum.assets.commons.util.ImageUtil;
+import com.composum.assets.commons.handle.ImageAsset;
 import com.composum.assets.commons.util.TemplateUtil;
 import com.composum.sling.core.util.LinkUtil;
 import org.apache.commons.io.IOUtils;
@@ -71,8 +71,11 @@ public class AdaptiveTagTemplate {
                     result.append(component.getAltText());
                     break;
                 default:
-                    result.append(LinkUtil.getUrl(component.getRequest(),
-                            ImageUtil.getImageUri(component.getAsset(), variation, rendition)));
+                    ImageAsset asset = component.getAsset();
+                    if (asset != null) {
+                        result.append(LinkUtil.getUrl(component.getRequest(),
+                                asset.getImageUri(variation, rendition)));
+                    }
                     break;
             }
             pos = matcher.end();

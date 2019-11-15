@@ -2,13 +2,13 @@ package com.composum.assets.commons.widget;
 
 import com.composum.assets.commons.handle.ImageAsset;
 import com.composum.assets.commons.handle.MetaData;
-import com.composum.assets.commons.util.AdaptiveUtil;
 import com.composum.sling.clientlibs.handle.FileHandle;
 import com.composum.sling.core.AbstractServletBean;
 import com.composum.sling.core.BeanContext;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.sling.api.resource.Resource;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -94,6 +94,7 @@ public class Finder extends AbstractServletBean {
 
     public class AssetThumbnail extends Thumbnail {
 
+        @Nonnull
         public final ImageAsset asset;
 
         public AssetThumbnail(Resource resource) {
@@ -109,7 +110,7 @@ public class Finder extends AbstractServletBean {
         @Override
         public String getContent() {
             return "<img class=\"thumbnail-image\" src=\"" +
-                    AdaptiveUtil.getImageUri(asset, "thumbnail", "large") +
+                    asset.getImageUri("thumbnail", "large") +
                     "\"/>";
         }
 
