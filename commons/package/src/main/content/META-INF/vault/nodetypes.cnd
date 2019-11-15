@@ -23,7 +23,7 @@
 
 [cpa:MetaData] > nt:unstructured, mix:created, mix:lastModified
 
-[cpa:AssetResource] > sling:Resource, mix:created, mix:lastModified, mix:versionable
+[cpa:AssetResource] > sling:Resource, mix:created, mix:versionable
   mixin
   + meta (cpa:MetaData) = cpa:MetaData autocreated
 

@@ -130,27 +130,20 @@ public class AdaptiveImageServlet extends SlingSafeMethodsServlet {
     /** Handle a real asset. */
     protected void handleAsset(@Nonnull SlingHttpServletRequest request, @Nonnull SlingHttpServletResponse response,
                                @Nonnull ImageAsset asset) throws IOException, ServletException {
-        RequestPathInfo pathInfo = request.getRequestPathInfo();
-        String[] selectors = SELECTORS_FILTER.getFiltered(pathInfo.getSelectors());
-        switch (selectors.length) {
-            case 0:
-                selectors = new String[]{ConfigHandle.DEFAULT, ConfigHandle.DEFAULT};
-                break;
-            case 1:
-                selectors = new String[]{selectors[0], ConfigHandle.DEFAULT};
-                break;
-        }
-
         AssetRendition rendition = null;
         try {
+            String[] selectors = parseSelectors(request);
+            String variationName = selectors[0];
+            String renditionName = selectors[1];
+
             // determine the rendition if configured selectors are requested
-            rendition = adaptiveImageService.getOrCreateRendition(asset, selectors[0], selectors[1]);
+            rendition = adaptiveImageService.getOrCreateRendition(asset, variationName, renditionName);
 
             if (rendition == null) {
                 // requested pattern not configured...
 
                 RenditionConfig renditionConfig = adaptiveImageService
-                        .findRenditionConfig(asset, selectors[0], selectors[1]);
+                        .findRenditionConfig(asset, variationName, renditionName);
                 VariationConfig variationConfig = renditionConfig.getVariation();
 
                 if (config.redirectUnwanted()) {
@@ -177,45 +170,59 @@ public class AdaptiveImageServlet extends SlingSafeMethodsServlet {
         }
 
         if (rendition != null) {
+            sendRenditionContent(request, response, rendition);
+        } else {
+            String message = ("No rendition rule found for asset '" + asset.getPath()
+                    + "' and selectors '" + request.getRequestPathInfo().getSelectorString() + "'.");
+            LOG.error(message);
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, message);
+        }
+    }
 
-            Calendar lastModified = rendition.getLastModified();
+    /** Returns array of variation name and rendition name, as determined from selectors. */
+    @Nonnull
+    protected String[] parseSelectors(@Nonnull SlingHttpServletRequest request) {
+        RequestPathInfo pathInfo = request.getRequestPathInfo();
+        String[] selectors = SELECTORS_FILTER.getFiltered(pathInfo.getSelectors());
+        switch (selectors.length) {
+            case 0:
+                selectors = new String[]{ConfigHandle.DEFAULT, ConfigHandle.DEFAULT};
+                break;
+            case 1:
+                selectors = new String[]{selectors[0], ConfigHandle.DEFAULT};
+                break;
+        }
+        return selectors;
+    }
 
-            if (!HttpUtil.isModifiedSince(request.getDateHeader(HttpUtil.HEADER_IF_MODIFIED_SINCE), lastModified)) {
-                response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
-                return;
-            }
+    protected void sendRenditionContent(@Nonnull SlingHttpServletRequest request, @Nonnull SlingHttpServletResponse response,
+                                        @Nonnull AssetRendition rendition)
+            throws IOException, ServletException {
+        Calendar lastModified = rendition.getLastModified();
 
-            try {
+        if (HttpUtil.notModifiedSince(request.getDateHeader(HttpUtil.HEADER_IF_MODIFIED_SINCE), lastModified)) {
+            response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+            return;
+        }
 
-                InputStream imageStream = rendition.getStream();
+        try {
+            try (InputStream imageStream = rendition.getStream()) {
                 if (imageStream != null) {
-
                     try {
                         AdaptiveUtil.sendImageStream(response, rendition, imageStream);
-
                     } finally {
                         imageStream.close();
                     }
-
                 } else {
                     String message = ("Can't load data for rendition '" + rendition.getPath() + "'!");
                     LOG.error(message);
                     response.sendError(HttpServletResponse.SC_NOT_FOUND, message);
                 }
-
-            } catch (RepositoryException ex) {
-                LOG.error(ex.getMessage(), ex);
-                throw new ServletException(ex);
             }
-
-        } else {
-            String message = ("No rendition rule found for asset '" + asset.getPath()
-                    + "' and selectors '" + pathInfo.getSelectorString() + "'.");
-            LOG.error(message);
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, message);
+        } catch (RepositoryException ex) {
+            LOG.error(ex.getMessage(), ex);
+            throw new ServletException(ex);
         }
-
-        return;
     }
 
     /** If the referenced resource is just a simple nt:file we want to serve the file directly as an image. */
@@ -227,18 +234,16 @@ public class AdaptiveImageServlet extends SlingSafeMethodsServlet {
 
             Calendar lastModified = contentValues.get(JcrConstants.JCR_LASTMODIFIED, Calendar.class);
 
-            if (!HttpUtil.isModifiedSince(request.getDateHeader(HttpUtil.HEADER_IF_MODIFIED_SINCE), lastModified)) {
+            if (HttpUtil.notModifiedSince(request.getDateHeader(HttpUtil.HEADER_IF_MODIFIED_SINCE), lastModified)) {
                 response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
                 return;
             }
 
             Binary binary = ResourceUtil.getBinaryData(resource);
-            InputStream imageStream;
 
-            try {
-                if (binary != null && (imageStream = binary.getStream()) != null) {
+            try (InputStream imageStream = binary != null ? binary.getStream() : null) {
+                if (imageStream != null) {
 
-                    try {
                         response.setContentType(MimeTypeUtil.getMimeType(resource, ""));
                         if (lastModified != null) {
                             response.setDateHeader(HttpUtil.HEADER_LAST_MODIFIED, lastModified.getTimeInMillis());
@@ -248,20 +253,14 @@ public class AdaptiveImageServlet extends SlingSafeMethodsServlet {
                         OutputStream outputStream = response.getOutputStream();
                         IOUtils.copy(imageStream, outputStream);
 
-                    } finally {
-                        imageStream.close();
-                    }
-
                     return;
                 }
-
             } catch (RepositoryException ignore) {
             }
         }
         String message = ("Can't load data for image '" + resource.getPath() + "'!");
         LOG.error(message);
         response.sendError(HttpServletResponse.SC_NOT_FOUND, message);
-        return;
     }
 
     @Activate
