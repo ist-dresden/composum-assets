@@ -202,7 +202,22 @@ public class AdaptiveImageServlet extends SlingSafeMethodsServlet {
 
         if (HttpUtil.notModifiedSince(request.getDateHeader(HttpUtil.HEADER_IF_MODIFIED_SINCE), lastModified)) {
             response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+            LOG.debug("Sending {} 'not modified'", HttpServletResponse.SC_NOT_MODIFIED);
             return;
+        }
+
+        boolean cacheHashCorrect = StringUtils.contains(request.getRequestPathInfo().getSuffix(),
+                '/' + rendition.getCacheHash() + '/');
+
+        if (config.redirectToCachefriendlyUrl() && !cacheHashCorrect) {
+            String cachefriendlyUrl = LinkUtil.getUrl(request, rendition.getImageUrl());
+            LOG.debug("Cache hash not found - rediecting to {}", cachefriendlyUrl);
+            response.sendRedirect(cachefriendlyUrl);
+            return;
+        }
+
+        if (cacheHashCorrect) { // unchangeable content - sending the recommended 1 year expiration
+            response.setHeader(HttpUtil.HEADER_CACHE_CONTROL, "max-age=31536000");
         }
 
         try {
@@ -287,6 +302,13 @@ public class AdaptiveImageServlet extends SlingSafeMethodsServlet {
                 description = "redirects unwanted requests to the most similar supported URL if set to 'true'"
         )
         boolean redirectUnwanted() default true;
+
+        @AttributeDefinition(
+                name = "Redirect to Cachefriendly",
+                description = "Redirects asset requests that do not contain a hash in the suffix that ensures that " +
+                        "the this URL always delivers the same picture to one that does."
+        )
+        boolean redirectToCachefriendlyUrl() default true;
 
     }
 

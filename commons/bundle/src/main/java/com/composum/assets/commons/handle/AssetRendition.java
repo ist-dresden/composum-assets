@@ -133,9 +133,9 @@ public class AssetRendition extends AssetHandle<RenditionConfig> {
         return LinkUtil.getUrl(getRequest(), url);
     }
 
-    protected String getCacheHash() {
-        String transientsPath = this.getTransientsPath();
-        byte[] md5 = DigestUtils.md5(transientsPath);
+    /** The hash that's embedded into the URI that makes them different once the content changes. */
+    public String getCacheHash() {
+        byte[] md5 = DigestUtils.md5(getTransientsPath());
         BigInteger md5Int = new BigInteger(md5);
         return md5Int.abs().toString(36);
     }
