@@ -87,6 +87,8 @@ public class AssetMetaPropertiesService implements MetaPropertiesService {
 
         protected void addMetaData(Resource contentResource, TikaMetaData metadata)
                 throws PersistenceException {
+            if (!ResourceUtil.isResourceType(contentResource, AssetsConstants.MIXIN_TYPE_ASSET_RESOURCE)) { return; }
+
             prepareMetaData(contentResource, metadata);
             Resource metaResource = contentResource.getChild(AssetsConstants.NODE_META);
             if (metaResource == null) {
@@ -110,6 +112,15 @@ public class AssetMetaPropertiesService implements MetaPropertiesService {
                         contentResource.getResourceResolver().getUserID(), SlingResourceUtil.getPath(metaResource));
             }
         }
+
+        protected boolean isAssetSubnode(Resource resource) {
+            if (resource.getPath().startsWith(AssetsConstants.PATH_TRANSIENTS)) { return true; }
+            while (resource != null) {
+                if (ResourceUtil.isResourceType(resource, AssetsConstants.NODE_TYPE_ASSET)) { return true; }
+                resource = resource.getParent();
+            }
+            return false;
+        }
     }
 
     public abstract static class FileResourceStrategy extends AbstractMetaStrategy {
@@ -124,11 +135,13 @@ public class AssetMetaPropertiesService implements MetaPropertiesService {
 
         protected abstract boolean isMatchingMimeType(String mimeType);
 
-        protected void adjustMixinTypes(Resource contentResoure)
+        protected void adjustMixinTypes(Resource contentResource)
                 throws RepositoryException {
-            if (!ResourceUtil.isResourceType(contentResoure, AssetsConstants.MIXIN_TYPE_ASSET_RESOURCE)) {
-                Node node = contentResoure.adaptTo(Node.class);
-                node.addMixin(AssetsConstants.MIXIN_TYPE_ASSET_RESOURCE);
+            String wantedType = isAssetSubnode(contentResource) ? AssetsConstants.MIXIN_TYPE_ASSET_RESOURCE
+                    : ResourceUtil.MIX_VERSIONABLE;
+            if (!ResourceUtil.isResourceType(contentResource, wantedType)) {
+                Node node = contentResource.adaptTo(Node.class);
+                node.addMixin(wantedType);
             }
         }
 
