@@ -92,7 +92,6 @@
         <dependency>
             <groupId>com.composum.platform</groupId>
             <artifactId>composum-platform-staging-bundle</artifactId>
-            <version>${composum.platform.version}</version>
         </dependency>
 
         <!-- Sling, JCR -->

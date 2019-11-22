@@ -51,8 +51,8 @@
             <!-- Composum Platform -->
             <dependency>
                 <groupId>com.composum.platform</groupId>
-                <artifactId>composum-platform-staging</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <artifactId>composum-platform-staging-bundle</artifactId>
+                <version>${composum.platform.version}</version>
                 <scope>provided</scope>
             </dependency>
 
