@@ -42,7 +42,7 @@ import java.util.Set;
                 // ResourceChangeListener.PROPERTY_NAMES_HINT + "=" + ResourceUtil.PROP_DATA
         }
 )
-public class AdjustMetaDataResourceChangeListener extends AbstractResourceChangeListener {
+public class AdjustMetaDataResourceChangeListener implements ResourceChangeListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(AdjustMetaDataResourceChangeListener.class);
 
