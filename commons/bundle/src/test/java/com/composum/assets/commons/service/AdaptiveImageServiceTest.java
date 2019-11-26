@@ -275,12 +275,6 @@ public class AdaptiveImageServiceTest {
         assertNotNull(version);
 
         // try behavior in staging.
-        // Staging setup from DefaultStagingReleaseManagerTest:
-        InputStreamReader cndReader = new InputStreamReader(getClass().getResourceAsStream("/adaptiveImageServiceTest" +
-                "/stagingNodetypes.cnd"));
-        NodeType[] nodeTypes = CndImporter.registerNodeTypes(cndReader, resolver.adaptTo(Session.class));
-        assertEquals(2, nodeTypes.length);
-
         DefaultStagingReleaseManager releaseManager = new DefaultStagingReleaseManager() {{
             this.configuration = AnnotationWithDefaults.of(DefaultStagingReleaseManager.Configuration.class);
             this.publisher = new ReleaseChangeEventPublisherImpl();
