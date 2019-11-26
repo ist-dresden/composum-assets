@@ -6,6 +6,7 @@
 package com.composum.assets.commons;
 
 import com.composum.sling.core.util.ResourceUtil;
+import com.composum.sling.platform.staging.StagingConstants;
 
 import java.util.Arrays;
 import java.util.List;
@@ -46,9 +47,7 @@ public class AssetsConstants {
     public static final String CONFIGURATION = "Configuration";
 
     public static final String NODE_TYPE_ASSET = CPA_PREFIX + "Asset";
-    public static final String MIXIN_TYPE_ASSET_RESOURCE = CPA_PREFIX + "AssetResource";
     public static final String NODE_TYPE_ASSET_CONTENT = CPA_PREFIX + "AssetContent";
-    public static final String NODE_TYPE_META_DATA = CPA_PREFIX + "MetaData";
     public static final String NODE_TYPE_ASSET_CONFIG = NODE_TYPE_ASSET + CONFIGURATION;
     public static final String NODE_TYPE_IMAGE_CONFIG = CPA_PREFIX + "Image" + CONFIGURATION;
 

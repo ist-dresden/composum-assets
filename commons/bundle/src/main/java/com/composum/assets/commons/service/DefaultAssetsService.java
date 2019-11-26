@@ -16,6 +16,7 @@ import com.composum.sling.core.BeanContext;
 import com.composum.sling.core.ResourceHandle;
 import com.composum.sling.core.util.MimeTypeUtil;
 import com.composum.sling.core.util.ResourceUtil;
+import com.composum.sling.platform.staging.StagingConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jackrabbit.JcrConstants;
 import org.apache.sling.api.resource.ModifiableValueMap;
@@ -128,7 +129,7 @@ public class DefaultAssetsService implements AssetsService {
         IMAGE_CONTENT_PROPERTIES = new HashMap<>();
         IMAGE_CONTENT_PROPERTIES.put(ResourceUtil.PROP_PRIMARY_TYPE, AssetsConstants.NODE_TYPE_ASSET_CONTENT);
         IMAGE_META_PROPERTIES = new HashMap<>();
-        IMAGE_META_PROPERTIES.put(ResourceUtil.PROP_PRIMARY_TYPE, AssetsConstants.NODE_TYPE_META_DATA);
+        IMAGE_META_PROPERTIES.put(ResourceUtil.PROP_PRIMARY_TYPE, StagingConstants.TYPE_METADATA);
     }
 
     public static final Map<String, Object> IMAGE_FILE_PROPERTIES;

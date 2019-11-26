@@ -178,14 +178,7 @@ public class SetupHook implements InstallHook {
 
     private boolean isUpdateIsNecessary(NodeTypeManager nodeTypeManager) throws RepositoryException {
         NodeType assetContentType = nodeTypeManager.getNodeType("cpa:AssetContent");
-        NodeType assetResourceType = nodeTypeManager.getNodeType("cpa:AssetResource");
-        boolean assetResourceTypeHasDataHash =
-                Arrays.asList(assetResourceType.getPropertyDefinitions()).stream()
-                        .anyMatch((d) -> d.getName().equals("cpa:dataHash"));
-        return !assetContentType.isNodeType(org.apache.jackrabbit.JcrConstants.MIX_VERSIONABLE)
-                || !assetResourceType.isNodeType(org.apache.jackrabbit.JcrConstants.MIX_VERSIONABLE)
-                || !assetResourceType.isNodeType(JcrConstants.MIX_CREATED)
-                || !assetResourceTypeHasDataHash;
+        return !assetContentType.isNodeType(org.apache.jackrabbit.JcrConstants.MIX_VERSIONABLE);
     }
 
 

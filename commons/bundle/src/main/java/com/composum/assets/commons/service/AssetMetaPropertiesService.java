@@ -11,6 +11,7 @@ import com.composum.assets.commons.util.TikaMetaData;
 import com.composum.sling.core.filter.StringFilter;
 import com.composum.sling.core.util.ResourceUtil;
 import com.composum.sling.core.util.SlingResourceUtil;
+import com.composum.sling.platform.staging.StagingConstants;
 import org.apache.jackrabbit.JcrConstants;
 import org.apache.sling.api.resource.ModifiableValueMap;
 import org.apache.sling.api.resource.PersistenceException;
@@ -65,7 +66,7 @@ public class AssetMetaPropertiesService implements MetaPropertiesService {
 
     static {
         CRUD_META_PROPERTIES = new HashMap<>();
-        CRUD_META_PROPERTIES.put(ResourceUtil.PROP_PRIMARY_TYPE, AssetsConstants.NODE_TYPE_META_DATA);
+        CRUD_META_PROPERTIES.put(ResourceUtil.PROP_PRIMARY_TYPE, StagingConstants.TYPE_METADATA);
     }
 
     @Reference
@@ -87,7 +88,7 @@ public class AssetMetaPropertiesService implements MetaPropertiesService {
 
         protected void addMetaData(Resource contentResource, TikaMetaData metadata)
                 throws PersistenceException {
-            if (!ResourceUtil.isResourceType(contentResource, AssetsConstants.MIXIN_TYPE_ASSET_RESOURCE)) { return; }
+            if (!ResourceUtil.isResourceType(contentResource, StagingConstants.TYPE_MIX_PLATFORM_RESOURCE)) { return; }
 
             prepareMetaData(contentResource, metadata);
             Resource metaResource = contentResource.getChild(AssetsConstants.NODE_META);
@@ -137,7 +138,7 @@ public class AssetMetaPropertiesService implements MetaPropertiesService {
 
         protected void adjustMixinTypes(Resource contentResource)
                 throws RepositoryException {
-            String wantedType = isAssetSubnode(contentResource) ? AssetsConstants.MIXIN_TYPE_ASSET_RESOURCE
+            String wantedType = isAssetSubnode(contentResource) ? StagingConstants.TYPE_MIX_PLATFORM_RESOURCE
                     : ResourceUtil.MIX_VERSIONABLE;
             if (!ResourceUtil.isResourceType(contentResource, wantedType)) {
                 Node node = contentResource.adaptTo(Node.class);

@@ -9,6 +9,7 @@ import com.composum.assets.commons.AssetsConstants;
 import com.composum.sling.core.AbstractSlingBean;
 import com.composum.sling.core.BeanContext;
 import com.composum.sling.core.util.ResourceUtil;
+import com.composum.sling.platform.staging.StagingConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jackrabbit.JcrConstants;
 import org.apache.sling.api.resource.Resource;
@@ -58,10 +59,10 @@ public class MetaData extends AbstractSlingBean {
         while (meta == null && resource != null && !resource.getPath().equals("/")) {
             meta = resource;
             for (int i = 0; !ResourceUtil.isResourceType(meta,
-                    AssetsConstants.NODE_TYPE_META_DATA) && i < META_NODE_PATHS.length; i++) {
+                    StagingConstants.TYPE_METADATA) && i < META_NODE_PATHS.length; i++) {
                 meta = resource.getChild(META_NODE_PATHS[i]);
             }
-            if (!ResourceUtil.isResourceType(meta, AssetsConstants.NODE_TYPE_META_DATA)) {
+            if (!ResourceUtil.isResourceType(meta, StagingConstants.TYPE_METADATA)) {
                 meta = null;
                 if (ResourceUtil.isResourceType(resource, JcrConstants.NT_FILE)
                         || ResourceUtil.isResourceType(resource, AssetsConstants.NODE_TYPE_ASSET)) {

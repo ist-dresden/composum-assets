@@ -6,7 +6,6 @@ import com.composum.assets.commons.AssetsConstants;
 import com.composum.assets.commons.handle.AssetRendition;
 import com.composum.assets.commons.handle.ImageAsset;
 import com.composum.assets.commons.image.DefaultRenditionTransformer;
-import com.composum.assets.commons.image.ImageTransformer;
 import com.composum.assets.commons.image.transform.GaussianBlurTransformer;
 import com.composum.assets.commons.image.transform.GraphicsCropTransformer;
 import com.composum.assets.commons.image.transform.GraphicsScaleTransformer;
@@ -37,13 +36,11 @@ import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ResourceResolverFactory;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.apache.sling.testing.mock.sling.junit.SlingContext;
-import org.hamcrest.Matchers;
 import org.jetbrains.annotations.NotNull;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import javax.jcr.Node;
 import javax.jcr.Session;
@@ -266,7 +263,7 @@ public class AdaptiveImageServiceTest {
         // resourceResolver.create(resource, "meta", ImmutableMap.of(ResourceUtil.PROP_PRIMARY_TYPE,
         // AssetsConstants.NODE_TYPE_META_DATA));
         resource.adaptTo(ModifiableValueMap.class).put(ResourceUtil.PROP_MIXINTYPES,
-                new String[]{AssetsConstants.MIXIN_TYPE_ASSET_RESOURCE});
+                new String[]{StagingConstants.TYPE_MIX_PLATFORM_RESOURCE});
         resolver.commit();
         // JcrTestUtils.printResourceRecursivelyAsJson(resourceResolver, path);
         VersionManager versionManager = resolver.adaptTo(Session.class).getWorkspace().getVersionManager();
