@@ -90,9 +90,13 @@ public class AdaptiveImageServiceTest {
         resolver = context.resourceResolver();
         Session session = resolver.adaptTo(Session.class);
         InputStreamReader cndReader = new InputStreamReader(getClass().getResourceAsStream("/adaptiveImageServiceTest" +
-                "/nodetypes.cnd"));
+                "/stagingNodetypes.cnd"));
         NodeType[] nodeTypes = CndImporter.registerNodeTypes(cndReader, session);
-        assertEquals(10, nodeTypes.length);
+        assertEquals(5, nodeTypes.length);
+        cndReader = new InputStreamReader(getClass().getResourceAsStream("/adaptiveImageServiceTest" +
+                "/nodetypes.cnd"));
+        nodeTypes = CndImporter.registerNodeTypes(cndReader, session);
+        assertEquals(8, nodeTypes.length);
         resolver.commit();
         context.build().resource("/test/assets").commit();
         context.load().json("/adaptiveImageServiceTest/site-1.json", "/test/assets/site-1");
