@@ -7,16 +7,17 @@
 
     window.composum = window.composum|| {};
     window.composum.assets = window.composum.assets || {};
+    window.composum.assets.manager = window.composum.assets.manager || {};
 
-    (function (assets, core) {
+    (function (manager, assets, core) {
 
-        assets.AssetConfigTab = assets.ConfigTab.extend({
+        manager.AssetConfigTab = manager.ConfigTab.extend({
 
             initialize: function (options) {
-                assets.ConfigTab.prototype.initialize.apply(this, [options]);
+                manager.ConfigTab.prototype.initialize.apply(this, [options]);
             }
         });
 
-    })(window.composum.assets, window.core);
+    })(window.composum.assets.manager, window.composum.assets, window.core);
 
 })(window);

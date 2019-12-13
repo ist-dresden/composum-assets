@@ -2,7 +2,7 @@
 <%@taglib prefix="sling" uri="http://sling.apache.org/taglibs/sling/1.2" %>
 <%@taglib prefix="cpn" uri="http://sling.composum.com/cpnl/1.0" %>
 <sling:defineObjects/>
-<cpn:component id="model" type="com.composum.assets.commons.widget.GenericModel">
+<cpn:component id="model" type="com.composum.assets.commons.widget.AssetModel">
     <div class="asset-select-widget widget">
         <div class="asset-select-widget_path form-group">
             <label class="control-label">Asset Path</label>

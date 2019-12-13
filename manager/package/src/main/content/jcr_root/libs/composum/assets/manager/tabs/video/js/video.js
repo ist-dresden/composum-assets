@@ -7,17 +7,18 @@
 
     window.composum = window.composum|| {};
     window.composum.assets = window.composum.assets || {};
+    window.composum.assets.manager = window.composum.assets.manager || {};
 
-    (function (assets, core) {
-        
-        assets.VideoTab = assets.AbstractManagerTab.extend({
+    (function (manager, assets, core) {
+
+        manager.VideoTab = manager.AbstractManagerTab.extend({
 
             initialize: function(options) {
-                assets.AbstractManagerTab.prototype.initialize.apply(this, [options]);
+                manager.AbstractManagerTab.prototype.initialize.apply(this, [options]);
                 window.widgets.setUp(this.el);
             }
         });
 
-    })(window.composum.assets, window.core);
+    })(window.composum.assets.manager, window.composum.assets, window.core);
 
 })(window);

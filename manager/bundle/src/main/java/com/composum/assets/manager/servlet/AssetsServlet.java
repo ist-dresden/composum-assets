@@ -188,7 +188,7 @@ public class AssetsServlet extends NodeTreeServlet {
             if (dispatcher != null) {
                 dispatcher.forward(request, response);
             } else {
-                LOG.error("can't retrive dispatcher");
+                LOG.error("can't retrieve dispatcher");
             }
         }
     }

@@ -23,7 +23,7 @@
             }
         });
 
-        assets.profile = new core.LocalProfile('composum.assets');
+        assets.profile = assets.profile || new core.LocalProfile('composum.assets');
 
         /**
          * the dialog to upload asset originals

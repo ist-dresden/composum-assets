@@ -3,7 +3,7 @@
 <%@taglib prefix="cpn" uri="http://sling.composum.com/cpnl/1.0" %>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <sling:defineObjects/>
-<cpn:component id="finder" type="com.composum.assets.commons.widget.Folder">
+<cpn:component id="finder" type="com.composum.assets.commons.widget.FolderModel">
     <div class="thumbnail-panel" data-path="${finder.path}">
         <c:forEach items="${finder.thumbnails}" var="thumbnail">
             <a href="#" data-path="${thumbnail.path}" class="asset-link">

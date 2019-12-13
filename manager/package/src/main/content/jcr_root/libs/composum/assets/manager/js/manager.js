@@ -7,8 +7,9 @@
 
     window.composum = window.composum|| {};
     window.composum.assets = window.composum.assets || {};
+    window.composum.assets.manager = window.composum.assets.manager || {};
 
-    (function (assets, core) {
+    (function (manager, assets, core) {
 
         assets.current = {};
 
@@ -202,22 +203,22 @@
 
         assets.detailViewTabTypes = [{
             selector: '> .config-detail',
-            tabType: assets.ConfigTab
+            tabType: manager.ConfigTab
         }, {
             selector: '> .folder-detail',
-            tabType: assets.FolderTab
+            tabType: manager.FolderTab
         }, {
             selector: '> .asset-original',
-            tabType: assets.AssetTab
+            tabType: manager.AssetTab
         }, {
             selector: '> .asset-renditions',
-            tabType: assets.AssetConfigTab
+            tabType: manager.AssetConfigTab
         }, {
             selector: '> .image-detail',
-            tabType: assets.ImageTab
+            tabType: manager.ImageTab
         }, {
             selector: '> .video-detail',
-            tabType: assets.VideoTab
+            tabType: manager.VideoTab
         }, {
             // the fallback to the basic implementation as a default rule
             selector: '> div',
@@ -256,6 +257,6 @@
 
         assets.detailView = core.getView('#assets-view', assets.DetailView);
 
-    })(window.composum.assets, window.core);
+    })(window.composum.assets.manager, window.composum.assets, window.core);
 
 })(window);

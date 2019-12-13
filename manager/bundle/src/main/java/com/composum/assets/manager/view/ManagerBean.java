@@ -34,9 +34,6 @@ public class ManagerBean extends AbstractServletBean {
                 String type = resourceType.substring(resourceType.lastIndexOf('/') + 1);
                 type = type.substring(type.lastIndexOf(':') + 1).toLowerCase();
                 switch (type) {
-                    case "config":
-                        viewType = "config";
-                        break;
                     case "asset":
                     case "image":
                         viewType = "asset";

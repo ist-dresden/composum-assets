@@ -5,36 +5,47 @@
 'use strict';
 (function (window) {
 
-    window.composum = window.composum|| {};
+    window.composum = window.composum || {};
     window.composum.assets = window.composum.assets || {};
+    window.composum.assets.manager = window.composum.assets.manager || {};
 
-    (function (assets, core) {
+    (function (manager, assets, core) {
 
-        assets.FolderTab = assets.AbstractManagerTab.extend({
+        manager.FolderTab = manager.AbstractManagerTab.extend({
 
             initialize: function (options) {
                 this.$content = this.$('.folder-content');
-                assets.AbstractManagerTab.prototype.initialize.apply(this, [options]);
+                manager.AbstractManagerTab.prototype.initialize.apply(this, [options]);
                 this.$detailActions.find('.config').click(_.bind(this.createConfig, this));
                 this.$('.detail-toolbar .create-folder').click(_.bind(assets.treeActions.createFolder, assets.treeActions));
                 this.$('.detail-toolbar .create-asset').click(_.bind(assets.treeActions.createAsset, assets.treeActions));
                 this.$('.detail-toolbar .meta').click(_.bind(this.refreshMetaData, this));
-                this.$('.detail-toolbar .reload').click(_.bind(this.resetView, this));
+                this.$('.detail-toolbar .reload').click(_.bind(this.refresh, this));
                 this.$('.detail-toolbar .delete').click(_.bind(assets.treeActions.deleteNode, assets.treeActions));
+                $(document).off('path:selected.Browser').on('path:selected.Browser', _.bind(this.onSelected, this));
             },
 
             initContent: function () {
-                assets.AbstractManagerTab.prototype.initContent.apply(this, [this.$content]);
-                this.$content.find('.asset-link').click(_.bind(this.selectAsset, this));
+                manager.AbstractManagerTab.prototype.initContent.apply(this, [this.$content]);
+                this.browser = core.getWidget(this.$content,
+                    '.' + assets.navigator.const.navigation.browse.css.base, assets.navigator.BrowseWidget);
+                this.browser.$el.off('change.Manager').on('change.Manager', _.bind(this.onSelect, this));
             },
 
-            selectAsset: function (event) {
+            onSelect: function (event) {
                 if (event) {
                     event.preventDefault();
                 }
-                var $target = $(event.currentTarget);
-                var path = $target.data('path');
+                var path = this.browser.getValue();
                 $(document).trigger("path:selected", [path]);
+                return false;
+            },
+
+            onSelected: function (event, path) {
+                if (event) {
+                    event.preventDefault();
+                }
+                this.browser.setValue(path);
                 return false;
             },
 
@@ -63,18 +74,11 @@
                 if (event) {
                     event.preventDefault();
                 }
-                core.ajaxGet('/bin/cpm/assets/assets.reload.html' + this.data.path, {
-                    data: {
-                        resourceType: this.data.type
-                    }
-                }, _.bind(function (data) {
-                    this.$content.html(data);
-                    this.initContent();
-                }, this));
+                this.browser.reload();
                 return false;
             }
         });
 
-    })(window.composum.assets, window.core);
+    })(window.composum.assets.manager, window.composum.assets, window.core);
 
 })(window);

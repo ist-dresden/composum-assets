@@ -60,7 +60,7 @@ public class AssetsConfigImpl implements AssetsConfiguration {
         @AttributeDefinition(
                 description = "the filter configuration to determine all intermediate nodes in the tree view"
         )
-        String treeIntermediateFilterRule() default "Folder()";
+        String treeIntermediateFilterRule() default "or{Folder(),PrimaryType(+'^cpp:Site$')}";
     }
 
     private ResourceFilter assetNodeFilter;

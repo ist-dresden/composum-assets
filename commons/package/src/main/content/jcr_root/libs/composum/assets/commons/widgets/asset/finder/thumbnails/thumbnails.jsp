@@ -3,7 +3,7 @@
 <%@taglib prefix="cpn" uri="http://sling.composum.com/cpnl/1.0" %>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <sling:defineObjects/>
-<cpn:component id="finder" type="com.composum.assets.commons.widget.Finder">
+<cpn:component id="finder" type="com.composum.assets.commons.widget.NavigatorBase">
     <div class="finder-content large-thumbnails"
          data-type="composum/assets/commons/widgets/asset/finder/thumbnails">
         <div class="thumbnail-panel">

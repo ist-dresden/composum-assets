@@ -6,6 +6,7 @@
 package com.composum.assets.commons.service;
 
 import com.composum.sling.core.BeanContext;
+import com.composum.sling.core.filter.ResourceFilter;
 import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
 
@@ -13,8 +14,14 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.jcr.RepositoryException;
 import java.io.InputStream;
+import java.util.Iterator;
 
 public interface AssetsService {
+
+    @Nonnull
+    Iterator<Resource> search(@Nonnull BeanContext context, @Nonnull String root,
+                              @Nonnull String searchExpression, @Nullable ResourceFilter searchFilter,
+                              int offset, @Nullable Integer limit);
 
     /**
      * Updates or creates the original rendition for a given variation.
