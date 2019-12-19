@@ -42,6 +42,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import javax.jcr.RepositoryException;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.Servlet;
@@ -101,7 +102,7 @@ public class AssetsServlet extends NodeTreeServlet {
     protected AssetsOperationSet operations = new AssetsOperationSet();
 
     @Override
-    protected ServletOperationSet getOperations() {
+    protected AssetsOperationSet getOperations() {
         return operations;
     }
 
@@ -171,7 +172,8 @@ public class AssetsServlet extends NodeTreeServlet {
         }
 
         @Override
-        public void doIt(SlingHttpServletRequest request, SlingHttpServletResponse response,
+        public void doIt(@Nonnull final SlingHttpServletRequest request,
+                         @Nonnull final SlingHttpServletResponse response,
                          ResourceHandle resource)
                 throws IOException, ServletException {
 
@@ -205,7 +207,8 @@ public class AssetsServlet extends NodeTreeServlet {
     public class RefreshMetaDataOperation implements ServletOperation {
 
         @Override
-        public void doIt(SlingHttpServletRequest request, SlingHttpServletResponse response,
+        public void doIt(@Nonnull final SlingHttpServletRequest request,
+                         @Nonnull final SlingHttpServletResponse response,
                          ResourceHandle resource)
                 throws IOException {
 
@@ -223,7 +226,8 @@ public class AssetsServlet extends NodeTreeServlet {
     public class CreateImageAssetOperation implements ServletOperation {
 
         @Override
-        public void doIt(SlingHttpServletRequest request, SlingHttpServletResponse response,
+        public void doIt(@Nonnull final SlingHttpServletRequest request,
+                         @Nonnull final SlingHttpServletResponse response,
                          ResourceHandle resource)
                 throws IOException {
 
@@ -259,7 +263,8 @@ public class AssetsServlet extends NodeTreeServlet {
     public class TransformToImageAssetOperation implements ServletOperation {
 
         @Override
-        public void doIt(SlingHttpServletRequest request, SlingHttpServletResponse response,
+        public void doIt(@Nonnull final SlingHttpServletRequest request,
+                         @Nonnull final SlingHttpServletResponse response,
                          ResourceHandle resource)
                 throws RepositoryException, IOException {
 
@@ -277,7 +282,8 @@ public class AssetsServlet extends NodeTreeServlet {
     public class TransformToSimpleImageOperation implements ServletOperation {
 
         @Override
-        public void doIt(SlingHttpServletRequest request, SlingHttpServletResponse response,
+        public void doIt(@Nonnull final SlingHttpServletRequest request,
+                         @Nonnull final SlingHttpServletResponse response,
                          ResourceHandle resource)
                 throws RepositoryException, IOException {
 
@@ -315,7 +321,8 @@ public class AssetsServlet extends NodeTreeServlet {
     public class ConfigGetJsonOperation implements ServletOperation {
 
         @Override
-        public void doIt(SlingHttpServletRequest request, SlingHttpServletResponse response,
+        public void doIt(@Nonnull final SlingHttpServletRequest request,
+                         @Nonnull final SlingHttpServletResponse response,
                          ResourceHandle resource)
                 throws IOException {
 
@@ -343,7 +350,8 @@ public class AssetsServlet extends NodeTreeServlet {
     public class ConfigCreateJsonOperation extends ConfigGetJsonOperation {
 
         @Override
-        public void doIt(SlingHttpServletRequest request, SlingHttpServletResponse response,
+        public void doIt(@Nonnull final SlingHttpServletRequest request,
+                         @Nonnull final SlingHttpServletResponse response,
                          ResourceHandle resource)
                 throws IOException {
 
@@ -367,7 +375,8 @@ public class AssetsServlet extends NodeTreeServlet {
     public class ConfigCopyJsonOperation extends ConfigGetJsonOperation {
 
         @Override
-        public void doIt(SlingHttpServletRequest request, SlingHttpServletResponse response,
+        public void doIt(@Nonnull final SlingHttpServletRequest request,
+                         @Nonnull final SlingHttpServletResponse response,
                          ResourceHandle resource)
                 throws IOException {
 
@@ -398,7 +407,8 @@ public class AssetsServlet extends NodeTreeServlet {
     public class ConfigDeleteJsonOperation implements ServletOperation {
 
         @Override
-        public void doIt(SlingHttpServletRequest request, SlingHttpServletResponse response,
+        public void doIt(@Nonnull final SlingHttpServletRequest request,
+                         @Nonnull final SlingHttpServletResponse response,
                          ResourceHandle resource)
                 throws IOException {
 
@@ -419,7 +429,8 @@ public class AssetsServlet extends NodeTreeServlet {
     public class DefaultConfigSettingsOperation implements ServletOperation {
 
         @Override
-        public void doIt(SlingHttpServletRequest request, SlingHttpServletResponse response,
+        public void doIt(@Nonnull final SlingHttpServletRequest request,
+                         @Nonnull final SlingHttpServletResponse response,
                          ResourceHandle resource)
                 throws IOException {
 
@@ -463,7 +474,8 @@ public class AssetsServlet extends NodeTreeServlet {
     public class ChangeDefaultConfigOperation extends DefaultConfigSettingsOperation {
 
         @Override
-        public void doIt(SlingHttpServletRequest request, SlingHttpServletResponse response,
+        public void doIt(@Nonnull final SlingHttpServletRequest request,
+                         @Nonnull final SlingHttpServletResponse response,
                          ResourceHandle resource)
                 throws IOException {
 

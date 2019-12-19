@@ -39,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.jcr.RepositoryException;
 import javax.jcr.query.Query;
 import java.io.IOException;
@@ -105,8 +106,10 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
     }
 
     @Override
-    public AssetRendition getRendition(ImageAsset asset,
-                                       String variationKey, String renditionKey) throws RepositoryException {
+    @Nullable
+    public AssetRendition getRendition(@Nonnull final ImageAsset asset,
+                                       @Nonnull final String variationKey, @Nonnull final String renditionKey)
+            throws RepositoryException {
         AssetRendition rendition = null;
         AssetVariation variation = asset.getVariation(variationKey);
         if (variation != null) {
@@ -122,8 +125,9 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
     }
 
     @Override
-    public RenditionConfig getRenditionConfig(ImageAsset asset,
-                                              String variationKey, String renditionKey) {
+    @Nullable
+    public RenditionConfig getRenditionConfig(@Nonnull final ImageAsset asset,
+                                              @Nonnull final String variationKey, @Nonnull final String renditionKey) {
         RenditionConfig renditionConfig = null;
         AssetConfig assetConfig = asset.getConfig();
         VariationConfig variationConfig = assetConfig.getVariation(variationKey);
@@ -134,8 +138,9 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
     }
 
     @Override
-    public RenditionConfig findRenditionConfig(ImageAsset asset,
-                                               String variationKey, String renditionKey) {
+    @Nullable
+    public RenditionConfig findRenditionConfig(@Nonnull final ImageAsset asset,
+                                               @Nonnull final String variationKey, @Nonnull final String renditionKey) {
         RenditionConfig renditionConfig = null;
         AssetConfig assetConfig = asset.getConfig();
         VariationConfig variationConfig = assetConfig.findVariation(variationKey);
@@ -146,8 +151,8 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
     }
 
     @Override
-    public AssetRendition getOrCreateRendition(ImageAsset asset,
-                                               String variationKey, String renditionKey)
+    public AssetRendition getOrCreateRendition(@Nonnull final ImageAsset asset,
+                                               @Nonnull final String variationKey, @Nonnull final String renditionKey)
             throws RepositoryException, IOException {
 
         AssetRendition rendition = getRendition(asset, variationKey, renditionKey);
@@ -173,15 +178,21 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
     }
 
     protected void updateLastRendered(AssetRendition rendition) {
-        if (!rendition.isTransient()) { return; }
+        if (!rendition.isTransient()) {
+            return;
+        }
         Calendar lastRendered = rendition.getProperty(AssetsConstants.PROP_LAST_RENDERED, Calendar.class);
         long lastRenderedTime = lastRendered != null ? lastRendered.getTimeInMillis() : Long.MIN_VALUE;
         if (lastRenderedTime < System.currentTimeMillis() - TimeUnit.SECONDS.toMillis(config.lastRenderTimestep())) {
             try (ResourceResolver resolver = resolverFactory.getServiceResourceResolver(null)) {
                 Resource updateResource = resolver.getResource(rendition.getPath());
                 if (updateResource != null) {
-                    updateResource.adaptTo(ModifiableValueMap.class)
-                            .put(AssetsConstants.PROP_LAST_RENDERED, Calendar.getInstance());
+                    ModifiableValueMap values = updateResource.adaptTo(ModifiableValueMap.class);
+                    if (values != null) {
+                        values.put(AssetsConstants.PROP_LAST_RENDERED, Calendar.getInstance());
+                    } else {
+                        LOG.error("can't modify '{}'", updateResource.getPath());
+                    }
                 } else { // that should not be possible, but somehow happens. Why?
                     LOG.error("Bug: Can't find resource in updateLastRendered: {}", rendition.getPath(),
                             new Exception("Stacktrace, not thrown"));
@@ -194,8 +205,8 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
     }
 
     @Override
-    public void dropRenditions(String path,
-                               String variationKey, String renditionKey)
+    public void dropRenditions(@Nonnull String path,
+                               @Nonnull final String variationKey, @Nullable final String renditionKey)
             throws PersistenceException {
 
         path = path.trim();

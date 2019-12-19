@@ -15,7 +15,7 @@
 
             initialize: function(options) {
                 manager.AbstractManagerTab.prototype.initialize.apply(this, [options]);
-                window.widgets.setUp(this.el);
+                this.$detailActions.find('.go-up').click(_.bind(this.goUp, this));
             }
         });
 

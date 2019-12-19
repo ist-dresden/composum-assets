@@ -15,7 +15,7 @@
 
             initialize: function(options) {
                 manager.AbstractManagerTab.prototype.initialize.apply(this, [options]);
-                window.widgets.setUp(this.el);
+                this.$detailActions.find('.go-up').click(_.bind(this.goUp, this));
                 this.$detailActions.find('.transform').click(_.bind(this.toImageAsset, this));
                 this.$('.detail-toolbar .reload').click(_.bind(this.reload, this));
                 this.$('.detail-toolbar .delete').click(_.bind(assets.treeActions.deleteNode, assets.treeActions));

@@ -3,14 +3,13 @@
 <%@taglib prefix="cpn" uri="http://sling.composum.com/cpnl/1.0" %>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <sling:defineObjects/>
-<cpn:bundle basename="composum-assets">
 <cpn:component id="manager" type="com.composum.assets.manager.view.ManagerBean" scope="request">
     <html data-context-path="${slingRequest.contextPath}">
     <head>
         <sling:call script="/libs/composum/nodes/console/page/head.jsp"/>
         <cpn:clientlib type="css" category="composum.assets.manager"/>
     </head>
-    <body id="assets" class="console left-open top-disabled">
+    <body id="assets" class="console left-open top-open">
     <div id="ui">
         <sling:include resourceType="composum/assets/manager/dialogs"/>
         <sling:include resourceType="composum/nodes/console/components/navbar"/>
@@ -52,15 +51,15 @@
                         </div>
                     </div>
                 </div>
-                <div class="split-pane-divider"><span class="fa fa-ellipsis-v"></span></div>
+                <div class="split-pane-divider split-pane-divider-main-horizontal"></div>
                 <div class="split-pane-component right-pane">
                     <div id="split-view-vertical-split" class="split-pane vertical-split fixed-top">
                         <div class="split-pane-component top-pane">
-                            <%--div id="assets-query">
+                            <div id="assets-query">
                                 <sling:include resourceType="composum/assets/manager/query"/>
-                            </div--%>
+                            </div>
                         </div>
-                        <div class="split-pane-divider"><span class="fa fa-ellipsis-h"></span></div>
+                        <div class="split-pane-divider split-pane-divider-main-vertical"></div>
                         <div class="split-pane-component bottom-pane">
                             <div id="assets-view">
                                 <sling:include resourceType="composum/assets/manager/view"/>
@@ -68,7 +67,8 @@
                             <div class="close-top"><a href="#" class="fa fa-angle-double-up"
                                                       title="Collapse top panel"></a></div>
                         </div>
-                        <div class="open-top"><a href="#" class="fa fa-angle-double-down" title="Restore top panel"></a></div>
+                        <div class="open-top"><a href="#" class="fa fa-angle-double-down" title="Restore top panel"></a>
+                        </div>
                     </div>
                     <div class="close-left"><a href="#" class="fa fa-angle-double-left" title="Collapse left panel"></a></div>
                 </div>
@@ -81,4 +81,3 @@
     </body>
     </html>
 </cpn:component>
-</cpn:bundle>

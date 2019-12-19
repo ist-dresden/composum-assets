@@ -5,7 +5,7 @@
 (function (window) {
     'use strict';
 
-    window.composum = window.composum|| {};
+    window.composum = window.composum || {};
     window.composum.assets = window.composum.assets || {};
     window.composum.assets.manager = window.composum.assets.manager || {};
 
@@ -256,6 +256,29 @@
         });
 
         assets.detailView = core.getView('#assets-view', assets.DetailView);
+
+        /**
+         * the assets query view which is embedding a navigator search widget
+         */
+        assets.QueryView = Backbone.View.extend({
+
+            initialize: function (options) {
+                this.search = core.getWidget(this.$el,
+                    '.' + assets.navigator.const.search.css.base, assets.navigator.SearchWidget);
+                this.search.$el.off('change.QueryView').on('change.QueryView', _.bind(this.onSelect, this));
+            },
+
+            onSelect: function (event) {
+                if (event) {
+                    event.preventDefault();
+                }
+                var path = this.search.getValue();
+                $(document).trigger("path:selected", [path]);
+                return false;
+            }
+        });
+
+        assets.queryView = core.getView('#assets-query', assets.QueryView);
 
     })(window.composum.assets.manager, window.composum.assets, window.core);
 

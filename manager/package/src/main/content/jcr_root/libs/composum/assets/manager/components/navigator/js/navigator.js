@@ -11,37 +11,46 @@
     (function (navigator, assets, widgets, core) {
 
         navigator.const = _.extend(navigator.const || {}, {
-            navigation: {
+            css: {
+                base: 'composum-assets-navigator',
+                _toggleTree: '_toggle-tree',
+                _treePanel: '_tree-panel',
+                _tree: '_tree',
+                _content: '_content',
+                _goUp: '_go-up',
+                _drillDown: '_drill-down',
+                _link: '_asset-link',
+                _type: '_view-type',
+                _left: '_left',
+                _right: '_right'
+            },
+            url: {
+                base: '/bin/cpm/assets/assets',
+                _reload: '.reload.html'
+            },
+            browse: {
                 css: {
-                    base: 'composum-assets-navigator',
-                    _content: '_content',
-                    _goUp: '_go-up',
-                    _drillDown: '_drill-down',
-                    _link: '_asset-link',
-                    _type: '_view-type'
+                    base: 'composum-assets-navigator-browse'
                 },
-                url: {
-                    base: '/bin/cpm/assets/assets',
-                    _reload: '.reload.html'
+                type: 'composum/assets/manager/components/navigator/browse'
+            },
+            search: {
+                css: {
+                    base: 'composum-assets-navigator-search',
+                    _clear: '_clear',
+                    _term: '_term',
+                    _exec: '_exec',
+                    _toggle: '_open-root',
+                    _root: '_root'
                 },
-                browse: {
-                    css: {
-                        base: 'composum-assets-navigator-browse'
-                    },
-                    type: 'composum/assets/manager/components/navigator/browse'
+                type: 'composum/assets/manager/components/navigator/search'
+            },
+            tree: {
+                css: {
+                    base: 'composum-assets-navigator-tree',
+                    _tree: '_tree'
                 },
-                search: {
-                    css: {
-                        base: 'composum-assets-navigator-search'
-                    },
-                    type: 'composum/assets/manager/components/navigator/search'
-                },
-                tree: {
-                    css: {
-                        base: 'composum-assets-navigator-tree'
-                    },
-                    type: 'composum/assets/manager/components/navigator/tree'
-                }
+                type: 'composum/assets/manager/components/navigator/tree'
             }
         });
 
@@ -101,11 +110,10 @@
                 var eventId = 'Navigation' + this.getWidgetKey();
                 $(document)
                     .off('path:selected.' + eventId).on('path:selected.' + eventId, _.bind(this.pathSelected, this));
-                this.reload(); // the initial element is empty to load with view type from profile
             },
 
             initContent: function (element) {
-                var c = navigator.const.navigation.css;
+                var c = navigator.const.css;
                 var $element = element ? $(element) : this.$el;
                 window.widgets.setUp($element[0]);
                 $element.find('.' + c.base + c._type).click(_.bind(this.changeViewType, this));
@@ -124,7 +132,7 @@
              * @override
              */
             valueChanged: function (suppressReload) {
-                var c = navigator.const.navigation.css;
+                var c = navigator.const.css;
                 this.$('.' + c.base + c._link).removeClass('selected');
                 this.$('.' + c.base + c._link + '[data-path="' + this.data.path + '"]').addClass('selected');
             },
@@ -133,19 +141,23 @@
              * load the current 'this.data.path'...
              */
             reload: function () {
-                var u = navigator.const.navigation.url;
+                var u = navigator.const.url;
                 var url = u.base + u._reload + this.data.path;
                 var resourceType = this.$el.data('resource-type') || this.getResourceType();
                 core.ajaxGet(url, {
                     dataType: 'html',
-                    data: {
+                    data: _.extend({
                         resourceType: resourceType,
                         selectors: 'reload.' + this.viewType
-                    }
+                    }, this.extendLoad())
                 }, _.bind(function (content) {
                     this.$el.html(content);
                     this.initContent();
                 }, this));
+            },
+
+            extendLoad: function () {
+                return {};
             },
 
             changeViewType: function (event) {
@@ -171,9 +183,14 @@
 
         navigator.BrowseWidget = navigator.AbstractNavPanel.extend({
 
+            initialize: function (options) {
+                navigator.AbstractNavPanel.prototype.initialize.call(this, options);
+                this.reload(); // the initial element is empty to load with view type from profile
+            },
+
             initContent: function (element) {
                 var $element = navigator.AbstractNavPanel.prototype.initContent.call(this, element);
-                var c = navigator.const.navigation.css;
+                var c = navigator.const.css;
                 $element.find('.' + c.base + c._goUp).click(_.bind(this.goUp, this));
                 $element.find('.' + c.base + c._drillDown).click(_.bind(this.drillDown, this));
             },
@@ -183,7 +200,7 @@
             },
 
             getResourceType: function () {
-                return navigator.const.navigation.browse.type;
+                return navigator.const.browse.type;
             },
 
             goUp: function (event) {
@@ -207,17 +224,33 @@
             }
         });
 
-        widgets.register('.' + navigator.const.navigation.browse.css.base, navigator.BrowseWidget);
+        widgets.register('.' + navigator.const.browse.css.base, navigator.BrowseWidget);
 
         navigator.SearchWidget = navigator.AbstractNavPanel.extend({
 
             initialize: function (options) {
                 navigator.AbstractNavPanel.prototype.initialize.call(this, options);
-                this.data.root = this.$el.data('root') || '/content';
+                this.data.root = this.$el.data('root') || assets.profile.get(this.getWidgetKey(), 'root', '/content');
+                this.data.term = assets.profile.get(this.getWidgetKey(), 'term', '');
+                this.reload(); // the initial element is empty to load with view type from profile
             },
 
             initContent: function (element) {
                 var $element = navigator.AbstractNavPanel.prototype.initContent.call(this, element);
+                var c = navigator.const.search.css;
+                this.$term = $element.find('.' + c.base + c._term);
+                this.$term.keydown(_.bind(this.execInputKey, this));
+                $element.find('.' + c.base + c._exec).click(_.bind(this.execSearch, this));
+                $element.find('.' + c.base + c._clear).click(_.bind(function () {
+                    this.setSearchTerm('', true);
+                }, this));
+                if (assets.profile.get(this.getWidgetKey(), 'rootOpen', false)) {
+                    this.$el.addClass('root-open');
+                }
+                $element.find('.' + c.base + c._toggle).click(_.bind(this.toggleRootInput, this));
+                this.rootPath = core.getWidget(this.$el, '.' + c.base + c._root, core.components.PathWidget);
+                this.rootPath.$el.on('change.AssetSearch', _.bind(this.rootChanged, this));
+                this.rootPath.$input.keydown(_.bind(this.execInputKey, this));
             },
 
             getWidgetKey: function (event) {
@@ -225,67 +258,161 @@
             },
 
             getResourceType: function () {
-                return navigator.const.navigation.search.type;
+                return navigator.const.search.type;
+            },
+
+            rootChanged: function (event) {
+                event.preventDefault();
+                this.setRootPath(this.rootPath.getValue());
             },
 
             setRootPath: function (rootPath) {
                 if (this.data.root !== rootPath) {
                     this.data.root = rootPath;
+                    assets.profile.set(this.getWidgetKey(), 'root', rootPath);
                     this.reload();
                 }
             },
 
-            setSearchTerm: function (searchTerm) {
-                if (this.data.term !== searchTerm) {
+            toggleRootInput: function () {
+                this.$el.toggleClass('root-open');
+                assets.profile.set(this.getWidgetKey(), 'rootOpen', this.$el.hasClass('root-open'));
+            },
+
+            setSearchTerm: function (searchTerm, forceReload) {
+                if (forceReload || this.data.term !== searchTerm) {
                     this.data.term = searchTerm;
+                    assets.profile.set(this.getWidgetKey(), 'term', searchTerm);
                     this.reload();
+                }
+            },
+
+            execSearch: function (event) {
+                event.preventDefault();
+                this.setSearchTerm(this.$term.val(), true);
+            },
+
+            /**
+             * @override
+             */
+            extendLoad: function () {
+                var params = {
+                    term: this.data.term
+                };
+                if (this.data.root) {
+                    params.root = this.data.root;
+                }
+                return params;
+            },
+
+            execInputKey: function (event) {
+                if (event.which === 13) {
+                    this.execSearch(event);
+                    return false;
                 }
             }
         });
 
-        widgets.register('.' + navigator.const.navigation.search.css.base, navigator.SearchWidget);
+        widgets.register('.' + navigator.const.search.css.base, navigator.SearchWidget);
+
+        navigator.Tree = core.components.Tree.extend({
+
+            nodeIdPrefix: 'AN_',
+
+            getProfileId: function () {
+                return 'assets'
+            },
+
+            initializeFilter: function () {
+            },
+
+            dataUrlForPath: function (path) {
+                return '/bin/cpm/assets/assets.tree.json' + path;
+            },
+
+            refreshNodeState: function ($node, node) {
+                var result = core.components.Tree.prototype.refreshNodeState.apply(this, [$node, node]);
+                if (node.original.contentType === 'assetconfig') {
+                    $node.removeClass('intermediate').addClass('assetconfig');
+                }
+                return result;
+            },
+
+            onNodeSelected: function (path, node) {
+                if (this.widget) {
+                    this.widget.setValue(path, true);
+                }
+            }
+        });
 
         navigator.TreeWidget = navigator.AbstractNavWidget.extend({
 
             initialize: function (options) {
+                var c = navigator.const.tree.css;
                 navigator.AbstractNavWidget.prototype.initialize.call(this, options);
+                this.tree = core.getWidget(this.$el, '.' + c.base + c._tree, navigator.Tree);
+                this.tree.widget = this;
             },
 
             getWidgetKey: function (event) {
                 return 'tree';
             },
 
-            /**
-             * @override
-             */
-            valueChanged: function () {
+            setValue: function (targetPath, triggerChange, suppressReload) {
+                if (this.data.path !== targetPath) {
+                    navigator.AbstractNavWidget.prototype.setValue.call(this,
+                        targetPath, triggerChange, suppressReload);
+                    if (targetPath && this.tree.getSelectedPath() !== targetPath) {
+                        this.tree.selectNode(targetPath, _.bind(function () {
+                        }, this, true));
+                    }
+                }
             }
         });
 
-        widgets.register('.' + navigator.const.navigation.tree.css.base, navigator.TreeWidget);
+        widgets.register('.' + navigator.const.tree.css.base, navigator.TreeWidget);
 
         navigator.NavigatorWidget = navigator.AbstractNavWidget.extend({
 
             initialize: function (options) {
+                var c = navigator.const.css;
                 navigator.AbstractNavWidget.prototype.initialize.call(this, options);
                 this.browse = core.getWidget(this.$el,
-                    '.' + navigator.const.navigation.browse.css.base, navigator.BrowseWidget);
+                    '.' + navigator.const.browse.css.base, navigator.BrowseWidget);
                 this.search = core.getWidget(this.$el,
-                    '.' + navigator.const.navigation.search.css.base, navigator.SearchWidget);
+                    '.' + navigator.const.search.css.base, navigator.SearchWidget);
                 this.tree = core.getWidget(this.$el,
-                    '.' + navigator.const.navigation.tree.css.base, navigator.TreeWidget);
+                    '.' + navigator.const.tree.css.base, navigator.TreeWidget);
                 var eventId = 'asset_nav_' + this.getWidgetKey();
                 if (this.browse) {
                     this.browse.$el.off('change.' + eventId).on('change.' + eventId, _.bind(function () {
+                        this.setValue(this.browse.getValue(), true);
                     }, this));
                 }
                 if (this.search) {
                     this.search.$el.off('change.' + eventId).on('change.' + eventId, _.bind(function () {
+                        this.setValue(this.search.getValue(), true);
                     }, this));
                 }
                 if (this.tree) {
                     this.tree.$el.off('change.' + eventId).on('change.' + eventId, _.bind(function () {
+                        this.setValue(this.tree.getValue(), true);
                     }, this));
+                }
+                this.$left = this.$('.' + c.base + c._left);
+                this.$right = this.$('.' + c.base + c._right);
+                this.$toggleTree = this.$('.' + c.base + c._toggleTree);
+                this.$treePanel = this.$('.' + c.base + c._treePanel);
+                this.$tree = this.$('.' + c.base + c._tree);
+                this.$toggleTree.find('.toggle-handle').click(_.bind(this.toggleTreePanel, this));
+                this.$('.tabbed-tab').on('shown.bs.tab', _.bind(function (event) {
+                    this.currentTab = $(event.currentTarget).data('key');
+                    assets.profile.set(this.getWidgetKey(), 'tab', this.currentTab);
+                }, this));
+                this.$('[data-key="' + assets.profile.get(this.getWidgetKey(), 'tab', 'browse') + '"]').tab('show');
+                this.treeMode = assets.profile.get(this.getWidgetKey(), 'tree', 'tab');
+                if (this.treeMode === 'panel') {
+                    this.openTreePanel();
                 }
             },
 
@@ -294,7 +421,7 @@
             },
 
             setValue: function (targetPath, triggerChange, suppressReload) {
-                navigator.AbstractNavWidget.prototype.setValue().call(this, targetPath, triggerChange, suppressReload);
+                navigator.AbstractNavWidget.prototype.setValue.call(this, targetPath, triggerChange, suppressReload);
                 if (this.browse) {
                     this.browse.setValue(targetPath);
                 }
@@ -304,10 +431,33 @@
                 if (this.tree) {
                     this.tree.setValue(targetPath);
                 }
+            },
+
+            openTreePanel: function () {
+                if (this.currentTab === 'tree') {
+                    this.$('[data-key="browse"]').tab('show');
+                }
+                this.$treePanel.append(this.tree.$el);
+                assets.profile.set(this.getWidgetKey(), 'tree', this.treeMode = 'panel');
+                this.$el.addClass('tree-mode-panel');
+            },
+
+            closeTreePanel: function () {
+                this.$el.removeClass('tree-mode-panel');
+                this.$tree.append(this.tree.$el);
+                assets.profile.set(this.getWidgetKey(), 'tree', this.treeMode = 'tab');
+            },
+
+            toggleTreePanel: function () {
+                if (this.treeMode === 'panel') {
+                    this.closeTreePanel();
+                } else {
+                    this.openTreePanel();
+                }
             }
         });
 
-        widgets.register('.' + navigator.const.navigation.css.base, navigator.NavigatorWidget);
+        widgets.register('.' + navigator.const.css.base, navigator.NavigatorWidget);
 
     })(window.composum.assets.navigator, window.composum.assets, window.widgets, window.core);
 

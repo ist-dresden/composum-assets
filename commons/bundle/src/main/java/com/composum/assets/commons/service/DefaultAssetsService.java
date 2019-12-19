@@ -14,9 +14,13 @@ import com.composum.assets.commons.handle.ImageAsset;
 import com.composum.sling.clientlibs.handle.FileHandle;
 import com.composum.sling.core.BeanContext;
 import com.composum.sling.core.ResourceHandle;
+import com.composum.sling.core.filter.ResourceFilter;
 import com.composum.sling.core.util.MimeTypeUtil;
 import com.composum.sling.core.util.ResourceUtil;
 import com.composum.sling.platform.staging.StagingConstants;
+import com.composum.sling.platform.staging.query.Query;
+import com.composum.sling.platform.staging.search.SearchService;
+import com.composum.sling.platform.staging.search.SearchTermParseException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jackrabbit.JcrConstants;
 import org.apache.sling.api.resource.ModifiableValueMap;
@@ -38,11 +42,13 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import static com.composum.assets.commons.handle.AssetHandle.IMAGE_RESOURCE_TYPE;
+import static com.composum.assets.commons.service.AssetsSearchPlugin.SELECTOR_ASSET;
 
 @Component(
         service = AssetsService.class
@@ -147,6 +153,57 @@ public class DefaultAssetsService implements AssetsService {
 
     @Reference
     protected MetaPropertiesService metaPropertiesService;
+
+    @Reference
+    protected SearchService searchService;
+
+    public static class SearchIterator implements Iterator<Resource> {
+
+        protected final Query query;
+        protected int offset;
+        protected int limit;
+
+        private Iterator<Resource> result = null;
+        private int count = 0;
+
+        public SearchIterator(Query query, int offset, int limit) {
+            this.query = query;
+            this.offset = offset;
+            this.limit = limit;
+        }
+
+        @Override
+        public boolean hasNext() {
+            if (count < limit && (result == null || !result.hasNext())) {
+                if (limit > 0 && count < limit) {
+                    query.limit(limit - count);
+                }
+                if (offset > 0) {
+                    query.offset(offset);
+                }
+                result = query.execute().iterator();
+            }
+            return result != null && result.hasNext();
+        }
+
+        @Override
+        public Resource next() {
+            if (result != null && result.hasNext()) {
+                count++;
+                return result.next();
+            }
+            return null;
+        }
+    }
+
+    @Override
+    @Nonnull
+    public Iterable<SearchService.Result> search(@Nonnull final BeanContext context, @Nonnull final String searchRoot,
+                                                 @Nonnull final String searchTerm, @Nullable final ResourceFilter searchFilter,
+                                                 int offset, @Nullable final Integer limit)
+            throws SearchTermParseException, RepositoryException {
+        return searchService.search(context, SELECTOR_ASSET, searchRoot, searchTerm, searchFilter, offset, limit);
+    }
 
     @Override
     @Nonnull

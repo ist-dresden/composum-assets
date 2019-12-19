@@ -50,7 +50,33 @@
         }
     }
 
-    #assets-view {
+    #split-view-vertical-split {
+
+        .top-pane {
+            min-height: 150px;
+        }
+    }
+
+    &-query {
+
+        .composum-assets-navigator {
+
+            &-search {
+
+                &_toolbar {
+                    border: none;
+                    padding-left: 26px;
+                    background-color: #e4e4e4;
+
+                    #assets.left-open & {
+                        padding-left: 6px;
+                    }
+                }
+            }
+        }
+    }
+
+    &-view {
 
         > .detail-view {
 
@@ -68,7 +94,6 @@
                         top: 99px;
                     }
                 }
-
             }
         }
     }

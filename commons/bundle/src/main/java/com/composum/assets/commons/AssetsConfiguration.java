@@ -18,6 +18,9 @@ public interface AssetsConfiguration {
     String[] getAssetsCategories();
 
     @Nonnull
+    ResourceFilter getAssetFolderFilter();
+
+    @Nonnull
     ResourceFilter getAssetNodeFilter();
 
     @Nonnull

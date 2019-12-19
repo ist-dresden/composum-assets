@@ -3,8 +3,8 @@
 <%@taglib prefix="cpn" uri="http://sling.composum.com/cpnl/1.0" %>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <sling:defineObjects/>
-<cpn:component id="image" type="com.composum.assets.commons.handle.SimpleImage">
-    <div class="detail-panel image" data-path="${image.path}">
+<cpn:component id="model" type="com.composum.assets.commons.handle.SimpleImage">
+    <div class="detail-panel image" data-path="${model.path}">
         <div class="detail-tabs action-bar btn-toolbar" role="toolbar">
             <div class="btn-group btn-group-sm" role="group">
                 <button type="button" class="go-up fa fa-folder-o text-muted btn btn-default"

@@ -28,7 +28,7 @@
             initContent: function () {
                 manager.AbstractManagerTab.prototype.initContent.apply(this, [this.$content]);
                 this.browser = core.getWidget(this.$content,
-                    '.' + assets.navigator.const.navigation.browse.css.base, assets.navigator.BrowseWidget);
+                    '.' + assets.navigator.const.browse.css.base, assets.navigator.BrowseWidget);
                 this.browser.$el.off('change.Manager').on('change.Manager', _.bind(this.onSelect, this));
             },
 

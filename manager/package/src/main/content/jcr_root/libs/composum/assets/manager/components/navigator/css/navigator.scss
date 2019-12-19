@@ -45,7 +45,7 @@ $assets-navigation-selection-width: 4px;
         &-panel {
             display: flex;
             flex-wrap: wrap;
-            padding: 0 0 0.5% $assets-navigation-panel-padding;
+            padding: 0 $assets-navigation-panel-padding / 3 0.5% $assets-navigation-panel-padding;
         }
 
         &-wrapper {
@@ -291,18 +291,22 @@ $assets-navigation-selection-width: 4px;
         position: relative;
         width: 100%;
         height: 100%;
+    }
 
-        &_toolbar {
-            position: relative;
-            display: flex;
-            flex-wrap: nowrap;
-            height: 40px;
-            padding: 5px $assets-navigation-panel-padding;
-            border-bottom: 1px solid #ddd;
+    &-tree {
+
+        &_wrapper {
+            position: absolute;
+            top: 45px;
+            left: 5px;
+            right: 5px;
+            bottom: 5px;
+            overflow: auto;
         }
     }
 
     &-browse {
+
         .composum-assets-navigator {
 
             &_go-up {
@@ -329,6 +333,13 @@ $assets-navigation-selection-width: 4px;
         }
 
         &_toolbar {
+            position: relative;
+            display: flex;
+            flex-wrap: nowrap;
+            height: 40px;
+            margin: 0;
+            padding: 5px 1px;
+            border-bottom: 1px solid #ddd;
 
             .composum-assets-navigator-browse {
 
@@ -388,25 +399,166 @@ $assets-navigation-selection-width: 4px;
 
     &_search {
 
-        .composum-assets-navigator-search {
+        .composum-assets-navigator {
 
-            &_toolbar {
+            &_view-type-keys {
+                background: none;
+            }
 
-                .btn, .form-control {
+            &-search {
+
+                &.root-open {
+
+                    .composum-assets-navigator {
+
+                        &_content {
+                            top: 74px;
+                        }
+
+                        &-search {
+
+                            &_toolbar {
+                                height: 74px;
+
+                                &-bottom {
+                                    display: flex;
+                                }
+                            }
+
+                            &_open-root:before {
+                                content: '\f115'
+                            }
+                        }
+                    }
+                }
+
+                &_toolbar {
+                    position: relative;
+                    height: 40px;
+                    padding: 5px $assets-navigation-panel-padding;
+                    border-bottom: 1px solid #ddd;
+
+                    &-top, &-bottom {
+                        display: flex;
+                        flex-wrap: nowrap;
+                    }
+
+                    &-bottom {
+                        display: none;
+                        padding: 5px 1px 5px 6px;
+                    }
+
+                    .btn, .form-control {
+                        height: 29px;
+                    }
+
+                    .btn {
+                        width: 31px;
+                        padding: 4px 7px 3px;
+                        font-size: 14px;
+                    }
+                }
+
+                &_input, &_root {
+                    flex-grow: 1;
                     height: 29px;
                 }
+
+                &_input {
+                    padding-right: 96px;
+                }
+
+                &_clear {
+                    padding: 7px 5px 6px 6px;
+                }
+
+                &_toggle-grp {
+                    margin-left: 5px;
+                }
+
+                .toolbar-label,
+                &_folder-as-root {
+                    padding: 5px 0;
+                }
+
+                &_folder-as-root {
+
+                    .icon {
+                        padding: 0 5px;
+                    }
+                }
+            }
+        }
+    }
+
+    &_left {
+        display: none;
+    }
+
+    &_left, &_tabs {
+
+        .nav-tabs {
+            padding: 0 5px;
+        }
+    }
+
+    &_toggle-tree {
+        position: relative;
+
+        .toggle-handle {
+            z-index: 1;
+            position: absolute;
+            top: 4px;
+            padding: 6px 5px;
+            font-size: 21px;
+            line-height: 22px;
+        }
+
+        &.open-tree-panel {
+
+            .toggle-handle {
+                cursor: w-resize;
+                left: 9px;
             }
 
-            &_input {
-                flex-grow: 1;
-                height: 29px;
-                padding-right: 96px;
-            }
-
-            &_clear {
-                padding: 0 6px;
+            .toggle-label {
+                padding-left: 30px;
             }
         }
 
+        &.close-tree-panel {
+
+            .toggle-handle {
+                cursor: e-resize;
+                right: 9px;
+            }
+
+            .toggle-label {
+                padding-right: 30px;
+            }
+        }
+    }
+
+    &.tree-mode-panel {
+
+        .composum-assets-navigator {
+
+            &_left {
+                position: relative;
+                display: block;
+                width: 40%;
+                height: 100%;
+                float: left;
+            }
+
+            &_right {
+                width: 60%;
+                float: right;
+            }
+
+            &_toggle-tree.open-tree-panel {
+                display: none;
+            }
+        }
     }
 }

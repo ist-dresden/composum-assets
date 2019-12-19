@@ -1,9 +1,11 @@
 package com.composum.assets.commons.widget;
 
+import com.composum.assets.commons.AssetsConfiguration;
 import com.composum.sling.core.AbstractServletBean;
 import com.composum.sling.core.BeanContext;
 import com.composum.sling.core.filter.ResourceFilter;
 import com.composum.sling.core.filter.StringFilter;
+import com.composum.sling.core.util.RequestUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
@@ -14,9 +16,12 @@ public abstract class NavigatorBase extends AbstractServletBean {
 
     public static final StringFilter TYPE_FILTER = new StringFilter.WhiteList("small", "large", "list");
 
+    public static final String PARAM_FILTER = "filter";
+
     protected Resource selected;
 
     private transient String viewType;
+    private transient String filterKey;
 
     private transient List<Thumbnail> thumbnails;
 
@@ -31,7 +36,8 @@ public abstract class NavigatorBase extends AbstractServletBean {
     @Override
     public void initialize(BeanContext context, Resource resource) {
         selected = resource;
-        while (resource != null && !"/".equals(resource.getPath()) && !ResourceFilter.FOLDER.accept(resource)) {
+        ResourceFilter folderFilter = context.getService(AssetsConfiguration.class).getAssetFolderFilter();
+        while (resource != null && !"/".equals(resource.getPath()) && !folderFilter.accept(resource)) {
             resource = resource.getParent();
         }
         super.initialize(context, resource);
@@ -70,5 +76,15 @@ public abstract class NavigatorBase extends AbstractServletBean {
             }
         }
         return viewType;
+    }
+
+    public String getFilterKey() {
+        if (filterKey == null) {
+            SlingHttpServletRequest request = getRequest();
+            if (request != null) {
+                filterKey = RequestUtil.getParameter(request, PARAM_FILTER, "");
+            }
+        }
+        return filterKey;
     }
 }

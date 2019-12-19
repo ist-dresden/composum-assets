@@ -68,12 +68,20 @@ public class AssetsConfigImpl implements AssetsConfiguration {
     private ResourceFilter defaultNodeFilter;
     private ResourceFilter treeIntermediateFilter;
 
+    private ResourceFilter assetFolderFilter;
+
     protected Configuration config;
 
     @Override
     @Nonnull
     public String[] getAssetsCategories() {
         return config != null ? config.assetsCategories() : new String[0];
+    }
+
+    @Nonnull
+    @Override
+    public ResourceFilter getAssetFolderFilter() {
+        return assetFolderFilter;
     }
 
     @Nonnull
@@ -108,6 +116,8 @@ public class AssetsConfigImpl implements AssetsConfiguration {
         assetPathFilter = ResourceFilterMapping.fromString(config.assetPathFilterRule());
         defaultNodeFilter = ResourceFilterMapping.fromString(config.defaultNodeFilterRule());
         treeIntermediateFilter = ResourceFilterMapping.fromString(config.treeIntermediateFilterRule());
+        assetFolderFilter = new ResourceFilter.FilterSet(
+                ResourceFilter.FilterSet.Rule.and, assetPathFilter, treeIntermediateFilter);
     }
 
     @Deactivate

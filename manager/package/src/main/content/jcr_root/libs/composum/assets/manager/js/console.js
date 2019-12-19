@@ -5,7 +5,7 @@
 (function (window) {
     'use strict';
 
-    window.composum = window.composum|| {};
+    window.composum = window.composum || {};
     window.composum.assets = window.composum.assets || {};
     window.composum.assets.manager = window.composum.assets.manager || {};
 
@@ -35,6 +35,14 @@
                 assets.current = undefined;
                 assets.setCurrentPath(this.data.path);
                 return false;
+            },
+
+            goUp: function (event) {
+                var path = $(event.currentTarget).data('path');
+                path = core.getParentPath(path ? path : this.data.path);
+                if (path) {
+                    $(document).trigger("path:selected", [path]);
+                }
             }
         });
 

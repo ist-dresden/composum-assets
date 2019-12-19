@@ -38,11 +38,7 @@ public class FolderModel extends NavigatorBase {
     public List<FolderModel> getSubfolders() {
         if (subfolders == null) {
             subfolders = new ArrayList<>();
-            AssetsConfiguration assetsConfig = context.getService(AssetsConfiguration.class);
-            ResourceFilter folderFilter = new ResourceFilter.FilterSet(
-                    ResourceFilter.FilterSet.Rule.and,
-                    assetsConfig.getAssetPathFilter(),
-                    assetsConfig.getTreeIntermediateFilter());
+            ResourceFilter folderFilter = context.getService(AssetsConfiguration.class).getAssetFolderFilter();
             for (Resource child : resource.getChildren()) {
                 if (folderFilter.accept(child)) {
                     subfolders.add(new FolderModel(context, child));
