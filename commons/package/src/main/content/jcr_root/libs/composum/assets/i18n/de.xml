@@ -47,19 +47,8 @@
     <upload-original jcr:primaryType="sling:MessageEntry"
             sling:key="Upload Asset Original" sling:message="Ein neues Original hochladen"/>
 
-    <go-one-level-up jcr:primaryType="sling:MessageEntry"
-            sling:key="Go one level Up" sling:message="Eine Ebene nach Oben"/>
-    <small-thumbnails jcr:primaryType="sling:MessageEntry"
-            sling:key="Small Thumbnails" sling:message="Kleine Miniaturen"/>
-    <large-thumbnails jcr:primaryType="sling:MessageEntry"
-            sling:key="Large Thumbnails" sling:message="Große Miniaturen"/>
-    <asset-list jcr:primaryType="sling:MessageEntry"
-            sling:key="Assets List" sling:message="Asset-Liste"/>
     <create-asset-configuration jcr:primaryType="sling:MessageEntry"
             sling:key="Create Asset Configuration" sling:message="Konfiguration anlegen"/>
-
-    <open-containing-folder jcr:primaryType="sling:MessageEntry"
-            sling:key="Open containing Folder" sling:message="Ordner zum Bild öffnen"/>
     <to-image-asset jcr:primaryType="sling:MessageEntry"
             sling:key="Transform into an Image Asset" sling:message="Umwandeln in ein Bild-Asset"/>
     <to-simple-image jcr:primaryType="sling:MessageEntry"
@@ -68,5 +57,33 @@
             sling:key="Asset Files (Originals)" sling:message="Asset-Dateien (Originale)"/>
     <renditions-view jcr:primaryType="sling:MessageEntry"
             sling:key="Renditions View" sling:message="Renditions-Ansicht"/>
+
+    <navigator jcr:primaryType="nt:unstructured">
+
+        <tree jcr:primaryType="sling:MessageEntry"
+                sling:key="Tree" sling:message="Baum"/>
+        <browse jcr:primaryType="sling:MessageEntry"
+                sling:key="Browse" sling:message="Browsen"/>
+        <search jcr:primaryType="sling:MessageEntry"
+                sling:key="Search" sling:message="Suche"/>
+
+        <go-one-level-up jcr:primaryType="sling:MessageEntry"
+                sling:key="Go one level Up" sling:message="Eine Ebene nach Oben"/>
+        <small-thumbnails jcr:primaryType="sling:MessageEntry"
+                sling:key="Small Thumbnails" sling:message="Kleine Miniaturen"/>
+        <large-thumbnails jcr:primaryType="sling:MessageEntry"
+                sling:key="Large Thumbnails" sling:message="Große Miniaturen"/>
+        <asset-list jcr:primaryType="sling:MessageEntry"
+                sling:key="Assets List" sling:message="Asset-Liste"/>
+        <open-containing-folder jcr:primaryType="sling:MessageEntry"
+                sling:key="Open containing Folder" sling:message="Ordner zum Bild öffnen"/>
+
+        <search-root jcr:primaryType="sling:MessageEntry"
+                sling:key="Search Root" sling:message="Such-Basis"/>
+        <select-root-folder jcr:primaryType="sling:MessageEntry"
+                sling:key="select root folder" sling:message="Basis-Folder auswählen"/>
+        <folder-as-root jcr:primaryType="sling:MessageEntry"
+                sling:key="use current folder as root" sling:message="aktuellen Folder als Basis nutzen"/>
+    </navigator>
 
 </jcr:root>

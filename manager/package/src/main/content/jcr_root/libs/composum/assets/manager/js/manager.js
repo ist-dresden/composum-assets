@@ -265,6 +265,7 @@
             initialize: function (options) {
                 this.search = core.getWidget(this.$el,
                     '.' + assets.navigator.const.search.css.base, assets.navigator.SearchWidget);
+                this.search.navigator = this;
                 this.search.$el.off('change.QueryView').on('change.QueryView', _.bind(this.onSelect, this));
             },
 
@@ -275,6 +276,15 @@
                 var path = this.search.getValue();
                 $(document).trigger("path:selected", [path]);
                 return false;
+            },
+
+            getCurrentFolder: function (callback) {
+                var u = assets.navigator.const.url;
+                core.getJson(u.commons + u._folder + assets.getCurrentPath(), _.bind(function (data) {
+                    if (_.isFunction(callback)) {
+                        callback(data.result.folder);
+                    }
+                }, this));
             }
         });
 

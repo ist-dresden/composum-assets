@@ -47,12 +47,19 @@ public abstract class Thumbnail extends AbstractServletBean implements Comparabl
         initialize(context, resource);
     }
 
+    @Nonnull
     public String getName() {
         return resource.getName();
     }
 
+    @Nonnull
     public String getPath() {
         return resource.getPath();
+    }
+
+    @Nonnull
+    public String getMimeType() {
+        return "";
     }
 
     public abstract String getContent();
@@ -96,6 +103,12 @@ public abstract class Thumbnail extends AbstractServletBean implements Comparabl
         @Override
         public Date getLastModified() {
             return file.getLastModified().getTime();
+        }
+
+        @Override
+        @Nonnull
+        public String getMimeType() {
+            return file.getMimeType();
         }
 
         @Override
@@ -163,6 +176,12 @@ public abstract class Thumbnail extends AbstractServletBean implements Comparabl
         @Override
         public Date getLastModified() {
             return asset.getLastModified().getTime();
+        }
+
+        @Override
+        @Nonnull
+        public String getMimeType() {
+            return asset.getMimeType();
         }
 
         @Override

@@ -61,6 +61,10 @@
 
         .composum-assets-navigator {
 
+            &_content {
+                bottom: 0;
+            }
+
             &-search {
 
                 &_toolbar {
@@ -86,6 +90,13 @@
                 .detail-toolbar,
                 .full-table-view .bootstrap-table .fixed-table-toolbar {
                     top: 28px;
+                }
+
+                .composum-assets-navigator {
+
+                    &_content {
+                        bottom: 0;
+                    }
                 }
 
                 .composum-assets-manager-image {
