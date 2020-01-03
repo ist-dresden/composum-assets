@@ -8,7 +8,7 @@
             <sling:call script="../actions.jsp"/>
         </div>
         <div class="folder-content">
-            <div class="composum-assets-navigator-browse widget"
+            <div class="composum-assets-widget-navigator-browse widget"
                  data-path="${model.selectedPath}"
                  data-resource-type="composum/assets/manager/tabs/folder/general">
             </div>

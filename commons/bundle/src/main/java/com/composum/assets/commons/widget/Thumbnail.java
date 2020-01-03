@@ -5,20 +5,22 @@ import com.composum.assets.commons.handle.MetaData;
 import com.composum.assets.commons.handle.SimpleFile;
 import com.composum.assets.commons.handle.SimpleImage;
 import com.composum.assets.commons.handle.VideoAsset;
+import com.composum.assets.commons.service.AssetsService;
 import com.composum.sling.clientlibs.handle.FileHandle;
 import com.composum.sling.core.AbstractServletBean;
 import com.composum.sling.core.BeanContext;
+import com.composum.sling.core.bean.BeanFactory;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.sling.api.resource.Resource;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Date;
 import java.util.List;
 
+@BeanFactory(serviceClass = AssetsService.class)
 public abstract class Thumbnail extends AbstractServletBean implements Comparable<Thumbnail> {
 
-    @Nullable
+    @Nonnull
     public static Thumbnail create(@Nonnull final BeanContext context, @Nonnull final Resource resource) {
         if (ImageAsset.FILTER.accept(resource)) {
             return new Thumbnail.Asset(context, resource);
@@ -28,14 +30,14 @@ public abstract class Thumbnail extends AbstractServletBean implements Comparabl
             return new Thumbnail.Video(context, resource);
         } else if (SimpleFile.FILTER.accept(resource)) {
             return new Thumbnail.File(context, resource);
-        }
-        return null;
+        } // an invalid instance for unsupported types to avoid 'null' results (BeanFactory)
+        return new Thumbnail.Invalid(context, resource);
     }
 
     public static void add(@Nonnull final BeanContext context, @Nonnull final Resource resource,
                            @Nonnull final List<Thumbnail> collection) {
         Thumbnail instance = create(context, resource);
-        if (instance != null) {
+        if (instance.isValid()) {
             collection.add(instance);
         }
     }
@@ -62,6 +64,8 @@ public abstract class Thumbnail extends AbstractServletBean implements Comparabl
         return "";
     }
 
+    public abstract boolean isValid();
+
     public abstract String getContent();
 
     public abstract Date getLastModified();
@@ -87,6 +91,11 @@ public abstract class Thumbnail extends AbstractServletBean implements Comparabl
 
         public File(BeanContext context, Resource resource) {
             super(context, resource);
+        }
+
+        @Override
+        public boolean isValid() {
+            return true;
         }
 
         @Override
@@ -174,6 +183,11 @@ public abstract class Thumbnail extends AbstractServletBean implements Comparabl
         }
 
         @Override
+        public boolean isValid() {
+            return true;
+        }
+
+        @Override
         public Date getLastModified() {
             return asset.getLastModified().getTime();
         }
@@ -215,6 +229,41 @@ public abstract class Thumbnail extends AbstractServletBean implements Comparabl
         public String getContent() {
             return "<video class=\"thumbnail-video\">" +
                     "<source type=\"" + file.getMimeType() + "\" src=\"" + getPath() + "\"/></video>";
+        }
+
+        @Override
+        public boolean isMetaAvailable() {
+            return false;
+        }
+
+        @Override
+        public MetaData getMetaData() {
+            return null;
+        }
+    }
+
+    public static class Invalid extends Thumbnail {
+
+        public Invalid() {
+        }
+
+        public Invalid(BeanContext context, Resource resource) {
+            super(context, resource);
+        }
+
+        @Override
+        public boolean isValid() {
+            return false;
+        }
+
+        @Override
+        public String getContent() {
+            return null;
+        }
+
+        @Override
+        public Date getLastModified() {
+            return null;
         }
 
         @Override

@@ -6,7 +6,7 @@
 <cpn:component id="asset" type="com.composum.assets.manager.view.AssetBean">
     <div class="asset-detail asset-renditions" data-path="${asset.path}">
         <div class="config-toolbar detail-toolbar">
-            <sling:call script="../../config/edit/actions.jsp"/>
+            <sling:call script="../../folder/config/actions.jsp"/>
         </div>
         <sling:include path="${asset.path}" replaceSelectors="renditions" resourceType="composum/assets/manager/image"/>
     </div>

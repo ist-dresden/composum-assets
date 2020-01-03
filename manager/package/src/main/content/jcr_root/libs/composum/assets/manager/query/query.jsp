@@ -3,7 +3,7 @@
 <%@taglib prefix="cpn" uri="http://sling.composum.com/cpnl/1.0" %>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <cpn:component id="model" type="com.composum.assets.commons.widget.SearchModel">
-    <div class="query-panel composum-assets-navigator_search">
-        <div class="composum-assets-navigator-search widget" data-path="${model.selectedPath}"></div>
+    <div class="query-panel composum-assets-widget-navigator_search">
+        <div class="composum-assets-widget-navigator-search widget" data-path="${model.selectedPath}"></div>
     </div>
 </cpn:component>

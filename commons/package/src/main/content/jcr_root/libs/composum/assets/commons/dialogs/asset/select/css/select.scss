@@ -1,0 +1,53 @@
+@charset "UTF-8";
+
+@import "../../../../css/mixins";
+
+.composum-assets-dialogs-asset-select {
+
+    .composum-assets-widget-assetfield {
+
+        &_preview {
+            margin-top: 0;
+
+            .composum-assets-widget-thumbnail {
+
+                &_name {
+                    top: 0;
+                }
+            }
+        }
+    }
+
+    .composum-assets-widget-navigator {
+        height: 480px;
+        margin-left: -5px;
+        margin-right: -5px;
+
+        .composum-assets-widget-navigator {
+
+            &-tree_wrapper,
+            &_content {
+                bottom: 40px;
+            }
+        }
+
+        &.tree-mode-panel {
+
+            &_left {
+                width: 34%;
+            }
+
+            &_right {
+                width: 66%;
+            }
+
+            .composum-assets-widget-navigator {
+
+                &-tree_wrapper,
+                &_content {
+                    bottom: 15px;
+                }
+            }
+        }
+    }
+}
