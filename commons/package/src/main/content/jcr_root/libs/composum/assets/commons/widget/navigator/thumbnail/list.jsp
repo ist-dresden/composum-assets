@@ -9,8 +9,7 @@
             ${thumbnail.content}
         </div>
     </div>
-    <div class="composum-assets-widget-thumbnail_list-data"
-         title="${cpn:attr(slingRequest,thumbnail.metaAvailable?thumbnail.metaData.description:'',0)}">
-        <sling:call script="_data.jsp"/>
+    <div class="composum-assets-widget-thumbnail_list-data">
+        <sling:include path="${thumbnail.path}" resourceType="composum/assets/commons/widget/data/short"/>
     </div>
 </a>

@@ -23,6 +23,7 @@ public class FieldModel extends AbstractServletBean {
 
     protected static final Object NULL_VALUE = "null";
 
+    private transient ValueMap properties;
     private transient Object value;
 
     private transient String label;
@@ -39,11 +40,18 @@ public class FieldModel extends AbstractServletBean {
         super(context, resource);
     }
 
+    @Nonnull
+    public ValueMap getProperties() {
+        if (properties == null) {
+            properties = getResource().getValueMap();
+        }
+        return properties;
+    }
+
     @Nullable
     public Object getValue() {
         if (value == null) {
-            ValueMap values = getResource().getValueMap();
-            value = values.get(getName());
+            value = getProperties().get(getName());
             if (value == null) {
                 value = NULL_VALUE;
             }

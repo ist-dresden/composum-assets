@@ -11,7 +11,9 @@
             <input type="hidden" class="sling-post-hint" name="${model.name}@IgnoreBlanks" value="true"/>
         </c:if>
         <div class="composum-assets-widget-assetfield_path-field widget assetfield-widget widget-name_${model.cssName}">
-            <sling:call script="preview.jsp"/>
+            <div class="composum-assets-widget-assetfield_preview empty-value">
+                <%-- <sling:include path="${model.content.path}" replaceSelectors="preview"/> --%>
+            </div>
             <div class="input-group">
                 <input name="${model.name}" class="composum-assets-widget-assetfield_input path-input form-control"
                        type="text" value="${model.value}" placeholder=""${cpn:i18n(slingRequest,'asset path')}"/>

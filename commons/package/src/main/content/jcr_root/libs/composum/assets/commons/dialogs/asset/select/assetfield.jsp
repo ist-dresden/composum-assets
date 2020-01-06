@@ -5,12 +5,7 @@
 <div class="composum-assets-widget-assetfield form-group">
     <div class="composum-assets-widget-assetfield_path-field widget assetfield-widget">
         <div class="composum-assets-widget-assetfield_preview empty-value">
-            <div class="composum-assets-widget-assetfield_wrapper">
-                <div class="composum-assets-widget-assetfield_frame">
-                    <img class="composum-assets-widget-assetfield_picture"
-                         style="background-image:url(${cpn:unmappedUrl(slingRequest,'/libs/composum/nodes/commons/images/image-background.png')})"/>
-                </div>
-            </div>
+            <div class="composum-assets-widget-assetfield_view"></div>
             <div class="composum-assets-widget-assetfield_data"></div>
         </div>
         <input class="composum-assets-widget-assetfield_input path-input form-control"

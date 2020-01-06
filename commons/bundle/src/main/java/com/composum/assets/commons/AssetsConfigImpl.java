@@ -116,7 +116,7 @@ public class AssetsConfigImpl implements AssetsConfiguration {
         return fileFilters.get(key);
     }
 
-    @Nullable
+    @Nonnull
     @Override
     public ResourceFilter getAssetFileFilter() {
         return assetFileFilter;
@@ -176,7 +176,7 @@ public class AssetsConfigImpl implements AssetsConfiguration {
         return getNodeFilter(request, filter);
     }
 
-    @Nullable
+    @Nonnull
     @Override
     public ResourceFilter getAssetNodeFilter() {
         return assetNodeFilter;

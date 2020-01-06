@@ -13,14 +13,12 @@
             assetfield: {
                 css: {
                     base: 'composum-assets-widget-assetfield',
-                    _preview: '_preview',
-                    _picture: '_picture',
-                    _data: '_data'
+                    _preview: '_preview'
                 },
                 url: {
-                    thumbnail: {
-                        base: '/libs/composum/assets/commons/widget/navigator/thumbnail',
-                        _data: '.data.html'
+                    content: {
+                        base: '/libs/composum/assets/commons/widget/assetfield',
+                        _preview: '.preview.html'
                     },
                     dialogs: {
                         base: '/libs/composum/assets/commons/dialogs',
@@ -39,8 +37,6 @@
                 var c = widgets.const.assetfield.css;
                 core.components.PathWidget.prototype.initialize.call(this, options);
                 this.$preview = this.$('.' + c.base + c._preview);
-                this.$picture = this.$('.' + c.base + c._picture);
-                this.$data = this.$('.' + c.base + c._data);
                 this.$el.on('change', _.bind(this.adjustPreview, this));
             },
 
@@ -71,14 +67,11 @@
             adjustPreview: function () {
                 var value = this.getValue();
                 if (value) {
-                    var u = widgets.const.assetfield.url.thumbnail;
-                    core.getHtml(u.base + u._data + value,
+                    var u = widgets.const.assetfield.url.content;
+                    core.getHtml(u.base + u._preview + value,
                         _.bind(function (content, result, xhr) {
                             if (xhr.status === 200) {
-                                this.$picture.attr('src', value);
-                                this.$picture.attr('alt', value);
-                                this.$picture.attr('title', value);
-                                this.$data.html(content);
+                                this.$preview.html(content);
                                 this.$preview.removeClass('empty-value');
                                 this.validAsset = true;
                             } else {
@@ -95,10 +88,7 @@
             clearPreview: function () {
                 this.validAsset = false;
                 this.$preview.addClass('empty-value');
-                this.$data.html('');
-                this.$picture.removeAttr('src');
-                this.$picture.removeAttr('alt');
-                this.$picture.removeAttr('title');
+                this.$preview.html('');
             }
         });
 

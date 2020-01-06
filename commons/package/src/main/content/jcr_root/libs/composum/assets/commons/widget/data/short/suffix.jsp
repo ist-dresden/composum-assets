@@ -4,7 +4,7 @@
 <sling:defineObjects/><%
 %><cpn:component var="thumbnail" type="com.composum.assets.commons.widget.Thumbnail" scope="request"
                  path="${slingRequest.requestPathInfo.suffix}"><% if (thumbnail.isValid()) {
-%><sling:call script="_data.jsp"/><% } else { // if the thumbnail is 'invalid' (not an asset, e.g. a folder) answer...
+%><sling:call script="short.jsp"/><% } else { // if the thumbnail is 'invalid' (not an asset, e.g. a folder) answer...
     response.setStatus(HttpServletResponse.SC_ACCEPTED); // with a successful blank result with a checkable status code
 }
 %></cpn:component>

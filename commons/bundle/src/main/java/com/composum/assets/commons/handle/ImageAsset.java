@@ -13,8 +13,6 @@ import com.composum.assets.commons.util.AssetConfigUtil;
 import com.composum.assets.commons.util.ImageUtil;
 import com.composum.sling.core.BeanContext;
 import com.composum.sling.core.ResourceHandle;
-import com.composum.sling.core.filter.ResourceFilter;
-import com.composum.sling.core.filter.StringFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
@@ -26,9 +24,6 @@ import java.util.List;
 public class ImageAsset extends AbstractAsset {
 
     private static final Logger LOG = LoggerFactory.getLogger(ImageAsset.class);
-
-    public static final ResourceFilter FILTER = new ResourceFilter.PrimaryTypeFilter(
-            new StringFilter.WhiteList("^cpa:Asset$"));
 
     public ImageAsset(BeanContext context, Resource resource) {
         super(context, resource);

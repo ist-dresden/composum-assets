@@ -18,10 +18,11 @@ $assets-widget-preview-padding: 5px;
     &_preview {
         position: relative;
         width: 100%;
+        height: $assets-widget-preview-height + 2 * $assets-widget-preview-padding;
         margin: -20px 0 $assets-widget-preview-margin;
         text-align: right;
 
-        .composum-assets-widget-thumbnail {
+        .composum-assets-widget-data {
 
             &_name, &_data {
                 position: absolute;
@@ -61,7 +62,7 @@ $assets-widget-preview-padding: 5px;
             }
         }
 
-        .composum-assets-widget-assetfield {
+        .composum-assets-widget-preview {
 
             &_wrapper {
                 display: inline-block;
@@ -74,15 +75,19 @@ $assets-widget-preview-padding: 5px;
                 border: 1px solid #ccc;
             }
 
-            &_picture {
-                max-width: 100%;
-                height: $assets-widget-preview-height;
+            &_file {
+
+                &_image, &_video, &_document {
+                    max-width: 100%;
+                    height: $assets-widget-preview-height;
+                    border: none;
+                }
             }
         }
 
         &.empty-value {
 
-            .composum-assets-widget-assetfield {
+            .composum-assets-widget-preview {
 
                 &_frame {
                     border-color: transparent;

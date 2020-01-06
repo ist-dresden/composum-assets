@@ -82,7 +82,7 @@ public interface AssetsConfiguration {
 
     // direct access to the filter instances
 
-    @Nullable
+    @Nonnull
     ResourceFilter getAssetNodeFilter();
 
     @Nonnull
@@ -103,7 +103,7 @@ public interface AssetsConfiguration {
     @Nullable
     ResourceFilter getFileFilter(@Nonnull BeanContext context, @Nonnull String key);
 
-    @Nullable
+    @Nonnull
     ResourceFilter getAssetFileFilter();
 
     @Nonnull
