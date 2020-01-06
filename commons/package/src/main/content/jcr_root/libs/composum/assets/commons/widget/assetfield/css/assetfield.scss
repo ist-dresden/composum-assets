@@ -2,7 +2,7 @@
 
 @import "../../../css/mixins";
 
-$assets-widget-preview-data-bg: rgba(255, 255, 255, 0.7);
+$assets-widget-preview-data-bg: rgba(255, 255, 255, 0.8);
 $assets-widget-preview-data-label-bg: #aaa;
 
 $assets-widget-preview-height: 120px;
@@ -31,11 +31,12 @@ $assets-widget-preview-padding: 5px;
 
             &_name {
                 z-index: 2;
-                top: 20px;
+                top: 24px;
                 margin: 0;
                 padding: 0 8px 6px 0;
                 opacity: 0.7;
                 font-size: 16px;
+                font-style: italic;
             }
 
             &_data {

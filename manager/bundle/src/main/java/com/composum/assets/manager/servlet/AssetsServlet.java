@@ -493,12 +493,8 @@ public class AssetsServlet extends NodeTreeServlet {
     protected ResourceFilter getNodeFilter(SlingHttpServletRequest request) {
         return new ResourceFilter.FilterSet(
                 ResourceFilter.FilterSet.Rule.tree, // a tree filter including intermediate folders
-                new ResourceFilter.FilterSet(ResourceFilter.FilterSet.Rule.and,
-                        assetsConfig.getAssetNodeFilter(),
-                        assetsConfig.getDefaultNodeFilter()),
-                new ResourceFilter.FilterSet(ResourceFilter.FilterSet.Rule.and,
-                        assetsConfig.getAssetPathFilter(),
-                        assetsConfig.getTreeIntermediateFilter()));
+                assetsConfig.getAnyFileFilter(),
+                assetsConfig.getTreeIntermediateFilter());
     }
 
     /**

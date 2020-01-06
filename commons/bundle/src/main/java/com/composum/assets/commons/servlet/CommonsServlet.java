@@ -152,7 +152,7 @@ public class CommonsServlet extends AbstractServiceServlet {
                 throws IOException {
             Status status = new Status(request, response);
             if (resource != null) {
-                ResourceFilter folderFilter = assetsConfiguration.getAssetFolderFilter();
+                ResourceFilter folderFilter = assetsConfiguration.getTreeIntermediateFilter();
                 Resource folder = resource;
                 while (folder != null && !folderFilter.accept(folder)) {
                     folder = folder.getParent();

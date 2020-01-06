@@ -36,7 +36,7 @@ public abstract class NavigatorBase extends AbstractServletBean {
     @Override
     public void initialize(BeanContext context, Resource resource) {
         selected = resource;
-        ResourceFilter folderFilter = context.getService(AssetsConfiguration.class).getAssetFolderFilter();
+        ResourceFilter folderFilter = context.getService(AssetsConfiguration.class).getTreeIntermediateFilter();
         while (resource != null && !"/".equals(resource.getPath()) && !folderFilter.accept(resource)) {
             resource = resource.getParent();
         }
