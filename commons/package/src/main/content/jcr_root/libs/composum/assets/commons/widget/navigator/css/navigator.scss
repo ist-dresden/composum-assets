@@ -27,6 +27,17 @@ $assets-navigation-selection-width: 4px;
                 height: 100%;
                 object-fit: cover;
             }
+
+            &-file,
+            &-document {
+
+                &:before {
+                    position: absolute;
+                    top: 15px;
+                    left: 21px;
+                    font-size: 64px;
+                }
+            }
         }
     }
 }

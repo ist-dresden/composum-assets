@@ -8,13 +8,17 @@ import com.composum.sling.clientlibs.handle.FileHandle;
 import com.composum.sling.core.AbstractServletBean;
 import com.composum.sling.core.BeanContext;
 import com.composum.sling.core.bean.BeanFactory;
+import com.composum.sling.core.util.LinkUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.sling.api.resource.Resource;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @BeanFactory(serviceClass = AssetsService.class)
 public abstract class Thumbnail extends AbstractServletBean implements Comparable<Thumbnail> {
@@ -25,6 +29,30 @@ public abstract class Thumbnail extends AbstractServletBean implements Comparabl
     public static final String KEY_DOCUMENT = "document";
     public static final String KEY_FILE = "file";
     public static final String KEY_INVALID = "invalid";
+
+    public static final String ICON_IMAGE = "image";
+    public static final String ICON_VIDEO = "video";
+    public static final String ICON_PDF = "pdf";
+    public static final String ICON_ARCHIVE = "archive";
+    public static final String ICON_TEXT = "text";
+    public static final String ICON_EXCEL = "excel";
+    public static final String ICON_WORD = "word";
+    public static final Map<String, String> ICONS = new HashMap<String, String>() {{
+        put("pdf", ICON_PDF);
+        put("xls", ICON_EXCEL);
+        put("xlsx", ICON_EXCEL);
+        put("doc", ICON_WORD);
+        put("docx", ICON_WORD);
+        put("zip", ICON_ARCHIVE);
+        put("tar", ICON_ARCHIVE);
+        put("gz", ICON_ARCHIVE);
+        put("txt", ICON_TEXT);
+        put("png", ICON_IMAGE);
+        put("jpg", ICON_IMAGE);
+        put("jpeg", ICON_IMAGE);
+        put("gif", ICON_IMAGE);
+        put("mp4", ICON_VIDEO);
+    }};
 
     @Nonnull
     public static Thumbnail create(@Nonnull final BeanContext context, @Nullable final Resource resource) {
@@ -78,8 +106,16 @@ public abstract class Thumbnail extends AbstractServletBean implements Comparabl
 
     public abstract boolean isValid();
 
+    @Nonnull
     public abstract String getKey();
 
+    @Nullable
+    public abstract String getIconKey();
+
+    @Nullable
+    public abstract String getUrl();
+
+    @Nullable
     public abstract String getContent();
 
     public abstract Date getLastModified();
@@ -100,6 +136,8 @@ public abstract class Thumbnail extends AbstractServletBean implements Comparabl
 
         public FileHandle file;
 
+        private transient String iconKey;
+
         public File() {
         }
 
@@ -112,14 +150,44 @@ public abstract class Thumbnail extends AbstractServletBean implements Comparabl
             return true;
         }
 
+        @Nonnull
         @Override
         public String getKey() {
             return KEY_FILE;
         }
 
+        @Nullable
+        @Override
+        public String getIconKey() {
+            if (iconKey == null) {
+                String type = StringUtils.substringAfterLast("/", getMimeType());
+                if (StringUtils.isNotBlank(type)) {
+                    iconKey = ICONS.get(type);
+                }
+                if (StringUtils.isBlank(iconKey)) {
+                    type = file.getExtension();
+                    if (StringUtils.isNotBlank(type)) {
+                        iconKey = ICONS.get(type);
+                    }
+                }
+                if (iconKey == null) {
+                    iconKey = "";
+                }
+            }
+            return StringUtils.isNotBlank(iconKey) ? iconKey : null;
+        }
+
+        @Nonnull
+        @Override
+        public String getUrl() {
+            return LinkUtil.getUrl(context.getRequest(), getPath());
+        }
+
         @Override
         public String getContent() {
-            return "<div class=\"thumbnail-file\" data-path=\"" + getPath() + "\"></div>";
+            String iconKey = getIconKey();
+            return "<div class=\"thumbnail-file fa fa-file"
+                    + (iconKey != null ? "-" + iconKey : "") + "-o\" data-path=\"" + getPath() + "\"></div>";
         }
 
         @Override
@@ -168,14 +236,20 @@ public abstract class Thumbnail extends AbstractServletBean implements Comparabl
             metaData = new MetaData(context, resource);
         }
 
+        @Nonnull
         @Override
         public String getKey() {
             return KEY_IMAGE;
         }
 
         @Override
+        public String getIconKey() {
+            return ICON_IMAGE;
+        }
+
+        @Override
         public String getContent() {
-            return "<img class=\"thumbnail-image\" src=\"" + getPath() + "\"/>";
+            return "<img class=\"thumbnail-image\" src=\"" + getUrl() + "\"/>";
         }
 
         @Override
@@ -211,16 +285,31 @@ public abstract class Thumbnail extends AbstractServletBean implements Comparabl
             return true;
         }
 
+        @Nonnull
         @Override
         public String getKey() {
             return KEY_ASSET;
         }
 
+        @Nonnull
+        @Override
+        public String getIconKey() {
+            return ICON_IMAGE;
+        }
+
         @Override
         public String getContent() {
-            return "<img class=\"thumbnail-image\" src=\"" +
-                    asset.getImageUri("thumbnail", "large") +
-                    "\"/>";
+            return "<img class=\"thumbnail-image\" src=\"" + getUrl() + "\"/>";
+        }
+
+        @Nonnull
+        @Override
+        public String getUrl() {
+            return LinkUtil.getUrl(context.getRequest(), getImageUri());
+        }
+
+        public String getImageUri() {
+            return asset.getImageUri("thumbnail", "large");
         }
 
         @Override
@@ -254,15 +343,22 @@ public abstract class Thumbnail extends AbstractServletBean implements Comparabl
             super(context, resource);
         }
 
+        @Nonnull
         @Override
         public String getKey() {
             return KEY_VIDEO;
         }
 
+        @Nonnull
+        @Override
+        public String getIconKey() {
+            return ICON_VIDEO;
+        }
+
         @Override
         public String getContent() {
             return "<video class=\"thumbnail-video\">" +
-                    "<source type=\"" + file.getMimeType() + "\" src=\"" + getPath() + "\"/></video>";
+                    "<source type=\"" + file.getMimeType() + "\" src=\"" + getUrl() + "\"/></video>";
         }
 
         @Override
@@ -285,6 +381,7 @@ public abstract class Thumbnail extends AbstractServletBean implements Comparabl
             super(context, resource);
         }
 
+        @Nonnull
         @Override
         public String getKey() {
             return KEY_DOCUMENT;
@@ -292,7 +389,9 @@ public abstract class Thumbnail extends AbstractServletBean implements Comparabl
 
         @Override
         public String getContent() {
-            return "<div class=\"thumbnail-document\" data-path=\"" + getPath() + "\"></div>";
+            String iconKey = getIconKey();
+            return "<div class=\"thumbnail-document fa fa-file"
+                    + (iconKey != null ? "-" + iconKey : "") + "-o\" data-path=\"" + getPath() + "\"></div>";
         }
 
         @Override
@@ -320,9 +419,22 @@ public abstract class Thumbnail extends AbstractServletBean implements Comparabl
             return false;
         }
 
+        @Nonnull
         @Override
         public String getKey() {
             return KEY_INVALID;
+        }
+
+        @Nullable
+        @Override
+        public String getIconKey() {
+            return null;
+        }
+
+        @Nonnull
+        @Override
+        public String getUrl() {
+            return "";
         }
 
         @Override

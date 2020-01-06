@@ -64,6 +64,13 @@
                 }
             },
 
+            /**
+             * @extends Widget returns the asset validation (preview response) result
+             */
+            extValidate: function (value) {
+                return this.validAsset;
+            },
+
             adjustPreview: function () {
                 var value = this.getValue();
                 if (value) {

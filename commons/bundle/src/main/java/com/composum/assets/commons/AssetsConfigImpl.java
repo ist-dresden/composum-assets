@@ -69,7 +69,7 @@ public class AssetsConfigImpl implements AssetsConfiguration {
         @AttributeDefinition(
                 description = "the filter configuration to set the scope to document files"
         )
-        String documentNodeFilterRule() default "and{PrimaryType(+'^nt:(file)$'),MimeType(+'^application/pdf')}";
+        String documentNodeFilterRule() default "and{PrimaryType(+'^nt:(file)$'),MimeType(+'^application/(pdf|zip)')}";
 
         @AttributeDefinition(
                 description = "the filter configuration to restrict Assets content paths"

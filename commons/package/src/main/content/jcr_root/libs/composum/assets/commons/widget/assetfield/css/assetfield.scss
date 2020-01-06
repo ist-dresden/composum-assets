@@ -77,7 +77,7 @@ $assets-widget-preview-padding: 5px;
 
             &_file {
 
-                &_image, &_video, &_document {
+                &_asset, &_image, &_video, &_document {
                     max-width: 100%;
                     height: $assets-widget-preview-height;
                     border: none;
