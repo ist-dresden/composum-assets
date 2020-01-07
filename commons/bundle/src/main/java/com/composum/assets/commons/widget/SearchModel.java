@@ -2,6 +2,7 @@ package com.composum.assets.commons.widget;
 
 import com.composum.assets.commons.service.AssetsService;
 import com.composum.sling.core.BeanContext;
+import com.composum.sling.core.filter.ResourceFilter;
 import com.composum.sling.core.util.RequestUtil;
 import com.composum.sling.platform.staging.search.SearchService;
 import com.composum.sling.platform.staging.search.SearchTermParseException;
@@ -22,6 +23,8 @@ public class SearchModel extends NavigatorBase {
     public static final String PARAM_ROOT = "root";
     public static final String PARAM_TERM = "term";
 
+    public static final String DEFAULT_ROOT = "/content";
+
     private transient String searchRoot;
     private transient String searchTerm;
 
@@ -39,10 +42,11 @@ public class SearchModel extends NavigatorBase {
     protected List<Thumbnail> findThumbnails() {
         List<Thumbnail> thumbnails = new ArrayList<>();
         try {
+            ResourceFilter filter = getFilter();
             String searchTerm = getSearchTerm();
             if (StringUtils.isNotBlank(searchTerm)) {
                 for (SearchService.Result item : getAssetsService().search(context,
-                        getSearchRoot(), searchTerm, null, 0, 100)) {
+                        getSearchRoot(), searchTerm, filter, 0, 100)) {
                     Thumbnail.add(context, item.getTarget(), thumbnails);
                 }
             }
@@ -56,7 +60,15 @@ public class SearchModel extends NavigatorBase {
         if (searchRoot == null) {
             SlingHttpServletRequest request = getRequest();
             if (request != null) {
-                searchRoot = RequestUtil.getParameter(request, PARAM_ROOT, "/content");
+                searchRoot = RequestUtil.getParameter(request, PARAM_ROOT, DEFAULT_ROOT);
+            } else {
+                searchRoot = DEFAULT_ROOT;
+            }
+            String base = getBasePath();
+            if (StringUtils.isNotBlank(base)) {
+                if (!searchRoot.equals(base) && !searchRoot.startsWith(base + "/")) {
+                    searchRoot = base;
+                }
             }
         }
         return searchRoot;

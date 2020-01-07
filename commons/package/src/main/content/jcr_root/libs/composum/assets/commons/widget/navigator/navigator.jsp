@@ -1,9 +1,10 @@
 <%@page session="false" pageEncoding="utf-8" %>
 <%@taglib prefix="sling" uri="http://sling.apache.org/taglibs/sling/1.2" %>
 <%@taglib prefix="cpn" uri="http://sling.composum.com/cpnl/1.0" %>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <sling:defineObjects/>
 <cpn:bundle basename="composum-assets">
-    <cpn:component var="model" type="com.composum.assets.commons.widget.FolderModel">
+    <cpn:component var="model" type="com.composum.assets.commons.widget.NavigatorModel">
         <div class="composum-assets-widget-navigator" data-path="${model.path}">
             <div class="composum-assets-widget-navigator_left">
                 <ul class="nav nav-tabs" role="tablist">
@@ -17,6 +18,9 @@
                 </div>
             </div>
             <div class="composum-assets-widget-navigator_right">
+                <c:if test="${model.showFilter}">
+                    <sling:include resourceType="composum/assets/commons/widget/filter/${model.filterType}"/>
+                </c:if>
                 <div class="composum-assets-widget-navigator_tabs">
                     <ul class="nav nav-tabs" role="tablist">
                         <li role="presentation" class="composum-assets-widget-navigator_toggle-tree open-tree-panel"><i

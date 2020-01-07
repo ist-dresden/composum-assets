@@ -11,11 +11,14 @@
 
     (function (manager, assets, core) {
 
-        manager.VideoTab = manager.AbstractManagerTab.extend({
+        manager.PreviewTab = manager.AbstractManagerTab.extend({
 
             initialize: function(options) {
                 manager.AbstractManagerTab.prototype.initialize.apply(this, [options]);
+                this.initContent();
                 this.$detailActions.find('.go-up').click(_.bind(this.goUp, this));
+                this.$('.detail-toolbar .reload').click(_.bind(this.refresh, this));
+                this.$('.detail-toolbar .delete').click(_.bind(assets.treeActions.deleteNode, assets.treeActions));
             }
         });
 

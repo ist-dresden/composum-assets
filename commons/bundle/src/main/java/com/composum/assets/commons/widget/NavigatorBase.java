@@ -16,12 +16,15 @@ public abstract class NavigatorBase extends AbstractServletBean {
 
     public static final StringFilter TYPE_FILTER = new StringFilter.WhiteList("small", "large", "list");
 
+    public static final String PARAM_BASE = "base";
     public static final String PARAM_FILTER = "filter";
 
     protected Resource selected;
 
     private transient String viewType;
+    private transient String basePath;
     private transient String filterKey;
+    private transient ResourceFilter filter;
 
     private transient List<Thumbnail> thumbnails;
 
@@ -78,13 +81,36 @@ public abstract class NavigatorBase extends AbstractServletBean {
         return viewType;
     }
 
+    public String getBasePath() {
+        if (basePath == null) {
+            SlingHttpServletRequest request = getRequest();
+            if (request != null) {
+                basePath = RequestUtil.getParameter(request, PARAM_BASE, "");
+            }
+        }
+        return basePath;
+    }
+
     public String getFilterKey() {
         if (filterKey == null) {
             SlingHttpServletRequest request = getRequest();
             if (request != null) {
-                filterKey = RequestUtil.getParameter(request, PARAM_FILTER, "");
+                filterKey = request.getParameter(PARAM_FILTER);
+            }
+            if (filterKey == null) {
+                filterKey = "";
             }
         }
         return filterKey;
+    }
+
+    public ResourceFilter getFilter() {
+        if (filter == null) {
+            String filterKey = getFilterKey();
+            AssetsConfiguration config = context.getService(AssetsConfiguration.class);
+            filter = config.getFileFilter(context, StringUtils.isNotBlank(filterKey)
+                    ? filterKey : AssetsConfiguration.ASSET_FILTER_ALL);
+        }
+        return filter;
     }
 }

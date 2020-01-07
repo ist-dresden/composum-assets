@@ -4,4 +4,5 @@
         depends="[jslibs/jquery/3.4.1/jquery.js,
                   jslibs/jstree/3.3.8/jstree.js,
                   category:composum.components.widgets]"
-        embed="[composum/assets/commons/widget/navigator/js/navigator.js]"/>
+        embed="[composum/assets/commons/widget/filter/js/filter.js,
+                composum/assets/commons/widget/navigator/js/navigator.js]"/>

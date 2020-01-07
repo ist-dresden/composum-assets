@@ -26,8 +26,11 @@ public class FolderModel extends NavigatorBase {
     @Override
     protected List<Thumbnail> findThumbnails() {
         List<Thumbnail> thumbnails = new ArrayList<>();
+        ResourceFilter filter = getFilter();
         for (Resource child : resource.getChildren()) {
-            Thumbnail.add(context, child, thumbnails);
+            if (filter.accept(child)) {
+                Thumbnail.add(context, child, thumbnails);
+            }
         }
         if (!context.getService(NodesConfiguration.class).getOrderableNodesFilter().accept(resource)) {
             Collections.sort(thumbnails);

@@ -64,7 +64,8 @@
             initialize: function (options) {
                 widgets.Widget.prototype.initialize.call(this, options);
                 this.data = {
-                    path: this.$el.data('path')
+                    path: this.$el.data('path'),
+                    filter: options.filter || this.$el.data('filter')
                 };
                 var eventId = 'asset_nav_' + this.getWidgetKey();
                 $(document)
@@ -79,6 +80,20 @@
 
             pathSelected: function (event, targetPath) {
                 this.setValue(targetPath);
+            },
+
+            getFilter: function () {
+                return this.data.filter;
+            },
+
+            setFilter: function (filter) {
+                var currentFilter = this.data.filter;
+                this.data.filter = filter;
+                if (currentFilter !== filter) {
+                    if (_.isFunction(this.reload)) {
+                        this.reload();
+                    }
+                }
             },
 
             getValue: function () {
@@ -106,9 +121,6 @@
 
             initialize: function (options) {
                 navigator.AbstractNavWidget.prototype.initialize.call(this, options);
-                this.data = {
-                    path: this.$el.data('path')
-                };
                 this.viewType = assets.profile.get(this.getWidgetKey(), 'viewType', 'small');
                 var eventId = 'Navigation' + this.getWidgetKey();
                 $(document)
@@ -147,12 +159,17 @@
                 var u = navigator.const.url;
                 var url = u.base + u._reload + this.data.path;
                 var resourceType = this.$el.data('resource-type') || this.getResourceType();
+                var params = {
+                    resourceType: resourceType,
+                    selectors: 'reload.' + this.viewType
+                };
+                var filter = this.getFilter();
+                if (filter) {
+                    params['filter'] = filter;
+                }
                 core.ajaxGet(url, {
                     dataType: 'html',
-                    data: _.extend({
-                        resourceType: resourceType,
-                        selectors: 'reload.' + this.viewType
-                    }, this.extendLoad())
+                    data: _.extend(params, this.extendLoad())
                 }, _.bind(function (content) {
                     this.$el.html(content);
                     this.initContent();
@@ -341,7 +358,11 @@
             },
 
             dataUrlForPath: function (path) {
-                return '/bin/cpm/assets/assets.tree.json' + path;
+                var url = new core.SlingUrl('/bin/cpm/assets/assets.tree.json' + path);
+                if (this.filter) {
+                    url.parameters['filter'] = this.filter;
+                }
+                return url.build();
             },
 
             refreshNodeState: function ($node, node) {
@@ -372,6 +393,19 @@
                 return 'tree';
             },
 
+            /**
+             * @extends navigator.AbstractNavWidget
+             */
+            setFilter: function (filter) {
+                navigator.AbstractNavWidget.prototype.setFilter.call(this, filter);
+                if (this.tree) {
+                    this.tree.setFilter(filter);
+                }
+            },
+
+            /**
+             * @extends navigator.AbstractNavWidget
+             */
             setValue: function (targetPath, triggerChange, suppressReload) {
                 if (this.data.path !== targetPath) {
                     navigator.AbstractNavWidget.prototype.setValue.call(this,
@@ -390,13 +424,15 @@
 
             initialize: function (options) {
                 var c = navigator.const.css;
-                navigator.AbstractNavWidget.prototype.initialize.call(this, options);
                 this.browse = core.getWidget(this.$el,
                     '.' + navigator.const.browse.css.base, navigator.BrowseWidget);
                 this.search = core.getWidget(this.$el,
                     '.' + navigator.const.search.css.base, navigator.SearchWidget);
                 this.tree = core.getWidget(this.$el,
                     '.' + navigator.const.tree.css.base, navigator.TreeWidget);
+                navigator.AbstractNavWidget.prototype.initialize.call(this, options);
+                this.setFilterWidget(core.getWidget(this.$el,
+                    '.' + assets.widgets.const.assetfilter.css.base, assets.widgets.AssetFilterWidget));
                 var eventId = 'asset_nav_' + this.getWidgetKey();
                 if (this.browse) {
                     this.browse.navigator = this;
@@ -451,6 +487,35 @@
                             callback(this.currentFolder);
                         }
                     }, this));
+                }
+            },
+
+            setFilterWidget: function (widget) {
+                if (this.filter) {
+                    this.filter.$el.off('change.AssetsNavigator');
+                }
+                this.filter = widget;
+                if (this.filter) {
+                    this.setFilter(this.filter.getValue());
+                    this.filter.$el.on('change.AssetsNavigator', _.bind(function () {
+                        this.setFilter(this.filter.getValue());
+                    }, this));
+                }
+            },
+
+            /**
+             * @extends navigator.AbstractNavWidget
+             */
+            setFilter: function (filter) {
+                navigator.AbstractNavWidget.prototype.setFilter.call(this, filter);
+                if (this.browse) {
+                    this.browse.setFilter(filter);
+                }
+                if (this.search) {
+                    this.search.setFilter(filter);
+                }
+                if (this.tree) {
+                    this.tree.setFilter(filter);
                 }
             },
 

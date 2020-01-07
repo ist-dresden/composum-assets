@@ -19,7 +19,8 @@
                    replaceSelectors="Asset_Field_Label._.required"
                    replaceSuffix="image/imageRef"/>
     <%-- an embedded asset navigator widget example --%>
-    <sling:include resourceType="composum/assets/commons/widget/navigator"/>
+    <sling:include resourceType="composum/assets/commons/widget/navigator"
+                   replaceSelectors="selectFilter"/>
 </form>
 <cpn:clientlib type="js" category="composum.assets.widgets"/>
 <script>

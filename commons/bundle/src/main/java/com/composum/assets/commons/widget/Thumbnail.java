@@ -26,12 +26,15 @@ public abstract class Thumbnail extends AbstractServletBean implements Comparabl
     public static final String KEY_ASSET = "asset";
     public static final String KEY_IMAGE = "image";
     public static final String KEY_VIDEO = "video";
+    public static final String KEY_AUDIO = "audio";
     public static final String KEY_DOCUMENT = "document";
+    public static final String KEY_BINARY = "binary";
     public static final String KEY_FILE = "file";
     public static final String KEY_INVALID = "invalid";
 
     public static final String ICON_IMAGE = "image";
     public static final String ICON_VIDEO = "video";
+    public static final String ICON_AUDIO = "audio";
     public static final String ICON_PDF = "pdf";
     public static final String ICON_ARCHIVE = "archive";
     public static final String ICON_TEXT = "text";
@@ -58,14 +61,18 @@ public abstract class Thumbnail extends AbstractServletBean implements Comparabl
     public static Thumbnail create(@Nonnull final BeanContext context, @Nullable final Resource resource) {
         AssetsConfiguration config = context.getService(AssetsConfiguration.class);
         if (resource != null) {
-            if (config.getAssetFileFilter().accept(resource)) {
+            if (config.getImageAssetFileFilter().accept(resource)) {
                 return new Thumbnail.Asset(context, resource);
-            } else if (config.getImageFileFilter().accept(resource)) {
+            } else if (config.getImageSimpleFileFilter().accept(resource)) {
                 return new Thumbnail.Image(context, resource);
             } else if (config.getVideoFileFilter().accept(resource)) {
                 return new Thumbnail.Video(context, resource);
+            } else if (config.getAudioFileFilter().accept(resource)) {
+                return new Thumbnail.Audio(context, resource);
             } else if (config.getDocumentFileFilter().accept(resource)) {
                 return new Thumbnail.Document(context, resource);
+            } else if (config.getBinaryFileFilter().accept(resource)) {
+                return new Thumbnail.Binary(context, resource);
             } else if (config.getAnyFileFilter().accept(resource)) {
                 return new Thumbnail.File(context, resource);
             }
@@ -104,6 +111,14 @@ public abstract class Thumbnail extends AbstractServletBean implements Comparabl
         return "";
     }
 
+    @Nonnull
+    public String getMimeTypeCss() {
+        String mimeType = getMimeType();
+        return "mimetype-" + (StringUtils.isNotBlank(mimeType)
+                ? mimeType.replace('/', '_').replace('+', '-')
+                : "unknown");
+    }
+
     public abstract boolean isValid();
 
     @Nonnull
@@ -112,11 +127,14 @@ public abstract class Thumbnail extends AbstractServletBean implements Comparabl
     @Nullable
     public abstract String getIconKey();
 
-    @Nullable
-    public abstract String getUrl();
+    @Nonnull
+    public String getIconCss() {
+        String iconKey = getIconKey();
+        return "fa fa-file" + (iconKey != null ? ("-" + iconKey) : "") + "-o";
+    }
 
     @Nullable
-    public abstract String getContent();
+    public abstract String getUrl();
 
     public abstract Date getLastModified();
 
@@ -127,8 +145,8 @@ public abstract class Thumbnail extends AbstractServletBean implements Comparabl
     @Override
     public int compareTo(Thumbnail other) {
         CompareToBuilder builder = new CompareToBuilder();
-        builder.append(getName(), other.getName());
-        builder.append(getPath(), other.getPath());
+        builder.append(getName().toLowerCase(), other.getName().toLowerCase());
+        builder.append(getPath().toLowerCase(), other.getPath().toLowerCase());
         return builder.toComparison();
     }
 
@@ -181,13 +199,6 @@ public abstract class Thumbnail extends AbstractServletBean implements Comparabl
         @Override
         public String getUrl() {
             return LinkUtil.getUrl(context.getRequest(), getPath());
-        }
-
-        @Override
-        public String getContent() {
-            String iconKey = getIconKey();
-            return "<div class=\"thumbnail-file fa fa-file"
-                    + (iconKey != null ? "-" + iconKey : "") + "-o\" data-path=\"" + getPath() + "\"></div>";
         }
 
         @Override
@@ -248,11 +259,6 @@ public abstract class Thumbnail extends AbstractServletBean implements Comparabl
         }
 
         @Override
-        public String getContent() {
-            return "<img class=\"thumbnail-image\" src=\"" + getUrl() + "\"/>";
-        }
-
-        @Override
         public boolean isMetaAvailable() {
             return metaData.isValid();
         }
@@ -295,11 +301,6 @@ public abstract class Thumbnail extends AbstractServletBean implements Comparabl
         @Override
         public String getIconKey() {
             return ICON_IMAGE;
-        }
-
-        @Override
-        public String getContent() {
-            return "<img class=\"thumbnail-image\" src=\"" + getUrl() + "\"/>";
         }
 
         @Nonnull
@@ -356,9 +357,35 @@ public abstract class Thumbnail extends AbstractServletBean implements Comparabl
         }
 
         @Override
-        public String getContent() {
-            return "<video class=\"thumbnail-video\">" +
-                    "<source type=\"" + file.getMimeType() + "\" src=\"" + getUrl() + "\"/></video>";
+        public boolean isMetaAvailable() {
+            return false;
+        }
+
+        @Override
+        public MetaData getMetaData() {
+            return null;
+        }
+    }
+
+    public static class Audio extends File {
+
+        public Audio() {
+        }
+
+        public Audio(BeanContext context, Resource resource) {
+            super(context, resource);
+        }
+
+        @Nonnull
+        @Override
+        public String getKey() {
+            return KEY_AUDIO;
+        }
+
+        @Nonnull
+        @Override
+        public String getIconKey() {
+            return ICON_AUDIO;
         }
 
         @Override
@@ -388,10 +415,29 @@ public abstract class Thumbnail extends AbstractServletBean implements Comparabl
         }
 
         @Override
-        public String getContent() {
-            String iconKey = getIconKey();
-            return "<div class=\"thumbnail-document fa fa-file"
-                    + (iconKey != null ? "-" + iconKey : "") + "-o\" data-path=\"" + getPath() + "\"></div>";
+        public boolean isMetaAvailable() {
+            return false;
+        }
+
+        @Override
+        public MetaData getMetaData() {
+            return null;
+        }
+    }
+
+    public static class Binary extends File {
+
+        public Binary() {
+        }
+
+        public Binary(BeanContext context, Resource resource) {
+            super(context, resource);
+        }
+
+        @Nonnull
+        @Override
+        public String getKey() {
+            return KEY_BINARY;
         }
 
         @Override
@@ -435,11 +481,6 @@ public abstract class Thumbnail extends AbstractServletBean implements Comparabl
         @Override
         public String getUrl() {
             return "";
-        }
-
-        @Override
-        public String getContent() {
-            return null;
         }
 
         @Override

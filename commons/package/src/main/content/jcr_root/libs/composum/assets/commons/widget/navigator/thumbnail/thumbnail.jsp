@@ -6,7 +6,8 @@
 <a href="#" data-path="${thumbnail.path}" class="composum-assets-widget-navigator_asset-link"
    title="${cpn:text(thumbnail.path)}">
     <div class="composum-assets-widget-thumbnail_wrapper">
-        ${thumbnail.content}
+        <sling:include path="${thumbnail.path}" resourceType="composum/assets/commons/widget/preview"
+                       replaceSelectors="thumbnail"/>
     </div>
     <div class="composum-assets-widget-thumbnail_meta">
         <cpn:text class="composum-assets-widget-thumbnail_meta_name" value="${thumbnail.name}"/>

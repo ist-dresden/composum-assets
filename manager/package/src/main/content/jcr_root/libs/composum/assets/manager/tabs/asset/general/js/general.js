@@ -15,11 +15,11 @@
 
             initialize: function (options) {
                 manager.AbstractManagerTab.prototype.initialize.apply(this, [options]);
-                window.widgets.setUp(this.el);
+                this.initContent();
                 this.$detailActions.find('.transform').click(_.bind(this.toSimpeImage, this));
                 this.$('.detail-toolbar .add').click(_.bind(this.uploadOriginal, this));
                 this.$('.detail-toolbar .remove').click(_.bind(this.removeOriginal, this));
-                this.$('.detail-toolbar .reload').click(_.bind(this.reload, this));
+                this.$('.detail-toolbar .reload').click(_.bind(this.refresh, this));
                 this.$('.detail-toolbar .delete').click(_.bind(this.deleteAsset, this));
             },
 

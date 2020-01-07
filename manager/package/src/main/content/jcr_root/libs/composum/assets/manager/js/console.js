@@ -19,7 +19,6 @@
                     type: this.$el.data('type')
                 };
                 this.$detailPanel = this.$el.closest('.detail-panel');
-                this.initContent();
                 this.$detailActions = this.$detailPanel.find('.action-bar');
             },
 
@@ -43,6 +42,14 @@
                 if (path) {
                     $(document).trigger("path:selected", [path]);
                 }
+            },
+
+            refresh: function (event) {
+                if (event) {
+                    event.preventDefault();
+                }
+                assets.detailView.reload();
+                return false;
             }
         });
 

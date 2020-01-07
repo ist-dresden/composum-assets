@@ -48,6 +48,12 @@
                                             class="label">Paste</span></button>
                                 </div>
                             </div>
+                            <div class="align-right">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <sling:include resourceType="composum/assets/commons/widget/filter/dropdown"
+                                                   addSelectors="dropup"/>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -70,9 +76,11 @@
                         <div class="open-top"><a href="#" class="fa fa-angle-double-down" title="Restore top panel"></a>
                         </div>
                     </div>
-                    <div class="close-left"><a href="#" class="fa fa-angle-double-left" title="Collapse left panel"></a></div>
+                    <div class="close-left"><a href="#" class="fa fa-angle-double-left" title="Collapse left panel"></a>
+                    </div>
                 </div>
-                <div class="open-left"><a href="#" class="fa fa-angle-double-right" title="Restore left panel"></a></div>
+                <div class="open-left"><a href="#" class="fa fa-angle-double-right" title="Restore left panel"></a>
+                </div>
             </div>
         </div>
     </div>

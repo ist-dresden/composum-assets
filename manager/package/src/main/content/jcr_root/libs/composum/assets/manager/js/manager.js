@@ -20,15 +20,14 @@
         assets.setCurrentPath = function (path, callback) {
             if (!assets.current || assets.current.path !== path) {
                 if (path) {
-                    core.getJson('/bin/cpm/assets/assets.tree.json' + path, undefined, undefined,
+                    core.getJson(assets.buildUrl('/bin/cpm/assets/assets.tree.json', core.encodePath(path)),
+                        undefined, undefined,
                         _.bind(function (result) {
                             assets.current = {
                                 path: path,
                                 node: result.responseJSON,
-                                viewUrl: core.getContextUrl('/bin/assets.view.html'
-                                    + window.core.encodePath(path)),
-                                nodeUrl: core.getContextUrl('/bin/assets.html'
-                                    + window.core.encodePath(path))
+                                viewUrl: assets.buildUrl('/bin/assets.view.html', core.encodePath(path)),
+                                nodeUrl: assets.buildUrl('/bin/assets.html', core.encodePath(path))
                             };
                             core.console.getProfile().set('assets', 'current', path);
                             if (history.replaceState) {
@@ -44,6 +43,18 @@
                     $(document).trigger("path:selected", [path]);
                 }
             }
+        };
+
+        assets.buildUrl = function (uri, suffix) {
+            var url = new core.SlingUrl(uri);
+            if (suffix) {
+                url.suffix = suffix;
+            }
+            var filter = core.console.getProfile().get('assets', 'filter', undefined);
+            if (filter) {
+                url.parameters['filter'] = filter;
+            }
+            return url.build();
         };
 
         assets.Manager = core.components.SplitView.extend({
@@ -86,10 +97,14 @@
             },
 
             initializeFilter: function () {
+                this.filter = core.console.getProfile().get('assets', 'filter', undefined);
+                $(document).on('filter:changed.AssetsManagerTree', _.bind(function (event, filter) {
+                    this.setFilter(filter);
+                }, this));
             },
 
             dataUrlForPath: function (path) {
-                return '/bin/cpm/assets/assets.tree.json' + path;
+                return assets.buildUrl('/bin/cpm/assets/assets.tree.json', path);
             },
 
             refreshNodeState: function ($node, node) {
@@ -112,6 +127,16 @@
                 this.setBrowserLink();
                 this.$('button.create-asset').on('click', _.bind(this.createAsset, this));
                 this.$('button.create-folder').on('click', _.bind(this.createFolder, this));
+                this.filter = core.getWidget(this.$el,
+                    '.composum-assets-widget-filter', assets.widgets.AssetFilterWidget);
+                if (this.filter) {
+                    this.filter.$el.on('change.AssetsManager', _.bind(function () {
+                        var filter = this.filter.getValue();
+                        core.console.getProfile().set('assets', 'filter', filter);
+                        $(document).trigger("filter:changed", [filter]);
+                    }, this));
+                    this.filter.setValue(core.console.getProfile().get('assets', 'filter', undefined));
+                }
                 $(document).on('path:selected', _.bind(this.setBrowserLink, this));
             },
 
@@ -125,14 +150,10 @@
                 return assets.getCurrentPath();
             },
 
-            // @Override
-            setFilter: function (event) {
-                event.preventDefault();
-                var $link = $(event.currentTarget);
-                var filter = $link.text();
-                this.tree.setFilter(filter);
-                this.setFilterLabel(filter);
-                core.console.getProfile().set('assets', 'filter', filter);
+            /**
+             * @override core.console.TreeActions unused - disabled
+             */
+            setFilter: function () {
             },
 
             setBrowserLink: function () {
@@ -217,8 +238,8 @@
             selector: '> .image-detail',
             tabType: manager.ImageTab
         }, {
-            selector: '> .video-detail',
-            tabType: manager.VideoTab
+            selector: '> .preview-detail',
+            tabType: manager.PreviewTab
         }, {
             // the fallback to the basic implementation as a default rule
             selector: '> div',
@@ -264,8 +285,13 @@
 
             initialize: function (options) {
                 this.search = core.getWidget(this.$el,
-                    '.' + assets.navigator.const.search.css.base, assets.navigator.SearchWidget);
+                    '.' + assets.navigator.const.search.css.base, assets.navigator.SearchWidget, {
+                        filter: core.console.getProfile().get('assets', 'filter', undefined)
+                    });
                 this.search.navigator = this;
+                $(document).on('filter:changed.AssetsManagerQuery', _.bind(function (event, filter) {
+                    this.search.setFilter(filter);
+                }, this));
                 this.search.$el.off('change.QueryView').on('change.QueryView', _.bind(this.onSelect, this));
             },
 

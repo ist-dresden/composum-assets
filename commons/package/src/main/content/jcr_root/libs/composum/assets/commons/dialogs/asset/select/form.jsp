@@ -12,7 +12,7 @@
         <div class="alert hidden"></div>
     </div>
     <sling:call script="assetfield.jsp"/>
-    <sling:include resourceType="composum/assets/commons/widget/navigator"/>
+    <sling:include resourceType="composum/assets/commons/widget/navigator" addSelectors="selectFilter"/>
 </div>
 <div class="modal-footer buttons">
     <button type="button" class="btn btn-default cancel"

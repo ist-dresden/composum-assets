@@ -75,12 +75,51 @@ $assets-widget-preview-padding: 5px;
                 border: 1px solid #ccc;
             }
 
+            &_type {
+
+                &-audio {
+
+                    .composum-assets-widget-preview {
+
+                        &_frame {
+                            position: relative;
+                            height: 100%;
+                            padding: $assets-widget-preview-padding * 2 0 0;
+                            border: none;
+                            text-align: right;
+
+                            .thumbnail-file {
+
+                                &:before {
+                                    position: absolute;
+                                    top: 0;
+                                    right: 20px;
+                                    font-size: 66px;
+                                    opacity: 0.5;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             &_file {
 
-                &_asset, &_image, &_video, &_document {
+                &_asset, &_image, &_video, &_audio, &_document, &_binary, &_file {
                     max-width: 100%;
                     height: $assets-widget-preview-height;
                     border: none;
+                }
+
+                &_file {
+                    width: $assets-widget-preview-height;
+                    text-align: center;
+
+                    &:before {
+                        line-height: $assets-widget-preview-height;
+                        font-size: 84px;
+                        opacity: 0.5;
+                    }
                 }
             }
         }

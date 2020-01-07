@@ -39,12 +39,12 @@ public class ManagerBean extends AbstractServletBean {
                         viewType = "asset";
                         break;
                     case "file":
-                        viewType = "image";
+                        viewType = "preview";
                         String mimeType = MimeTypeUtil.getMimeType(resource, null);
                         if (StringUtils.isNotBlank(mimeType)) {
                             switch (StringUtils.substringBefore(mimeType, "/")) {
-                                case "video":
-                                    viewType = "video";
+                                case "image":
+                                    viewType = "image";
                                     break;
                             }
                         }
@@ -58,7 +58,7 @@ public class ManagerBean extends AbstractServletBean {
                 }
                 if (content !=null) {
                     Resource config = content.getChild(AssetConfig.CHILD_NAME);
-                    if (config != null && ResourceUtil.isResourceType(config,
+                    if (ResourceUtil.isResourceType(config,
                             AssetsConstants.NODE_TYPE_ASSET_CONFIG)) {
                         viewType = "config";
                     }

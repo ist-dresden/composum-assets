@@ -132,11 +132,15 @@ public class FieldModel extends AbstractServletBean {
     }
 
     protected boolean retrieveFlag(@Nonnull final String key, boolean defaultValue) {
+        return retrieveFlag(key, defaultValue, 2);
+    }
+
+    protected boolean retrieveFlag(@Nonnull final String key, boolean defaultValue, int offset) {
         Boolean flag = context.getAttribute(RA_BASE + key, Boolean.class);
         if (flag == null) {
             RequestPathInfo pathInfo = getRequest().getRequestPathInfo();
             String[] selectors = pathInfo.getSelectors();
-            for (int i = 2; i < selectors.length; i++) {
+            for (int i = offset; i < selectors.length; i++) {
                 if (selectors[i].equals(key)) {
                     flag = true;
                     break;

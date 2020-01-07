@@ -90,6 +90,7 @@
                 .detail-toolbar,
                 .full-table-view .bootstrap-table .fixed-table-toolbar {
                     top: 28px;
+                    right: 0;
                 }
 
                 .composum-assets-widget-navigator {
@@ -99,10 +100,15 @@
                     }
                 }
 
-                .composum-assets-manager-image {
+                .composum-assets-widget-preview {
 
-                    &_content {
-                        top: 99px;
+                    &_lightbox {
+                        position: absolute;
+                        top: 62px;
+                        left: 0;
+                        right: 0;
+                        bottom: 41px;
+                        height: auto;
                     }
                 }
             }

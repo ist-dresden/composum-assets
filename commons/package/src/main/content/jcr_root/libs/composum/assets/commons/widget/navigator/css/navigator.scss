@@ -21,7 +21,8 @@ $assets-navigation-selection-width: 4px;
         .thumbnail {
 
             &-image,
-            &-video {
+            &-video,
+            &-audio {
                 @include aspect-ratio-element;
                 width: 100%;
                 height: 100%;
@@ -33,9 +34,23 @@ $assets-navigation-selection-width: 4px;
 
                 &:before {
                     position: absolute;
-                    top: 15px;
-                    left: 21px;
-                    font-size: 64px;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    text-align: center;
+                    line-height: 9vw;
+                    font-size: 6vw;
+
+                    @media (max-width: $screen-sm-max) {
+                        line-height: 13.5vw;
+                        font-size: 9vw;
+                    }
+
+                    @media (max-width: $screen-xs-max) {
+                        line-height: 18vw;
+                        font-size: 12vw;
+                    }
                 }
             }
         }
@@ -87,6 +102,31 @@ $assets-navigation-selection-width: 4px;
             .composum-assets-widget-thumbnail {
                 width: 20%;
                 max-width: 100px;
+
+                &_wrapper {
+
+                    .thumbnail {
+
+                        &-file,
+                        &-document {
+
+                            &:before {
+                                line-height: 96px;
+                                font-size: 64px;
+
+                                @media (max-width: $screen-sm-max) {
+                                    line-height: 96px;
+                                    font-size: 64px;
+                                }
+
+                                @media (max-width: $screen-xs-max) {
+                                    line-height: 72px;
+                                    font-size: 48px;
+                                }
+                            }
+                        }
+                    }
+                }
 
                 &_list-data {
                     flex-grow: 1;
@@ -518,6 +558,16 @@ $assets-navigation-selection-width: 4px;
         }
     }
 
+    &_right {
+        position: relative;
+
+        .composum-assets-widget-filter {
+            position: absolute;
+            top: 0;
+            right: 5px;
+        }
+    }
+
     &_left {
         display: none;
     }
@@ -590,6 +640,40 @@ $assets-navigation-selection-width: 4px;
             &-tree_wrapper,
             &_content {
                 bottom: 20px;
+            }
+
+            &_type {
+
+                &-small {
+
+                    .composum-assets-widget-thumbnail {
+
+                        &_wrapper {
+
+                            .thumbnail {
+
+                                &-file,
+                                &-document {
+
+                                    &:before {
+                                        line-height: 5vw;
+                                        font-size: 3.75vw;
+
+                                        @media (max-width: $screen-sm-max) {
+                                            line-height: 8vw;
+                                            font-size: 6vw;
+                                        }
+
+                                        @media (max-width: $screen-xs-max) {
+                                            line-height: 11vw;
+                                            font-size: 8vw;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }

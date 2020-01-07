@@ -169,23 +169,4 @@ body, table, p, li, a, span, button, input {
             }
         }
     }
-
-    .video-detail {
-        height: 100%;
-        padding: 15px;
-        background-color: #666;
-
-        .video-frame {
-            display: table;
-            margin: auto;
-
-            .video-background {
-                background-color: #444;
-            }
-
-            video {
-                width: 100%;
-            }
-        }
-    }
 }

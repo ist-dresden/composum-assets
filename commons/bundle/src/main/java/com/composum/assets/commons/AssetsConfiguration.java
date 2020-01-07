@@ -19,6 +19,15 @@ import java.util.Set;
  */
 public interface AssetsConfiguration {
 
+    String ASSET_FILTER_ALL = "all";
+    String ASSET_FILTER_IMG_ASSET = "image.asset";
+    String ASSET_FILTER_IMG_SIMPLE = "image.simple";
+    String ASSET_FILTER_IMAGE = "image";
+    String ASSET_FILTER_VIDEO = "video";
+    String ASSET_FILTER_AUDIO = "audio";
+    String ASSET_FILTER_DOCUMENT = "document";
+    String ASSET_FILTER_BINARY = "binary";
+
     class ConfigurableFilter {
 
         protected final ResourceFilter filter;
@@ -83,7 +92,10 @@ public interface AssetsConfiguration {
     // direct access to the filter instances
 
     @Nonnull
-    ResourceFilter getAssetNodeFilter();
+    ResourceFilter getImageAssetNodeFilter();
+
+    @Nonnull
+    ResourceFilter getImageSimpleNodeFilter();
 
     @Nonnull
     ResourceFilter getImageNodeFilter();
@@ -92,10 +104,16 @@ public interface AssetsConfiguration {
     ResourceFilter getVideoNodeFilter();
 
     @Nonnull
-    ResourceFilter getAnyNodeFilter();
+    ResourceFilter getAudioNodeFilter();
 
     @Nonnull
     ResourceFilter getDocumentNodeFilter();
+
+    @Nonnull
+    ResourceFilter getBinaryNodeFilter();
+
+    @Nonnull
+    ResourceFilter getAnyNodeFilter();
 
     @Nonnull
     Set<String> getFileFilterKeys();
@@ -104,7 +122,10 @@ public interface AssetsConfiguration {
     ResourceFilter getFileFilter(@Nonnull BeanContext context, @Nonnull String key);
 
     @Nonnull
-    ResourceFilter getAssetFileFilter();
+    ResourceFilter getImageAssetFileFilter();
+
+    @Nonnull
+    ResourceFilter getImageSimpleFileFilter();
 
     @Nonnull
     ResourceFilter getImageFileFilter();
@@ -113,7 +134,13 @@ public interface AssetsConfiguration {
     ResourceFilter getVideoFileFilter();
 
     @Nonnull
+    ResourceFilter getAudioFileFilter();
+
+    @Nonnull
     ResourceFilter getDocumentFileFilter();
+
+    @Nonnull
+    ResourceFilter getBinaryFileFilter();
 
     @Nonnull
     ResourceFilter getAnyFileFilter();
