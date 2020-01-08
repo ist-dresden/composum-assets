@@ -12,6 +12,7 @@ public class ReferenceModel extends FieldModel {
 
     private transient String referenceType;
     private transient String mimeType;
+    private transient String filter;
 
     public ReferenceModel() {
         super();
@@ -47,5 +48,12 @@ public class ReferenceModel extends FieldModel {
             mimeType = getContent().getMimeType();
         }
         return mimeType;
+    }
+
+    public String getFilter(){
+        if (filter == null) {
+            filter = retrieveFilter(null);
+        }
+        return filter;
     }
 }

@@ -20,8 +20,8 @@ import java.util.Set;
 public interface AssetsConfiguration {
 
     String ASSET_FILTER_ALL = "all";
-    String ASSET_FILTER_IMG_ASSET = "image.asset";
-    String ASSET_FILTER_IMG_SIMPLE = "image.simple";
+    String ASSET_FILTER_IMG_ASSET = "image-asset";
+    String ASSET_FILTER_IMG_SIMPLE = "image-simple";
     String ASSET_FILTER_IMAGE = "image";
     String ASSET_FILTER_VIDEO = "video";
     String ASSET_FILTER_AUDIO = "audio";

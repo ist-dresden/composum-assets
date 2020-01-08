@@ -3,7 +3,7 @@
 <%@taglib prefix="cpn" uri="http://sling.composum.com/cpnl/1.0" %>
 <sling:defineObjects/>
 <cpn:component id="model" type="com.composum.assets.commons.widget.SearchModel" scope="request">
-    <div class="composum-assets-widget-navigator-search widget"
+    <div class="composum-assets-widget-navigator-search"
          data-path="${model.selectedPath}" data-filter="${model.filterKey}">
     </div>
 </cpn:component>

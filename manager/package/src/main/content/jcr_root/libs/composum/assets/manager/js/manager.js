@@ -11,6 +11,12 @@
 
     (function (manager, assets, core) {
 
+        manager.const = _.extend(manager.const || {}, {
+            general: {
+                rootPath: '/content'
+            }
+        });
+
         assets.current = {};
 
         assets.getCurrentPath = function () {
@@ -97,6 +103,7 @@
             },
 
             initializeFilter: function () {
+                this.rootPath = manager.const.general.rootPath;
                 this.filter = core.console.getProfile().get('assets', 'filter', undefined);
                 $(document).on('filter:changed.AssetsManagerTree', _.bind(function (event, filter) {
                     this.setFilter(filter);
@@ -286,6 +293,7 @@
             initialize: function (options) {
                 this.search = core.getWidget(this.$el,
                     '.' + assets.navigator.const.search.css.base, assets.navigator.SearchWidget, {
+                        rootPath: manager.const.general.rootPath,
                         filter: core.console.getProfile().get('assets', 'filter', undefined)
                     });
                 this.search.navigator = this;

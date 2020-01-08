@@ -64,7 +64,8 @@
             initialize: function (options) {
                 widgets.Widget.prototype.initialize.call(this, options);
                 this.data = {
-                    path: this.$el.data('path'),
+                    path: options.path || this.$el.data('path'),
+                    rootPath: options.rootPath || this.$el.data('root'),
                     filter: options.filter || this.$el.data('filter')
                 };
                 var eventId = 'asset_nav_' + this.getWidgetKey();
@@ -82,6 +83,20 @@
                 this.setValue(targetPath);
             },
 
+            getRootPath: function () {
+                return this.data.rootPath || '/content';
+            },
+
+            setRootPath: function (rootPath) {
+                var currentRoot = this.data.rootPath;
+                this.data.rootPath = rootPath;
+                if (currentRoot !== rootPath) {
+                    if (_.isFunction(this.reload)) {
+                        this.reload();
+                    }
+                }
+            },
+
             getFilter: function () {
                 return this.data.filter;
             },
@@ -97,17 +112,25 @@
             },
 
             getValue: function () {
-                return this.data.path;
+                return this.adjustValue(this.data.path);
             },
 
             setValue: function (targetPath, triggerChange, suppressReload) {
                 if (this.data.path !== targetPath) {
-                    this.data.path = targetPath || '/content';
+                    this.data.path = this.adjustValue(targetPath);
                     this.valueChanged(suppressReload);
                     if (triggerChange) {
-                        this.$el.trigger('change');
+                        this.$el.trigger('change', [this.data.path]);
                     }
                 }
+            },
+
+            adjustValue: function (value) {
+                if (value && this.data.rootPath &&
+                    value !== this.data.rootPath && value.indexOf(this.data.rootPath + '/') !== 0) {
+                    value = this.data.rootPath;
+                }
+                return value;
             },
 
             /**
@@ -157,7 +180,8 @@
              */
             reload: function () {
                 var u = navigator.const.url;
-                var url = u.base + u._reload + this.data.path;
+                var path = this.getValue() || this.getRootPath();
+                var url = u.base + u._reload + (path ? path : '');
                 var resourceType = this.$el.data('resource-type') || this.getResourceType();
                 var params = {
                     resourceType: resourceType,
@@ -244,13 +268,14 @@
             }
         });
 
-        widgets.register('.' + navigator.const.browse.css.base, navigator.BrowseWidget);
+        widgets.register('.widget.' + navigator.const.browse.css.base, navigator.BrowseWidget);
 
         navigator.SearchWidget = navigator.AbstractNavPanel.extend({
 
             initialize: function (options) {
                 navigator.AbstractNavPanel.prototype.initialize.call(this, options);
-                this.data.root = this.$el.data('root') || assets.profile.get(this.getWidgetKey(), 'root', '/content');
+                this.setSearchRoot(this.$el.data('search-root') ||
+                    assets.profile.get(this.getWidgetKey(), 'root', undefined), true);
                 this.data.term = assets.profile.get(this.getWidgetKey(), 'term', '');
                 this.reload(); // the initial element is empty to load with view type from profile
             },
@@ -259,7 +284,7 @@
                 var $element = navigator.AbstractNavPanel.prototype.initContent.call(this, element);
                 var c = navigator.const.search.css;
                 this.$term = $element.find('.' + c.base + c._term);
-                this.$term.keydown(_.bind(this.execInputKey, this));
+                this.$term.keydown(_.bind(this.onSearchTermKey, this));
                 $element.find('.' + c.base + c._exec).click(_.bind(this.execSearch, this));
                 $element.find('.' + c.base + c._clear).click(_.bind(function () {
                     this.setSearchTerm('', true);
@@ -269,8 +294,12 @@
                 }
                 $element.find('.' + c.base + c._toggle).click(_.bind(this.toggleRootInput, this));
                 this.rootPath = core.getWidget(this.$el, '.' + c.base + c._root, core.components.PathWidget);
-                this.rootPath.$el.on('change.AssetSearch', _.bind(this.rootChanged, this));
-                this.rootPath.$input.keydown(_.bind(this.execInputKey, this));
+                if (this.data.rootPath) {
+                    this.rootPath.setRootPath(this.data.rootPath);
+                }
+                this.rootPath.setValue(this.data.searchRoot);
+                this.rootPath.$el.on('change.AssetSearch', _.bind(this.searchRootChanged, this));
+                this.rootPath.$input.keydown(_.bind(this.onSearchRootKey, this));
                 $element.find('.' + c.base + c._folder).click(_.bind(this.useCurrentFolder, this));
             },
 
@@ -282,16 +311,44 @@
                 return navigator.const.search.type;
             },
 
-            rootChanged: function (event) {
-                event.preventDefault();
-                this.setRootPath(this.rootPath.getValue());
+            /**
+             * @extends navigator.AbstractNavWidget
+             */
+            setRootPath: function (rootPath) {
+                navigator.AbstractNavWidget.prototype.setRootPath.call(this, root);
+                this.rootPath.setRootPath(rootPath);
             },
 
-            setRootPath: function (rootPath) {
-                if (this.data.root !== rootPath) {
-                    this.data.root = rootPath;
+            searchRootChanged: function (event) {
+                event.preventDefault();
+                this.setSearchRoot(this.rootPath.getValue());
+            },
+
+            onSearchRootKey: function (event) {
+                if (event.which === 13) {
+                    this.searchRootChanged(event);
+                    return false;
+                }
+            },
+
+            getSearchRoot: function () {
+                var searchRoot = this.data.searchRoot;
+                if (this.data.rootPath) {
+                    if (!searchRoot ||
+                        (searchRoot !== this.data.rootPath && searchRoot.indexOf(this.data.rootPath + '/') !== 0)) {
+                        searchRoot = this.data.rootPath;
+                    }
+                }
+                return searchRoot;
+            },
+
+            setSearchRoot: function (rootPath, suppressReload) {
+                if (this.data.searchRoot !== rootPath) {
+                    this.data.searchRoot = rootPath;
                     assets.profile.set(this.getWidgetKey(), 'root', rootPath);
-                    this.reload();
+                    if (!suppressReload) {
+                        this.reload();
+                    }
                 }
             },
 
@@ -299,7 +356,7 @@
                 if (this.navigator) {
                     this.navigator.getCurrentFolder(_.bind(function (folder) {
                         if (folder) {
-                            this.setRootPath(folder);
+                            this.setSearchRoot(folder);
                         }
                     }, this));
                 }
@@ -318,6 +375,13 @@
                 }
             },
 
+            onSearchTermKey: function (event) {
+                if (event.which === 13) {
+                    this.execSearch(event);
+                    return false;
+                }
+            },
+
             execSearch: function (event) {
                 event.preventDefault();
                 this.setSearchTerm(this.$term.val(), true);
@@ -330,21 +394,15 @@
                 var params = {
                     term: this.data.term
                 };
-                if (this.data.root) {
-                    params.root = this.data.root;
+                var searchRoot = this.getSearchRoot();
+                if (searchRoot) {
+                    params.root = searchRoot;
                 }
                 return params;
-            },
-
-            execInputKey: function (event) {
-                if (event.which === 13) {
-                    this.execSearch(event);
-                    return false;
-                }
             }
         });
 
-        widgets.register('.' + navigator.const.search.css.base, navigator.SearchWidget);
+        widgets.register('.widget.' + navigator.const.search.css.base, navigator.SearchWidget);
 
         navigator.Tree = core.components.Tree.extend({
 
@@ -357,6 +415,9 @@
             initializeFilter: function () {
             },
 
+            /**
+             * @override core.components.Tree
+             */
             dataUrlForPath: function (path) {
                 var url = new core.SlingUrl('/bin/cpm/assets/assets.tree.json' + path);
                 if (this.filter) {
@@ -387,10 +448,24 @@
                 navigator.AbstractNavWidget.prototype.initialize.call(this, options);
                 this.tree = core.getWidget(this.$el, '.' + c.base + c._tree, navigator.Tree);
                 this.tree.widget = this;
+                if (this.data.rootPath) {
+                    this.tree.setRootPath(this.data.rootPath);
+                }
             },
 
             getWidgetKey: function (event) {
                 return 'tree';
+            },
+
+            /**
+             * @extends navigator.AbstractNavWidget
+             */
+            setRootPath: function (rootPath) {
+                navigator.AbstractNavWidget.prototype.setRootPath.call(this, root);
+                if (this.tree) {
+                    var currentRoot = this.tree.getRootPath();
+                    this.tree.setRootPath(rootPath, rootPath !== currentRoot);
+                }
             },
 
             /**
@@ -418,19 +493,24 @@
             }
         });
 
-        widgets.register('.' + navigator.const.tree.css.base, navigator.TreeWidget);
+        widgets.register('.widget.' + navigator.const.tree.css.base, navigator.TreeWidget);
 
         navigator.NavigatorWidget = navigator.AbstractNavWidget.extend({
 
             initialize: function (options) {
                 var c = navigator.const.css;
-                this.browse = core.getWidget(this.$el,
-                    '.' + navigator.const.browse.css.base, navigator.BrowseWidget);
-                this.search = core.getWidget(this.$el,
-                    '.' + navigator.const.search.css.base, navigator.SearchWidget);
-                this.tree = core.getWidget(this.$el,
-                    '.' + navigator.const.tree.css.base, navigator.TreeWidget);
                 navigator.AbstractNavWidget.prototype.initialize.call(this, options);
+                options = _.extend({
+                    path: this.data.path,
+                    rootPath: this.data.rootPath,
+                    filter: this.data.filter
+                }, options);
+                this.browse = core.getWidget(this.$el,
+                    '.' + navigator.const.browse.css.base, navigator.BrowseWidget, options);
+                this.search = core.getWidget(this.$el,
+                    '.' + navigator.const.search.css.base, navigator.SearchWidget, options);
+                this.tree = core.getWidget(this.$el,
+                    '.' + navigator.const.tree.css.base, navigator.TreeWidget, options);
                 this.setFilterWidget(core.getWidget(this.$el,
                     '.' + assets.widgets.const.assetfilter.css.base, assets.widgets.AssetFilterWidget));
                 var eventId = 'asset_nav_' + this.getWidgetKey();
@@ -496,10 +576,36 @@
                 }
                 this.filter = widget;
                 if (this.filter) {
-                    this.setFilter(this.filter.getValue());
-                    this.filter.$el.on('change.AssetsNavigator', _.bind(function () {
-                        this.setFilter(this.filter.getValue());
-                    }, this));
+                    this.setFilter(this.data.filter || this.filter.getValue());
+                    if (this.$el.data('filter') === this.getFilter()) {
+                        this.disableFilterWidget();
+                    } else {
+                        this.filter.$el.on('change.AssetsNavigator', _.bind(function () {
+                            this.setFilter(this.filter.getValue());
+                        }, this));
+                    }
+                }
+            },
+
+            disableFilterWidget: function () {
+                if (this.filter) {
+                    this.filter.$input.prop('disabled', true);
+                }
+            },
+
+            /**
+             * @extends navigator.AbstractNavWidget
+             */
+            setRootPath: function (root) {
+                navigator.AbstractNavWidget.prototype.setRootPath.call(this, root);
+                if (this.browse) {
+                    this.browse.setRootPath(root);
+                }
+                if (this.search) {
+                    this.search.setRootPath(root);
+                }
+                if (this.tree) {
+                    this.tree.setRootPath(root);
                 }
             },
 
@@ -508,6 +614,9 @@
              */
             setFilter: function (filter) {
                 navigator.AbstractNavWidget.prototype.setFilter.call(this, filter);
+                if (this.filter) {
+                    this.filter.setValue(filter, false);
+                }
                 if (this.browse) {
                     this.browse.setFilter(filter);
                 }
@@ -559,7 +668,7 @@
             }
         });
 
-        widgets.register('.' + navigator.const.css.base, navigator.NavigatorWidget);
+        widgets.register('.widget.' + navigator.const.css.base, navigator.NavigatorWidget);
 
     })(window.composum.assets.navigator, window.composum.assets, window.widgets, window.core);
 

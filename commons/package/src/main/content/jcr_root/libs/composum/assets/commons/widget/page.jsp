@@ -16,7 +16,7 @@
 <form>
     <%-- the asset reference input field 'parameterized' using selector and suffix --%>
     <sling:include resourceType="composum/assets/commons/widget/assetfield"
-                   replaceSelectors="Asset_Field_Label._.required"
+                   replaceSelectors="Asset_Field_Label._.required.image"
                    replaceSuffix="image/imageRef"/>
     <%-- an embedded asset navigator widget example --%>
     <sling:include resourceType="composum/assets/commons/widget/navigator"
@@ -25,6 +25,10 @@
 <cpn:clientlib type="js" category="composum.assets.widgets"/>
 <script>
     $(document).ready(function () {
+        core.getWidget(document, '.composum-assets-widget-assetfield',
+            window.composum.assets.widgets.AssetFieldWidget, {
+                rootPath: '/content/ist/composum'
+            });
         window.widgets.setUp(document);
     });
 </script>

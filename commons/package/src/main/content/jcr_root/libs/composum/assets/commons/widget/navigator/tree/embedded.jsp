@@ -3,7 +3,7 @@
 <%@taglib prefix="cpn" uri="http://sling.composum.com/cpnl/1.0" %>
 <sling:defineObjects/>
 <cpn:component var="model" type="com.composum.assets.commons.widget.TreeModel">
-    <div class="composum-assets-widget-navigator-tree widget" data-path="${model.path}">
+    <div class="composum-assets-widget-navigator-tree" data-path="${model.path}">
         <div class="composum-assets-widget-navigator-tree_wrapper tree-panel">
             <div class="composum-assets-widget-navigator-tree_tree">
             </div>

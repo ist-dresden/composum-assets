@@ -58,6 +58,44 @@
     <renditions-view jcr:primaryType="sling:MessageEntry"
             sling:key="Renditions View" sling:message="Renditions-Ansicht"/>
 
+    <filter jcr:primaryType="nt:unstructured">
+
+        <all jcr:primaryType="sling:MessageEntry"
+                sling:key="All" sling:message="Alles"/>
+        <all-hint jcr:primaryType="sling:MessageEntry"
+                sling:key="show all available asset object types" sling:message="alle Asset-Objekt-Typen anzeigen"/>
+        <image-asset jcr:primaryType="sling:MessageEntry"
+                sling:key="Image Asset" sling:message="Bild-Asset"/>
+        <image-asset-hint jcr:primaryType="sling:MessageEntry"
+                sling:key="restrict to 'Composum Assets' image objects"
+                sling:message="Beschränkung auf 'Composum Assets' Bild-Objekte"/>
+        <image-simple jcr:primaryType="sling:MessageEntry"
+                sling:key="Simple Image" sling:message="einfaches Bild"/>
+        <image-simple-hint jcr:primaryType="sling:MessageEntry"
+                sling:key="restrict to simple image files"
+                sling:message="Beschränkung auf einfache Bilder"/>
+        <image jcr:primaryType="sling:MessageEntry"
+                sling:key="Image" sling:message="Bild"/>
+        <image-hint jcr:primaryType="sling:MessageEntry"
+                sling:key="restrict to image asset or image file resources"
+                sling:message="Beschränkung auf Bild-Assets oder Bild-Dateien"/>
+        <video-hint jcr:primaryType="sling:MessageEntry"
+                sling:key="restrict to video file objects"
+                sling:message="Beschränkung auf Video-Dateien"/>
+        <audio-hint jcr:primaryType="sling:MessageEntry"
+                sling:key="restrict to audio file objects"
+                sling:message="Beschränkung auf Audio-Dateien"/>
+        <document jcr:primaryType="sling:MessageEntry"
+                sling:key="Document" sling:message="Dokument"/>
+        <document-hint jcr:primaryType="sling:MessageEntry"
+                sling:key="restrict to document file objects"
+                sling:message="Beschränkung auf Dokument-Dateien"/>
+        <binary-hint jcr:primaryType="sling:MessageEntry"
+                sling:key="restrict to binary file objects"
+                sling:message="Beschränkung auf Daten-Dateien"/>
+
+    </filter>
+
     <navigator jcr:primaryType="nt:unstructured">
 
         <tree jcr:primaryType="sling:MessageEntry"

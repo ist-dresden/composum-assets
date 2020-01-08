@@ -48,7 +48,10 @@
                 var u = widgets.const.assetfield.url.dialogs;
                 core.getHtml(u.base + u._select,
                     _.bind(function (content) {
-                        var selectDialog = core.addLoadedDialog(assets.dialogs.AssetSelectDialog, content);
+                        var selectDialog = core.addLoadedDialog(assets.dialogs.AssetSelectDialog, content, {
+                            rootPath: this.getRootPath(),
+                            filter: this.getFilter()
+                        });
                         this.openDialog(selectDialog);
                     }, this));
             },

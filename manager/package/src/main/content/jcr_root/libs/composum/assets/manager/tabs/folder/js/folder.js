@@ -35,6 +35,7 @@
             initContent: function () {
                 this.browser = core.getWidget(this.$content,
                     '.' + assets.navigator.const.browse.css.base, assets.navigator.BrowseWidget, {
+                        rootPath: manager.const.general.rootPath,
                         filter: core.console.getProfile().get('assets', 'filter', undefined)
                     });
                 manager.AbstractManagerTab.prototype.initContent.apply(this, [this.$content]);

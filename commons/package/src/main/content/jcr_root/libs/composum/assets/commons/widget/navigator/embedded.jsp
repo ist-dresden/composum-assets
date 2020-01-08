@@ -5,7 +5,7 @@
 <sling:defineObjects/>
 <cpn:bundle basename="composum-assets">
     <cpn:component var="model" type="com.composum.assets.commons.widget.NavigatorModel">
-        <div class="composum-assets-widget-navigator widget" data-path="${model.path}" data-filter="${model.filter}">
+        <div class="composum-assets-widget-navigator" data-path="${model.path}" data-filter="${model.filter}">
             <sling:call script="content.jsp"/>
         </div>
     </cpn:component>

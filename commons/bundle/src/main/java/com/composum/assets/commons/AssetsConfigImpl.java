@@ -322,13 +322,13 @@ public class AssetsConfigImpl implements AssetsConfiguration {
                 ASSET_FILTER_ALL, "All", "show all available asset object types"));
         fileFilters.put(ASSET_FILTER_IMG_ASSET, imageAssetFileFilter);
         availableFilters.put(ASSET_FILTER_IMG_ASSET, new ConfigurableFilter(imageAssetNodeFilter,
-                ASSET_FILTER_IMG_ASSET, "Asset Image", "restrict to 'Composum Assets' objects"));
+                ASSET_FILTER_IMG_ASSET, "Image Asset", "restrict to 'Composum Assets' image objects"));
         fileFilters.put(ASSET_FILTER_IMG_SIMPLE, imageSimpleFileFilter);
         availableFilters.put(ASSET_FILTER_IMG_SIMPLE, new ConfigurableFilter(imageSimpleNodeFilter,
-                ASSET_FILTER_IMG_SIMPLE, "Simple Image", "restrict to simple image file objects"));
+                ASSET_FILTER_IMG_SIMPLE, "Simple Image", "restrict to simple image files"));
         fileFilters.put(ASSET_FILTER_IMAGE, imageFileFilter);
         availableFilters.put(ASSET_FILTER_IMAGE, new ConfigurableFilter(imageNodeFilter,
-                ASSET_FILTER_IMAGE, "Image", "restrict to image asset or image file objects"));
+                ASSET_FILTER_IMAGE, "Image", "restrict to image asset or image file resources"));
         fileFilters.put(ASSET_FILTER_VIDEO, videoFileFilter);
         availableFilters.put(ASSET_FILTER_VIDEO, new ConfigurableFilter(videoNodeFilter,
                 ASSET_FILTER_VIDEO, "Video", "restrict to video file objects"));

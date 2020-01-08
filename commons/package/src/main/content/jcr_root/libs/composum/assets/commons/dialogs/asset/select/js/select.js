@@ -29,7 +29,8 @@
                         // init input field as an asset field instead of a path field
                         inputSelector: '.' + c.assetfield, inputType: assets.widgets.AssetFieldWidget
                     }));
-                this.navigator = core.getWidget(this.$el, '.' + c.navigator, assets.navigator.NavigatorWidget);
+                this.navigator = core.getWidget(this.$el, '.' + c.navigator,
+                    assets.navigator.NavigatorWidget, options);
                 this.navigator.$el.on('change', _.bind(this.onNavigatorChange, this));
                 this.navigator.$el.on('treepanel', _.bind(this.onTreePanelChange, this));
                 this.$('button.select').click(_.bind(function () {
@@ -39,6 +40,17 @@
                     this.hide();
                 }, this));
                 this.onTreePanelChange(); // init dialog according to the initial tree view mode of the navigator
+            },
+
+            /**
+             * @extends core.components.AbstractPathSelectDialog
+             */
+            setFilter: function (filter) {
+                core.components.AbstractPathSelectDialog.prototype.setFilter.call(this, filter);
+                this.navigator.setFilter(filter);
+                if (filter) {
+                    this.navigator.disableFilterWidget();
+                }
             },
 
             /**

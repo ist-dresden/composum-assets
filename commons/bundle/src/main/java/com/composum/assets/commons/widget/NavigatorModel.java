@@ -11,6 +11,7 @@ public class NavigatorModel extends FieldModel {
     public static final String SELECT_FILTER_FLAG = "selectFilter";
 
     private transient String filterWidget;
+    private transient String filter;
 
     public NavigatorModel() {
         super();
@@ -31,5 +32,12 @@ public class NavigatorModel extends FieldModel {
                     : getResource().getValueMap().get(PROP_FILTER_WIDGET, ""));
         }
         return filterWidget;
+    }
+
+    public String getFilter(){
+        if (filter == null) {
+            filter = retrieveFilter(null,0);
+        }
+        return filter;
     }
 }

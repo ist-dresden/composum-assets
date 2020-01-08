@@ -1,5 +1,6 @@
 package com.composum.assets.commons.widget;
 
+import com.composum.assets.commons.AssetsConfiguration;
 import com.composum.sling.core.AbstractServletBean;
 import com.composum.sling.core.BeanContext;
 import org.apache.commons.lang3.StringUtils;
@@ -148,5 +149,23 @@ public class FieldModel extends AbstractServletBean {
             }
         }
         return flag != null ? flag : defaultValue;
+    }
+
+    protected String retrieveFilter(@Nullable final String defaultValue) {
+        return retrieveFilter(defaultValue, 2);
+    }
+
+    protected String retrieveFilter(@Nullable final String defaultValue, int offset) {
+        AssetsConfiguration config = context.getService(AssetsConfiguration.class);
+        String filter = null;
+        RequestPathInfo pathInfo = getRequest().getRequestPathInfo();
+        String[] selectors = pathInfo.getSelectors();
+        for (int i = offset; i < selectors.length; i++) {
+            if (config.getFileFilter(context, selectors[i]) != null) {
+                filter = selectors[i];
+                break;
+            }
+        }
+        return filter != null ? filter : defaultValue;
     }
 }
