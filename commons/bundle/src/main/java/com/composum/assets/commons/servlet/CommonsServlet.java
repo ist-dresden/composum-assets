@@ -1,10 +1,12 @@
 package com.composum.assets.commons.servlet;
 
+import com.composum.assets.commons.AssetsConfiguration;
 import com.composum.assets.commons.AssetsConstants;
 import com.composum.assets.commons.service.AssetsService;
 import com.composum.assets.commons.service.MetaPropertiesService;
 import com.composum.sling.core.BeanContext;
 import com.composum.sling.core.ResourceHandle;
+import com.composum.sling.core.filter.ResourceFilter;
 import com.composum.sling.core.servlet.AbstractServiceServlet;
 import com.composum.sling.core.servlet.ServletOperation;
 import com.composum.sling.core.servlet.ServletOperationSet;
@@ -38,6 +40,8 @@ import javax.servlet.ServletException;
 import java.io.IOException;
 import java.io.InputStream;
 
+import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
+
 /**
  * The servlet to provide changes of the Asset Managers UI.
  */
@@ -51,6 +55,9 @@ import java.io.InputStream;
 public class CommonsServlet extends AbstractServiceServlet {
 
     private static final Logger LOG = LoggerFactory.getLogger(CommonsServlet.class);
+
+    @Reference
+    protected AssetsConfiguration assetsConfiguration;
 
     @Reference
     protected AssetsService assetsService;
@@ -69,6 +76,7 @@ public class CommonsServlet extends AbstractServiceServlet {
     }
 
     public enum Operation {
+        folder,
         createImage, uploadImage, deleteImage, toImageAsset, toSimpleImage,
         createConfig, copyConfig, deleteConfig, configDefault, refreshMeta
     }
@@ -76,7 +84,7 @@ public class CommonsServlet extends AbstractServiceServlet {
     protected AssetsOperationSet operations = new AssetsOperationSet();
 
     @Override
-    protected ServletOperationSet getOperations() {
+    protected AssetsOperationSet getOperations() {
         return operations;
     }
 
@@ -93,6 +101,8 @@ public class CommonsServlet extends AbstractServiceServlet {
         super.init();
 
         // GET
+        operations.setOperation(ServletOperationSet.Method.GET, Extension.json,
+                Operation.folder, new GetFolderOperation());
         operations.setOperation(ServletOperationSet.Method.GET, Extension.json,
                 Operation.createConfig, new ConfigCreateOperation());
         operations.setOperation(ServletOperationSet.Method.GET, Extension.json,
@@ -133,11 +143,37 @@ public class CommonsServlet extends AbstractServiceServlet {
     // operation implementations
     //
 
+    public class GetFolderOperation implements ServletOperation {
+
+        @Override
+        public void doIt(@Nonnull final SlingHttpServletRequest request,
+                         @Nonnull final SlingHttpServletResponse response,
+                         @Nullable final ResourceHandle resource)
+                throws IOException {
+            Status status = new Status(request, response);
+            if (resource != null) {
+                ResourceFilter folderFilter = assetsConfiguration.getTreeIntermediateFilter();
+                Resource folder = resource;
+                while (folder != null && !folderFilter.accept(folder)) {
+                    folder = folder.getParent();
+                }
+                if (folder != null) {
+                    status.data("result").put("folder", folder.getPath());
+                }
+            } else {
+                status.error("resource not found");
+                status.setStatus(SC_NOT_FOUND);
+            }
+            status.sendJson();
+        }
+    }
+
     public class RefreshMetaDataOperation implements ServletOperation {
 
         @Override
-        public void doIt(SlingHttpServletRequest request, SlingHttpServletResponse response,
-                         ResourceHandle resource)
+        public void doIt(@Nonnull final SlingHttpServletRequest request,
+                         @Nonnull final SlingHttpServletResponse response,
+                         final ResourceHandle resource)
                 throws IOException {
             Status status = new Status(request, response);
             ResourceResolver resolver = resource.getResourceResolver();
@@ -152,8 +188,9 @@ public class CommonsServlet extends AbstractServiceServlet {
     protected abstract class AbstractAssetUploadOperation implements ServletOperation {
 
         @Override
-        public void doIt(SlingHttpServletRequest request, SlingHttpServletResponse response,
-                         ResourceHandle resource)
+        public void doIt(@Nonnull final SlingHttpServletRequest request,
+                         @Nonnull final SlingHttpServletResponse response,
+                         final ResourceHandle resource)
                 throws IOException {
             Status status = new Status(request, response);
 
@@ -226,9 +263,10 @@ public class CommonsServlet extends AbstractServiceServlet {
     public class DeleteImageAssetOperation implements ServletOperation {
 
         @Override
-        public void doIt(SlingHttpServletRequest request, SlingHttpServletResponse response,
-                         ResourceHandle resource)
-                throws RepositoryException, IOException {
+        public void doIt(@Nonnull final SlingHttpServletRequest request,
+                         @Nonnull final SlingHttpServletResponse response,
+                         final ResourceHandle resource)
+                throws IOException {
             Status status = new Status(request, response);
 
             try (ResourceResolver resolver = resource.getResourceResolver()) {
@@ -245,8 +283,9 @@ public class CommonsServlet extends AbstractServiceServlet {
     public class TransformToImageAssetOperation implements ServletOperation {
 
         @Override
-        public void doIt(SlingHttpServletRequest request, SlingHttpServletResponse response,
-                         ResourceHandle resource)
+        public void doIt(@Nonnull final SlingHttpServletRequest request,
+                         @Nonnull final SlingHttpServletResponse response,
+                         final ResourceHandle resource)
                 throws RepositoryException, IOException {
             Status status = new Status(request, response);
 
@@ -264,8 +303,9 @@ public class CommonsServlet extends AbstractServiceServlet {
     public class TransformToSimpleImageOperation implements ServletOperation {
 
         @Override
-        public void doIt(SlingHttpServletRequest request, SlingHttpServletResponse response,
-                         ResourceHandle resource)
+        public void doIt(@Nonnull final SlingHttpServletRequest request,
+                         @Nonnull final SlingHttpServletResponse response,
+                         final ResourceHandle resource)
                 throws RepositoryException, IOException {
             Status status = new Status(request, response);
 
@@ -294,8 +334,9 @@ public class CommonsServlet extends AbstractServiceServlet {
     public class ConfigCreateOperation implements ServletOperation {
 
         @Override
-        public void doIt(SlingHttpServletRequest request, SlingHttpServletResponse response,
-                         ResourceHandle resource)
+        public void doIt(@Nonnull final SlingHttpServletRequest request,
+                         @Nonnull final SlingHttpServletResponse response,
+                         final ResourceHandle resource)
                 throws IOException {
             Status status = new Status(request, response);
 
@@ -321,8 +362,9 @@ public class CommonsServlet extends AbstractServiceServlet {
     public class ConfigCopyOperation implements ServletOperation {
 
         @Override
-        public void doIt(SlingHttpServletRequest request, SlingHttpServletResponse response,
-                         ResourceHandle resource)
+        public void doIt(@Nonnull final SlingHttpServletRequest request,
+                         @Nonnull final SlingHttpServletResponse response,
+                         final ResourceHandle resource)
                 throws IOException {
             Status status = new Status(request, response);
 
@@ -354,8 +396,9 @@ public class CommonsServlet extends AbstractServiceServlet {
     public class ConfigDeleteOperation implements ServletOperation {
 
         @Override
-        public void doIt(SlingHttpServletRequest request, SlingHttpServletResponse response,
-                         ResourceHandle resource)
+        public void doIt(@Nonnull final SlingHttpServletRequest request,
+                         @Nonnull final SlingHttpServletResponse response,
+                         final ResourceHandle resource)
                 throws IOException {
             Status status = new Status(request, response);
 

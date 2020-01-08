@@ -11,12 +11,17 @@ import com.composum.assets.commons.config.ConfigHandle;
 import com.composum.assets.commons.handle.AssetRendition;
 import com.composum.assets.commons.handle.AssetVariation;
 import com.composum.assets.commons.handle.ImageAsset;
+import com.composum.assets.commons.widget.Thumbnail;
 import com.composum.sling.clientlibs.handle.FileHandle;
 import com.composum.sling.core.BeanContext;
 import com.composum.sling.core.ResourceHandle;
+import com.composum.sling.core.SlingBean;
+import com.composum.sling.core.filter.ResourceFilter;
 import com.composum.sling.core.util.MimeTypeUtil;
 import com.composum.sling.core.util.ResourceUtil;
 import com.composum.sling.platform.staging.StagingConstants;
+import com.composum.sling.platform.staging.search.SearchService;
+import com.composum.sling.platform.staging.search.SearchTermParseException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jackrabbit.JcrConstants;
 import org.apache.sling.api.resource.ModifiableValueMap;
@@ -43,6 +48,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import static com.composum.assets.commons.handle.AssetHandle.IMAGE_RESOURCE_TYPE;
+import static com.composum.assets.commons.service.AssetsSearchPlugin.SELECTOR_ASSET;
 
 @Component(
         service = AssetsService.class
@@ -148,6 +154,18 @@ public class DefaultAssetsService implements AssetsService {
     @Reference
     protected MetaPropertiesService metaPropertiesService;
 
+    @Reference
+    protected SearchService searchService;
+
+    @Override
+    @Nonnull
+    public Iterable<SearchService.Result> search(@Nonnull final BeanContext context, @Nonnull final String searchRoot,
+                                                 @Nonnull final String searchTerm, @Nullable final ResourceFilter searchFilter,
+                                                 int offset, @Nullable final Integer limit)
+            throws SearchTermParseException, RepositoryException {
+        return searchService.search(context, SELECTOR_ASSET, searchRoot, searchTerm, searchFilter, offset, limit);
+    }
+
     @Override
     @Nonnull
     public Resource uploadImageAsset(@Nonnull final BeanContext context,
@@ -227,6 +245,7 @@ public class DefaultAssetsService implements AssetsService {
             Session session = Objects.requireNonNull(resolver.adaptTo(Session.class));
             session.move(filePath, tmpPath);
             session.removeItem(assetPath);
+            session.save(); // FIXME - workaround for an OAK exception (change of protected version history property...)
             session.move(tmpPath, assetPath);
             resolver.refresh();
         }
@@ -448,5 +467,19 @@ public class DefaultAssetsService implements AssetsService {
     protected Resource getAssetTmpFolder(@Nonnull final ResourceResolver resolver)
             throws PersistenceException {
         return getOrCreateFolder(resolver, "/var/tmp/assets");
+    }
+
+    /**
+     * the bean / model factory implementation for abstract base model instances
+     */
+    @Nonnull
+    @Override
+    public SlingBean createBean(@Nonnull final BeanContext context, @Nonnull final Resource resource,
+                                @Nonnull final Class<? extends SlingBean> type)
+            throws InstantiationException {
+        if (type.isAssignableFrom(Thumbnail.class)) {
+            return Thumbnail.create(context, resource);
+        }
+        throw new InstantiationException("requested type not supported (" + type.getName() + ")");
     }
 }

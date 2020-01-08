@@ -7,18 +7,19 @@
 
     window.composum = window.composum|| {};
     window.composum.assets = window.composum.assets || {};
+    window.composum.assets.manager = window.composum.assets.manager || {};
 
-    (function (assets, core) {
+    (function (manager, assets, core) {
 
-        assets.AssetTab = assets.AbstractManagerTab.extend({
+        manager.AssetTab = manager.AbstractManagerTab.extend({
 
             initialize: function (options) {
-                assets.AbstractManagerTab.prototype.initialize.apply(this, [options]);
-                window.widgets.setUp(this.el);
+                manager.AbstractManagerTab.prototype.initialize.apply(this, [options]);
+                this.initContent();
                 this.$detailActions.find('.transform').click(_.bind(this.toSimpeImage, this));
                 this.$('.detail-toolbar .add').click(_.bind(this.uploadOriginal, this));
                 this.$('.detail-toolbar .remove').click(_.bind(this.removeOriginal, this));
-                this.$('.detail-toolbar .reload').click(_.bind(this.reload, this));
+                this.$('.detail-toolbar .reload').click(_.bind(this.refresh, this));
                 this.$('.detail-toolbar .delete').click(_.bind(this.deleteAsset, this));
             },
 
@@ -44,6 +45,6 @@
             }
         });
 
-    })(window.composum.assets, window.core);
+    })(window.composum.assets.manager, window.composum.assets, window.core);
 
 })(window);

@@ -17,13 +17,6 @@
                         value="Reload" tagName="span" class="label" i18n="true"/></button>
             </div>
         </div>
-        <div class="image-view">
-            <div class="image-frame ${image.imageCSS}">
-                <div class="image-background"
-                     style="background-image:url(${cpn:unmappedUrl(slingRequest,'/libs/composum/nodes/commons/images/image-background.png')})">
-                    <img src="${image.path}"/>
-                </div>
-            </div>
-        </div>
+        <sling:include resourceType="composum/assets/commons/widget/preview" replaceSelectors="lightbox"/>
     </div>
 </cpn:component>

@@ -96,7 +96,7 @@ public class AssetRendition extends AssetHandle<RenditionConfig> {
 
     @Override
     public boolean isValid() {
-        return super.isValid() && resource.getProperty(VALID, Boolean.FALSE);
+        return super.isValid() && (resource.getProperty(VALID, Boolean.FALSE) || isOriginal());
     }
 
     public String getImageCSS() {

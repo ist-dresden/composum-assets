@@ -5,6 +5,8 @@
 .detail-view {
 
     .breadcrumbs {
+        display: flex;
+        flex-wrap: nowrap;
         position: absolute;
         top: 0;
         left: 0;
@@ -19,25 +21,20 @@
         padding: 0 35px 0 29px;
 
         li {
-            float: left;
+            white-space: nowrap;
 
-            &:after {
+            &:before {
                 content: '/';
                 display: inline-block;
                 padding: 5px 0 2px;
                 margin: 0 3px;
             }
 
-            &:last-child:after {
-                content: none;
-            }
-
             a {
                 text-decoration: none;
                 padding: 4px 0 3px;
                 position: relative;
-                display: block;
-                float: left;
+                display: inline-block;
             }
         }
     }

@@ -6,6 +6,10 @@
 package com.composum.assets.commons.service;
 
 import com.composum.sling.core.BeanContext;
+import com.composum.sling.core.bean.SlingBeanFactory;
+import com.composum.sling.core.filter.ResourceFilter;
+import com.composum.sling.platform.staging.search.SearchService;
+import com.composum.sling.platform.staging.search.SearchTermParseException;
 import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
 
@@ -14,7 +18,13 @@ import javax.annotation.Nullable;
 import javax.jcr.RepositoryException;
 import java.io.InputStream;
 
-public interface AssetsService {
+public interface AssetsService extends SlingBeanFactory {
+
+    @Nonnull
+    Iterable<SearchService.Result> search(@Nonnull BeanContext context, @Nonnull String searchRoot,
+                                          @Nonnull String searchTerm, @Nullable ResourceFilter searchFilter,
+                                          int offset, @Nullable Integer limit)
+            throws SearchTermParseException, RepositoryException;
 
     /**
      * Updates or creates the original rendition for a given variation.

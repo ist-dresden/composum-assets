@@ -11,26 +11,32 @@ import com.composum.assets.commons.handle.ImageAsset;
 import com.composum.assets.commons.image.RenditionTransformer;
 import org.apache.sling.api.resource.PersistenceException;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.jcr.RepositoryException;
 import java.io.IOException;
 
 public interface AdaptiveImageService {
 
-    AssetRendition getRendition(ImageAsset asset,
-                                String variationKey, String renditionKey) throws RepositoryException;
+    @Nullable
+    AssetRendition getRendition(@Nonnull ImageAsset asset,
+                                @Nonnull String variationKey, @Nonnull String renditionKey)
+            throws RepositoryException;
 
-    RenditionConfig getRenditionConfig(ImageAsset asset,
-                                       String variationKey, String renditionKey);
+    @Nullable
+    RenditionConfig getRenditionConfig(@Nonnull ImageAsset asset,
+                                       @Nonnull String variationKey, @Nonnull String renditionKey);
 
+    @Nullable
     RenditionConfig findRenditionConfig(ImageAsset asset,
-                                        String variationKey, String renditionKey);
+                                        @Nonnull String variationKey, @Nonnull String renditionKey);
 
-    AssetRendition getOrCreateRendition(ImageAsset asset,
-                                        String variationKey, String renditionKey)
+    AssetRendition getOrCreateRendition(@Nonnull ImageAsset asset,
+                                        @Nonnull String variationKey, @Nonnull String renditionKey)
             throws RepositoryException, IOException;
 
-    void dropRenditions(String path,
-                        String variationKey, String renditionKey)
+    void dropRenditions(@Nonnull String path,
+                        @Nonnull String variationKey, @Nullable String renditionKey)
             throws PersistenceException;
 
     RenditionTransformer getRenditionTransformer();

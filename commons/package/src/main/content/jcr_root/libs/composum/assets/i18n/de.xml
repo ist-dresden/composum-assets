@@ -47,19 +47,8 @@
     <upload-original jcr:primaryType="sling:MessageEntry"
             sling:key="Upload Asset Original" sling:message="Ein neues Original hochladen"/>
 
-    <go-one-level-up jcr:primaryType="sling:MessageEntry"
-            sling:key="Go one level Up" sling:message="Eine Ebene nach Oben"/>
-    <small-thumbnails jcr:primaryType="sling:MessageEntry"
-            sling:key="Small Thumbnails" sling:message="Kleine Miniaturen"/>
-    <large-thumbnails jcr:primaryType="sling:MessageEntry"
-            sling:key="Large Thumbnails" sling:message="Große Miniaturen"/>
-    <asset-list jcr:primaryType="sling:MessageEntry"
-            sling:key="Assets List" sling:message="Asset-Liste"/>
     <create-asset-configuration jcr:primaryType="sling:MessageEntry"
             sling:key="Create Asset Configuration" sling:message="Konfiguration anlegen"/>
-
-    <open-containing-folder jcr:primaryType="sling:MessageEntry"
-            sling:key="Open containing Folder" sling:message="Ordner zum Bild öffnen"/>
     <to-image-asset jcr:primaryType="sling:MessageEntry"
             sling:key="Transform into an Image Asset" sling:message="Umwandeln in ein Bild-Asset"/>
     <to-simple-image jcr:primaryType="sling:MessageEntry"
@@ -68,5 +57,71 @@
             sling:key="Asset Files (Originals)" sling:message="Asset-Dateien (Originale)"/>
     <renditions-view jcr:primaryType="sling:MessageEntry"
             sling:key="Renditions View" sling:message="Renditions-Ansicht"/>
+
+    <filter jcr:primaryType="nt:unstructured">
+
+        <all jcr:primaryType="sling:MessageEntry"
+                sling:key="All" sling:message="Alles"/>
+        <all-hint jcr:primaryType="sling:MessageEntry"
+                sling:key="show all available asset object types" sling:message="alle Asset-Objekt-Typen anzeigen"/>
+        <image-asset jcr:primaryType="sling:MessageEntry"
+                sling:key="Image Asset" sling:message="Bild-Asset"/>
+        <image-asset-hint jcr:primaryType="sling:MessageEntry"
+                sling:key="restrict to 'Composum Assets' image objects"
+                sling:message="Beschränkung auf 'Composum Assets' Bild-Objekte"/>
+        <image-simple jcr:primaryType="sling:MessageEntry"
+                sling:key="Simple Image" sling:message="einfaches Bild"/>
+        <image-simple-hint jcr:primaryType="sling:MessageEntry"
+                sling:key="restrict to simple image files"
+                sling:message="Beschränkung auf einfache Bilder"/>
+        <image jcr:primaryType="sling:MessageEntry"
+                sling:key="Image" sling:message="Bild"/>
+        <image-hint jcr:primaryType="sling:MessageEntry"
+                sling:key="restrict to image asset or image file resources"
+                sling:message="Beschränkung auf Bild-Assets oder Bild-Dateien"/>
+        <video-hint jcr:primaryType="sling:MessageEntry"
+                sling:key="restrict to video file objects"
+                sling:message="Beschränkung auf Video-Dateien"/>
+        <audio-hint jcr:primaryType="sling:MessageEntry"
+                sling:key="restrict to audio file objects"
+                sling:message="Beschränkung auf Audio-Dateien"/>
+        <document jcr:primaryType="sling:MessageEntry"
+                sling:key="Document" sling:message="Dokument"/>
+        <document-hint jcr:primaryType="sling:MessageEntry"
+                sling:key="restrict to document file objects"
+                sling:message="Beschränkung auf Dokument-Dateien"/>
+        <binary-hint jcr:primaryType="sling:MessageEntry"
+                sling:key="restrict to binary file objects"
+                sling:message="Beschränkung auf Daten-Dateien"/>
+
+    </filter>
+
+    <navigator jcr:primaryType="nt:unstructured">
+
+        <tree jcr:primaryType="sling:MessageEntry"
+                sling:key="Tree" sling:message="Baum"/>
+        <browse jcr:primaryType="sling:MessageEntry"
+                sling:key="Browse" sling:message="Browsen"/>
+        <search jcr:primaryType="sling:MessageEntry"
+                sling:key="Search" sling:message="Suche"/>
+
+        <go-one-level-up jcr:primaryType="sling:MessageEntry"
+                sling:key="Go one level Up" sling:message="Eine Ebene nach Oben"/>
+        <small-thumbnails jcr:primaryType="sling:MessageEntry"
+                sling:key="Small Thumbnails" sling:message="Kleine Miniaturen"/>
+        <large-thumbnails jcr:primaryType="sling:MessageEntry"
+                sling:key="Large Thumbnails" sling:message="Große Miniaturen"/>
+        <asset-list jcr:primaryType="sling:MessageEntry"
+                sling:key="Assets List" sling:message="Asset-Liste"/>
+        <open-containing-folder jcr:primaryType="sling:MessageEntry"
+                sling:key="Open containing Folder" sling:message="Ordner zum Bild öffnen"/>
+
+        <search-root jcr:primaryType="sling:MessageEntry"
+                sling:key="Search Root" sling:message="Such-Basis"/>
+        <select-root-folder jcr:primaryType="sling:MessageEntry"
+                sling:key="select root folder" sling:message="Basis-Folder auswählen"/>
+        <folder-as-root jcr:primaryType="sling:MessageEntry"
+                sling:key="use current folder as root" sling:message="aktuellen Folder als Basis nutzen"/>
+    </navigator>
 
 </jcr:root>

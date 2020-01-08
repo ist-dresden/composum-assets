@@ -4,9 +4,11 @@
         depends="[category:composum.nodes.console.default]"
         embed="[category:composum.assets.commons,
                 category:composum.assets.components,
+                category:composum.assets.navigator,
+                category:composum.assets.preview,
                 composum/assets/manager/config/dialog/css/dialog.css,
                 composum/assets/manager/tabs/folder/css/folder.css,
-                composum/assets/manager/tabs/config/css/config.css,
+                composum/assets/manager/tabs/folder/config/css/config.css,
                 composum/assets/manager/css/page.css,
                 composum/assets/manager/css/dialogs.css,
                 composum/assets/manager/css/manager.css]"/>

@@ -1,0 +1,26 @@
+@charset "UTF-8";
+
+/**
+ * the CSS rules which are inherited in the console context and needed by the components
+ */
+
+@import "../../css/mixins";
+
+.btn-toolbar,
+.detail-toolbar {
+
+    .btn {
+        width: 31px;
+        height: 29px;
+        padding: 4px 7px 3px;
+        font-size: 14px;
+
+        .label {
+            display: none;
+        }
+    }
+
+    .btn-group .btn.fa {
+        margin-top: 0;
+    }
+}

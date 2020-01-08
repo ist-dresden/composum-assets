@@ -14,28 +14,6 @@
         }
     }
 
-    .btn.go-up {
-        padding-top: 8px;
-        padding-left: 3px;
-
-        .fa-stack-1x {
-            top: 2px;
-            left: auto;
-            right: -3px;
-        }
-    }
-
-    .btn.drill-down {
-        padding-top: 2px;
-        padding-left: 3px;
-
-        .fa-stack-1x {
-            top: 6px;
-            left: auto;
-            right: -4px;
-        }
-    }
-
     .btn.fa-sliders {
 
         &:before {
@@ -72,7 +50,37 @@
         }
     }
 
-    #assets-view {
+    #split-view-vertical-split {
+
+        .top-pane {
+            min-height: 150px;
+        }
+    }
+
+    &-query {
+
+        .composum-assets-widget-navigator {
+
+            &_content {
+                bottom: 0;
+            }
+
+            &-search {
+
+                &_toolbar {
+                    border: none;
+                    padding-left: 26px;
+                    background-color: #e4e4e4;
+
+                    #assets.left-open & {
+                        padding-left: 6px;
+                    }
+                }
+            }
+        }
+    }
+
+    &-view {
 
         > .detail-view {
 
@@ -82,15 +90,27 @@
                 .detail-toolbar,
                 .full-table-view .bootstrap-table .fixed-table-toolbar {
                     top: 28px;
+                    right: 0;
                 }
 
-                .composum-assets-manager-image {
+                .composum-assets-widget-navigator {
 
                     &_content {
-                        top: 99px;
+                        bottom: 0;
                     }
                 }
 
+                .composum-assets-widget-preview {
+
+                    &_lightbox {
+                        position: absolute;
+                        top: 62px;
+                        left: 0;
+                        right: 0;
+                        bottom: 41px;
+                        height: auto;
+                    }
+                }
             }
         }
     }

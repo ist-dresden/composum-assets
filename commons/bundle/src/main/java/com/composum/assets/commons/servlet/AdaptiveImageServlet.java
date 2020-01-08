@@ -127,15 +127,17 @@ public class AdaptiveImageServlet extends SlingSafeMethodsServlet {
         response.setStatus(HttpServletResponse.SC_NOT_FOUND);
     }
 
-    /** Handle a real asset. */
+    /**
+     * Handle a real asset.
+     */
     protected void handleAsset(@Nonnull SlingHttpServletRequest request, @Nonnull SlingHttpServletResponse response,
                                @Nonnull ImageAsset asset) throws IOException, ServletException {
         AssetRendition rendition = null;
-        try {
-            String[] selectors = parseSelectors(request);
-            String variationName = selectors[0];
-            String renditionName = selectors[1];
+        String[] selectors = parseSelectors(request);
+        String variationName = selectors[0];
+        String renditionName = selectors[1];
 
+        try {
             // determine the rendition if configured selectors are requested
             rendition = adaptiveImageService.getOrCreateRendition(asset, variationName, renditionName);
 
@@ -144,26 +146,29 @@ public class AdaptiveImageServlet extends SlingSafeMethodsServlet {
 
                 RenditionConfig renditionConfig = adaptiveImageService
                         .findRenditionConfig(asset, variationName, renditionName);
-                VariationConfig variationConfig = renditionConfig.getVariation();
 
-                if (config.redirectUnwanted()) {
-                    String matchingUrl = asset.getImageUri(variationConfig.getName(), renditionConfig.getName());
-                    matchingUrl = LinkUtil.getUrl(request, matchingUrl);
-                    response.setHeader(HttpUtil.HEADER_LOCATION, matchingUrl);
-                    if (LOG.isInfoEnabled()) {
-                        LOG.info("no rendition found for '{}' redirecting to '{}'...", request.getRequestURI(), matchingUrl);
+                if (renditionConfig != null) {
+                    VariationConfig variationConfig = renditionConfig.getVariation();
+
+                    if (config.redirectUnwanted()) {
+                        String matchingUrl = asset.getImageUri(variationConfig.getName(), renditionConfig.getName());
+                        matchingUrl = LinkUtil.getUrl(request, matchingUrl);
+                        response.setHeader(HttpUtil.HEADER_LOCATION, matchingUrl);
+                        if (LOG.isInfoEnabled()) {
+                            LOG.info("no rendition found for '{}' redirecting to '{}'...", request.getRequestURI(), matchingUrl);
+                        }
+
+                        response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
+                        return;
                     }
 
-                    response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
-                    return;
-                }
+                    if (LOG.isInfoEnabled()) {
+                        LOG.info("no rendition found for '{}' delivering '{}/{}'...", request.getRequestURI(), variationConfig.getName(), renditionConfig.getName());
+                    }
 
-                if (LOG.isInfoEnabled()) {
-                    LOG.info("no rendition found for '{}' delivering '{}/{}'...", request.getRequestURI(), variationConfig.getName(), renditionConfig.getName());
+                    rendition = adaptiveImageService.getOrCreateRendition(
+                            asset, renditionConfig.getVariation().getName(), renditionConfig.getName());
                 }
-
-                rendition = adaptiveImageService.getOrCreateRendition(
-                        asset, renditionConfig.getVariation().getName(), renditionConfig.getName());
             }
         } catch (RepositoryException | IOException ex) {
             LOG.error(ex.getMessage(), ex);
@@ -179,7 +184,9 @@ public class AdaptiveImageServlet extends SlingSafeMethodsServlet {
         }
     }
 
-    /** Returns array of variation name and rendition name, as determined from selectors. */
+    /**
+     * Returns array of variation name and rendition name, as determined from selectors.
+     */
     @Nonnull
     protected String[] parseSelectors(@Nonnull SlingHttpServletRequest request) {
         RequestPathInfo pathInfo = request.getRequestPathInfo();
@@ -240,7 +247,9 @@ public class AdaptiveImageServlet extends SlingSafeMethodsServlet {
         }
     }
 
-    /** If the referenced resource is just a simple nt:file we want to serve the file directly as an image. */
+    /**
+     * If the referenced resource is just a simple nt:file we want to serve the file directly as an image.
+     */
     protected void handleSimpleImage(@Nonnull SlingHttpServletRequest request, @Nonnull SlingHttpServletResponse response,
                                      Resource resource) throws IOException {
         Resource content = ResourceUtil.getDataResource(resource);
@@ -259,14 +268,14 @@ public class AdaptiveImageServlet extends SlingSafeMethodsServlet {
             try (InputStream imageStream = binary != null ? binary.getStream() : null) {
                 if (imageStream != null) {
 
-                        response.setContentType(MimeTypeUtil.getMimeType(resource, ""));
-                        if (lastModified != null) {
-                            response.setDateHeader(HttpUtil.HEADER_LAST_MODIFIED, lastModified.getTimeInMillis());
-                        }
-                        response.setStatus(HttpServletResponse.SC_OK);
+                    response.setContentType(MimeTypeUtil.getMimeType(resource, ""));
+                    if (lastModified != null) {
+                        response.setDateHeader(HttpUtil.HEADER_LAST_MODIFIED, lastModified.getTimeInMillis());
+                    }
+                    response.setStatus(HttpServletResponse.SC_OK);
 
-                        OutputStream outputStream = response.getOutputStream();
-                        IOUtils.copy(imageStream, outputStream);
+                    OutputStream outputStream = response.getOutputStream();
+                    IOUtils.copy(imageStream, outputStream);
 
                     return;
                 }

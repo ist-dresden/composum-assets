@@ -2,231 +2,60 @@
 
 @import "../../../css/mixins";
 
-#assets-view .detail-panel .folder-detail {
+#assets-view .detail-panel {
 
-    .folder-content {
-        position: absolute;
-        top: $console-details-content-top;
-        left: 0.5%; /* padding if the left tree is not visible */
-        right: 0;
-        bottom: 60px;
-        overflow: scroll;
-
-        &.large-thumbnails {
-            left: 1%;
-        }
+    &.folder .detail-tabs {
+        padding-left: 42px;
     }
 
-    .left-open & {
+    .folder-detail {
+
+        .folder-toolbar {
+            right: 95px !important;
+        }
 
         .folder-content {
-            left: 0; /* no extra padding if left side is open */
+            position: absolute;
+            top: $console-details-content-top;
+            left: 0.5%; /* padding if the left tree is not visible */
+            right: 0;
+            bottom: 40px;
+            overflow: visible;
         }
-    }
 
-    .subfolder-panel {
+        .left-open & {
 
-        .panel-heading {
-            padding: 2px 15px;
+            .folder-content {
+                left: 0; /* no extra padding if left side is open */
+            }
+        }
 
-            .head-actions {
-                display: inline-block;
-                margin: 0 5px -9px -15px;
+        .composum-assets-manager-browse {
+
+            &_toolbar {
+                pointer-events: none;
+                position: absolute;
+                top: -40px;
+                left: 0;
+                right: 0;
+                padding: 5px 6px;
 
                 .btn {
-                    height: 28px;
-
-                    .label {
-                        display: none;
-                    }
-                }
-            }
-
-            h2 {
-                display: inline-block;
-                padding: 8px 0;
-            }
-        }
-    }
-
-    .thumbnail-panel {
-        @include clear-after;
-
-        .asset {
-
-            &-link {
-                float: left;
-            }
-        }
-    }
-
-    .subfolder-panel {
-
-        .accordion-item {
-            margin: 0;
-
-            .panel-body {
-                padding: 0;
-
-                .panel-group {
-                    margin-bottom: 0;
-                }
-            }
-        }
-    }
-
-    .asset {
-
-        &-link {
-            display: block;
-        }
-    }
-
-    .thumbnail {
-
-        &-wrapper {
-            border: 1px solid #ccc;
-            @include aspect-ratio-wrapper(1, 1);
-        }
-
-        &-image,
-        &-video {
-            @include aspect-ratio-element;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-    }
-
-    .list-panel,
-    .small-thumbnails {
-
-        .subfolder-panel {
-
-            .accordion-item {
-                margin: 0.5% 0.5% 0 0;
-
-                .panel-body {
-                    padding: 0 0 0.5% 0.5%;
-                }
-            }
-        }
-    }
-
-    .list-panel {
-
-        .asset {
-
-            &-link {
-                margin-top: 0.5%;
-            }
-        }
-
-        .data-column {
-            @include clear-after;
-
-            @media (max-width: $screen-xs-max) {
-                background-color: $gray-lighter;
-                margin-bottom: 5px;
-                padding: 0 19px 2px;
-            }
-        }
-
-        .image-data {
-            float: left;
-            margin-right: 20px;
-        }
-
-        table {
-
-            td {
-                border: 2px solid $body-bg;
-
-                @media (max-width: $screen-xs-max) {
-                    border-color: $gray-lighter;
-                }
-            }
-
-            .value {
-                padding: 0 4px;
-            }
-
-            .label-default {
-                display: table-cell;
-                padding-top: 0.3em;
-                background-color: #aaa;
-                font-weight: normal;
-                text-align: right;
-            }
-        }
-
-        .description {
-            color: $text-color;
-
-            @media (max-width: $screen-sm-max) {
-                float: right;
-            }
-
-            @media (max-width: $screen-xs-max) {
-                float: none;
-            }
-
-            p {
-                margin: 5px 0;
-            }
-        }
-    }
-
-    .small-thumbnails {
-
-        .asset {
-
-            &-link {
-                width: 9.5%;
-                margin-right: 0.5%;
-                margin-top: 0.5%;
-
-                @media (max-width: $screen-sm-max) {
-                    width: 13.5%;
-                    margin-right: 0.75%;
-                    margin-top: 0.75%;
-                }
-
-                @media (max-width: $screen-xs-max) {
-                    width: 24.5%;
-                    margin-right: 0.5%;
-                    margin-top: 0.5%;
-                }
-            }
-        }
-    }
-
-    .large-thumbnails {
-
-        .asset {
-
-            &-link {
-                width: 19%;
-                margin-right: 1%;
-                margin-top: 1%;
-
-                @media (max-width: $screen-sm-max) {
-                    width: 24%;
-                }
-
-                @media (max-width: $screen-xs-max) {
-                    width: 49%;
+                    pointer-events: auto;
                 }
             }
         }
 
-        .subfolder-panel {
+        .composum-assets-widget-navigator-browse {
 
-            .accordion-item {
-                margin: 1% 1% 0 0;
+            .composum-assets-widget-navigator {
 
-                .panel-body {
-                    padding: 0 0 1% 1%;
+                &_view-type-keys {
+                    background: transparent;
+                }
+
+                &_content {
+                    top: 0;
                 }
             }
         }
