@@ -22,6 +22,7 @@ import com.composum.sling.platform.staging.impl.DefaultStagingReleaseManager;
 import com.composum.sling.platform.staging.impl.ReleaseChangeEventPublisherImpl;
 import com.composum.sling.platform.staging.query.QueryBuilder;
 import com.composum.sling.platform.staging.query.impl.QueryBuilderAdapterFactory;
+import com.composum.sling.platform.staging.search.PlatformSearchService;
 import com.composum.sling.platform.testing.testutil.AnnotationWithDefaults;
 import com.composum.sling.platform.testing.testutil.ErrorCollectorAlwaysPrintingFailures;
 import com.composum.sling.platform.testing.testutil.JcrTestUtils;
@@ -109,6 +110,10 @@ public class AdaptiveImageServiceTest {
                 "/test/assets/site-1/images/image-2.png/square/original/image-2.png");
         ec.checkThat(IOUtils.toByteArray(file2.getValueMap().get("jcr:content/jcr:data", InputStream.class)).length,
                 is(155494));
+
+        PlatformSearchService searchService = new PlatformSearchService();
+        searchService.activate(AnnotationWithDefaults.of(PlatformSearchService.SearchServiceConfiguration.class));
+        context.registerService(searchService);
 
         AssetsConfigImpl assetsConfig = new AssetsConfigImpl();
         assetsConfig.activate(AnnotationWithDefaults.of(AssetsConfigImpl.Configuration.class));
