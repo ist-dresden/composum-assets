@@ -1,0 +1,133 @@
+@charset "UTF-8";
+
+@import "../../../css/mixins";
+
+$assets-config-tabs-width: 170px;
+$assets-config-tabs-height: 80px;
+$assets-config-btn-size: 28px;
+
+$assets-config-tab-border: 1px solid #ccc;
+$assets-config-tab-gap: 1px solid #fff;
+$assets-config-tab-bg: #f8f8f8;
+$assets-config-tab-fg-disabled: #aaa;
+
+.composum-assets-widget-config {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+
+    .composum-assets-widget-config {
+
+        &_preview {
+            flex-grow: 1;
+            background-color: rgba(0, 0, 0, 0.6);
+
+            .composum-assets-widget-preview {
+
+                &_wrapper {
+                    width: 100%;
+                    padding: 15px;
+                }
+
+                &_frame {
+                    display: table;
+                    margin: auto;
+
+                    img {
+                        max-width: 100%;
+                    }
+                }
+            }
+        }
+
+        &_form {
+            display: flex;
+        }
+
+        &_form-panel {
+            flex-grow: 1;
+        }
+
+        &_form-tabs {
+            display: flex;
+            flex-direction: column;
+        }
+
+        &_tab {
+            display: block;
+            cursor: pointer;
+            flex-grow: 1;
+            min-width: $assets-config-tabs-width;
+            max-width: $assets-config-tabs-width;
+            min-height: $assets-config-tabs-height;
+            padding: 8px 10px;
+            border-top: $assets-config-tab-gap;
+            border-bottom: $assets-config-tab-gap;
+            border-left: $assets-config-tab-border;
+            background-color: $assets-config-tab-bg;
+
+            &:first-child {
+                border-top: none;
+            }
+
+            a {
+                &, &:active, &:focus, &:visited, &:hover {
+                    text-decoration: none;
+                }
+            }
+
+            &.disabled {
+                cursor: none;
+                pointer-events: none;
+
+                a {
+                    &, &:active, &:focus, &:visited, &:hover {
+                        color: $assets-config-tab-fg-disabled;
+                    }
+                }
+            }
+
+            &.active {
+                border-top: $assets-config-tab-border;
+                border-bottom: $assets-config-tab-border;
+                border-left: 1px solid transparent;
+                background-color: transparent;
+            }
+
+            .composum-assets-widget-config {
+
+                &_tab {
+
+                    &-title {
+                        display: inline-block;
+                        margin: 0;
+                        padding: 4px 15px 10px 0;
+                    }
+
+                    &-actions {
+                        float: right;
+                        margin-bottom: 10px;
+
+                        .btn {
+                            height: $assets-config-btn-size;
+                            width: $assets-config-btn-size;
+                            padding: 5px 7px;
+                        }
+                    }
+                }
+
+                &_select {
+                    width: 100%;
+                }
+            }
+        }
+    }
+
+    .composum-assets-widget-config-form {
+
+        &_tab-panel {
+            padding: 10px 15px;
+        }
+    }
+}

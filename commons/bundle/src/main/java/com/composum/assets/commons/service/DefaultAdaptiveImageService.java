@@ -15,7 +15,9 @@ import com.composum.assets.commons.handle.AssetVariation;
 import com.composum.assets.commons.handle.ImageAsset;
 import com.composum.assets.commons.image.BuilderContext;
 import com.composum.assets.commons.image.RenditionBuilder;
+import com.composum.assets.commons.image.RenditionReader;
 import com.composum.assets.commons.image.RenditionTransformer;
+import com.composum.assets.commons.image.RenditionWriter;
 import com.composum.sling.core.ResourceHandle;
 import com.composum.sling.core.concurrent.LazyCreationService;
 import org.apache.commons.lang3.StringUtils;
@@ -42,7 +44,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.jcr.RepositoryException;
 import javax.jcr.query.Query;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -148,6 +152,27 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
             renditionConfig = variationConfig.findRendition(renditionKey);
         }
         return renditionConfig;
+    }
+
+    /**
+     * writes an in memory image instance (built live) of a redition to a given output stream
+     */
+    @Override
+    public void volatileRendition(@Nonnull final AssetRendition rendition,
+                                  @Nonnull final OutputStream outputStream)
+            throws RepositoryException, IOException {
+
+        HashMap<String, Object> hints = new HashMap<>();
+        BuilderContext context = new BuilderContext(this, lazyCreationService, metaPropertiesService, executorService, hints);
+
+        RenditionReader reader = new RenditionReader();
+        BufferedImage image = reader.readImage(rendition, context);
+
+        RenditionTransformer transformer = context.getService().getRenditionTransformer();
+        image = transformer.transform(rendition, image, context);
+
+        RenditionWriter writer = new RenditionWriter();
+        writer.writeImage(rendition, image, outputStream);
     }
 
     @Override

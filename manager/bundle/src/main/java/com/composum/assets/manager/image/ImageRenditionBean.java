@@ -48,7 +48,7 @@ public class ImageRenditionBean extends AbstractImageBean<RenditionConfig> {
 
     public String getTabCssClass() {
         return StringUtils.isNotBlank(getRequest().getSelectors(
-                new StringFilter.WhiteList(AssetsConstants.PROP_VARIATION, AssetsConstants.PROP_RENDITION)))
+                new StringFilter.WhiteList(AssetsConstants.VARIATION, AssetsConstants.RENDITION)))
                 ? "in" : "";
     }
 

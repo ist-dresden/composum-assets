@@ -19,6 +19,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,10 +46,14 @@ public class DefaultRenditionTransformer implements RenditionTransformer {
 
     public static final Crop ASPECT_RATIO_CROP = new Crop();
 
-    /** Maps operations to transformer list. Always access locked by {@link #readWriteLock}. */
+    /**
+     * Maps operations to transformer list. Always access locked by {@link #readWriteLock}.
+     */
     protected Map<String, List<ImageTransformer>> imageTransformers = new HashMap<>();
 
-    /** For imageTransformers, since it's a complicated datastructure to update. */
+    /**
+     * For imageTransformers, since it's a complicated datastructure to update.
+     */
     protected ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 
     /**
@@ -69,10 +74,8 @@ public class DefaultRenditionTransformer implements RenditionTransformer {
      */
     protected void bindImageTransformer(String operation, final ImageTransformer transformer) {
         try (LockAsAutoCloseable ignored = LockAsAutoCloseable.lock(readWriteLock.readLock())) {
-            List<ImageTransformer> transformers = imageTransformers.get(operation);
-            if (transformers == null) {
-                imageTransformers.put(operation, transformers = Collections.synchronizedList(new ArrayList<>()));
-            }
+            List<ImageTransformer> transformers = imageTransformers.computeIfAbsent(operation,
+                    k -> Collections.synchronizedList(new ArrayList<>()));
             LOG.info("transformer.bind: [{}] {}", operation, transformer.getClass().getName());
             transformers.add(transformer);
         }
@@ -138,7 +141,9 @@ public class DefaultRenditionTransformer implements RenditionTransformer {
     }
 
     @Override
-    public BufferedImage transform(AssetRendition rendition, BufferedImage image, BuilderContext context) {
+    @Nonnull
+    public BufferedImage transform(@Nonnull final AssetRendition rendition, @Nonnull BufferedImage image,
+                                   @Nonnull final BuilderContext context) {
         RenditionConfig config = rendition.getConfig();
         if (LOG.isDebugEnabled()) {
             LOG.debug("rendition transformation: {}", config);
@@ -146,9 +151,9 @@ public class DefaultRenditionTransformer implements RenditionTransformer {
         int imageWidth = image.getWidth();
         int imageHeight = image.getHeight();
         Size size = config.getSize();
-        Integer renditionWidth = size.width;
-        Integer renditionHeight = size.height;
-        Float aspectRatio = size.aspectRatio;
+        Integer renditionWidth = size.getWidth();
+        Integer renditionHeight = size.getHeight();
+        Float aspectRatio = size.getAspectRatio();
         if (aspectRatio == null) {
             aspectRatio = (float) imageWidth / (float) imageHeight;
         }

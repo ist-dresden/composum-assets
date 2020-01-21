@@ -2,17 +2,19 @@ package com.composum.assets.commons.config.aspect;
 
 import com.composum.assets.commons.config.ConfigHandle;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.sling.api.resource.ValueMap;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.text.DecimalFormat;
-import java.util.Map;
 
-public class Size {
+public class Size extends GenericAspect {
 
     public static final DecimalFormat RATIO_FMT = new DecimalFormat("#0.0#");
 
-    public final Integer width;
-    public final Integer height;
-    public final Float aspectRatio;
+    protected final Integer width;
+    protected final Integer height;
+    protected final Float aspectRatio;
     protected final String aspectRatioRule;
 
     public Size(ConfigHandle config) {
@@ -21,13 +23,16 @@ public class Size {
                 config.getInherited(ConfigHandle.ASPECT_RATIO, ""));
     }
 
-    public Size(Map<String, Object> options) {
-        this((Integer) options.get(ConfigHandle.WIDTH),
-                (Integer) options.get(ConfigHandle.HEIGHT),
-                (String) options.get(ConfigHandle.ASPECT_RATIO));
+    /**
+     * @param values     a simple value map (can be a ValueMap of a resource)
+     * @param useDefault if 'false' all attributes can be 'null' (used on config editing)
+     */
+    public Size(ValueMap values, boolean useDefault) {
+        this(values.get(ConfigHandle.WIDTH, Integer.class),
+                values.get(ConfigHandle.HEIGHT, Integer.class),
+                values.get(ConfigHandle.ASPECT_RATIO, ""));
     }
 
-    @SuppressWarnings("ConstantConditions")
     public Size(Integer cfgWidth, Integer cfgHeight, String cfgRatio) {
         Float ratio = null;
         aspectRatioRule = cfgRatio != null ? cfgRatio : "";
@@ -47,17 +52,40 @@ public class Size {
                 : (cfgWidth != null && cfgHeight != null ? (float) cfgWidth / (float) cfgHeight : null));
     }
 
-    public String getWidth() {
-        return width != null ? width.toString() : "#";
+    @Nullable
+    public Integer getWidth() {
+        return width;
     }
 
-    public String getHeight() {
-        return height != null ? height.toString() : "#";
+    @Nonnull
+    public String getWidthStr() {
+        return width != null ? width.toString() : "";
     }
 
-    public String getAspectRatio() {
+    @Nullable
+    public Integer getHeight() {
+        return height;
+    }
+
+    @Nonnull
+    public String getHeightStr() {
+        return height != null ? height.toString() : "";
+    }
+
+    @Nullable
+    public String getAspectRatioRule() {
+        return aspectRatioRule;
+    }
+
+    @Nullable
+    public Float getAspectRatio() {
+        return aspectRatio;
+    }
+
+    @Nonnull
+    public String getAspectRatioStr() {
         return StringUtils.isNotBlank(aspectRatioRule)
                 ? aspectRatioRule
-                : aspectRatio != null ? RATIO_FMT.format(aspectRatio) : "#";
+                : aspectRatio != null ? RATIO_FMT.format(aspectRatio) : "";
     }
 }

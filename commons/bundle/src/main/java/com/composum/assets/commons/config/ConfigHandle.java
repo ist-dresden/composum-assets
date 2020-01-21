@@ -12,8 +12,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.SyntheticResource;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,43 +31,46 @@ public abstract class ConfigHandle {
     public static final String CATEGORIES = "categories";
 
     public static final String FILE = "file";
-    public static final String FILE_QUALITY = FILE + ".jpg.quality";
+    public static final String FILE_QUALITY = FILE + "_jpg_quality";
 
     public static final String SIZE = "size";
-    public static final String WIDTH = SIZE + ".width";
-    public static final String HEIGHT = SIZE + ".height";
-    public static final String ASPECT_RATIO = SIZE + ".aspectRatio";
+    public static final String WIDTH = SIZE + "_width";
+    public static final String HEIGHT = SIZE + "_height";
+    public static final String ASPECT_RATIO = SIZE + "_aspectRatio";
 
     public static final String CROP = "crop";
-    public static final String CROP_VERTICAL = CROP + ".vertical";
-    public static final String CROP_HORIZONTAL = CROP + ".horizontal";
-    public static final String CROP_SCALE = CROP + ".scale";
+    public static final String CROP_VERTICAL = CROP + "_vertical";
+    public static final String CROP_HORIZONTAL = CROP + "_horizontal";
+    public static final String CROP_SCALE = CROP + "_scale";
 
     public static final String TRANSFORMATION = "transformation";
-    public static final String TRANSFORMATION_BLUR = TRANSFORMATION + ".blur";
-    public static final String TRANSFORMATION_BLUR_FACTOR = TRANSFORMATION_BLUR + ".factor";
+    public static final String TRANSFORMATION_BLUR = TRANSFORMATION + "_blur";
+    public static final String TRANSFORMATION_BLUR_FACTOR = TRANSFORMATION_BLUR + "_factor";
 
     public static final String WATERMARK = "watermark";
-    public static final String WATERMARK_TEXT = WATERMARK + ".text";
-    public static final String WATERMARK_FONT = WATERMARK + ".font";
-    public static final String WATERMARK_FONT_FAMILY = WATERMARK_FONT + ".family";
-    public static final String WATERMARK_FONT_BOLD = WATERMARK_FONT + ".bold";
-    public static final String WATERMARK_FONT_ITALIC = WATERMARK_FONT + ".italic";
-    public static final String WATERMARK_FONT_SIZE = WATERMARK_FONT + ".size";
-    public static final String WATERMARK_POS_VERTICAL = WATERMARK + ".vertical";
-    public static final String WATERMARK_POS_HORIZONTAL = WATERMARK + ".horizontal";
-    public static final String WATERMARK_COLOR = WATERMARK + ".color";
-    public static final String WATERMARK_ALPHA = WATERMARK + ".alpha";
+    public static final String WATERMARK_TEXT = WATERMARK + "_text";
+    public static final String WATERMARK_FONT = WATERMARK + "_font";
+    public static final String WATERMARK_FONT_FAMILY = WATERMARK_FONT + "_family";
+    public static final String WATERMARK_FONT_BOLD = WATERMARK_FONT + "_bold";
+    public static final String WATERMARK_FONT_ITALIC = WATERMARK_FONT + "_italic";
+    public static final String WATERMARK_FONT_SIZE = WATERMARK_FONT + "_size";
+    public static final String WATERMARK_POS_VERTICAL = WATERMARK + "_vertical";
+    public static final String WATERMARK_POS_HORIZONTAL = WATERMARK + "_horizontal";
+    public static final String WATERMARK_COLOR = WATERMARK + "_color";
+    public static final String WATERMARK_ALPHA = WATERMARK + "_alpha";
 
     public static final String EXAMPLE = "example";
-    public static final String EXAMPLE_IMAGE = EXAMPLE + ".image";
-    public static final String EXAMPLE_IMAGE_PATH = EXAMPLE_IMAGE + ".path";
+    public static final String EXAMPLE_IMAGE = EXAMPLE + "_image";
+    public static final String EXAMPLE_IMAGE_PATH = EXAMPLE_IMAGE + "_path";
 
     protected List<ResourceHandle> resourceCascade;
 
     private transient Boolean defaultConfig;
     private transient List<String> categories;
     private transient List<String> nonDefaultCategories;
+
+    private transient Map<String, Object> inheritedMap;
+    private transient Map<String, Object> propertyMap;
 
     public ConfigHandle(List<ResourceHandle> resourceCascade) {
         this.resourceCascade = resourceCascade;
@@ -128,6 +134,64 @@ public abstract class ConfigHandle {
         }
         return value;
     }
+
+    // generic property access via generic Map for direct use in templates
+
+    public abstract class GenericMap extends HashMap<String, Object> {
+
+        public static final String UNDEFINED = "<undefined>";
+
+        @Override
+        @Nullable
+        public Object get(@Nonnull final Object key) {
+            Object value = super.get(key);
+            if (value == null) {
+                value = getValue((String) key);
+                super.put((String) key, value != null ? value : UNDEFINED);
+            }
+            return value != UNDEFINED ? value : null;
+        }
+
+        protected abstract Object getValue(String key);
+    }
+
+    public class GenericProperty extends GenericMap {
+
+        @Override
+        @Nullable
+        public Object getValue(@Nonnull final String key) {
+            return getProperty(key, Object.class);
+        }
+
+    }
+
+    public class GenericInherited extends GenericMap {
+
+        @Override
+        @Nullable
+        public Object getValue(@Nonnull final String key) {
+            return getInherited(key, Object.class);
+        }
+
+    }
+
+    @Nonnull
+    public Map<String, Object> getProperty() {
+        if (propertyMap == null) {
+            propertyMap = new GenericProperty();
+        }
+        return propertyMap;
+    }
+
+    @Nonnull
+    public Map<String, Object> getInherited() {
+        if (inheritedMap == null) {
+            inheritedMap = new GenericInherited();
+        }
+        return inheritedMap;
+    }
+
+    //
 
     public Boolean isExtension() {
         return null;

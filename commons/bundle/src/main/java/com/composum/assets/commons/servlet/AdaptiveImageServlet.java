@@ -6,7 +6,6 @@
 package com.composum.assets.commons.servlet;
 
 import com.composum.assets.commons.AssetsConstants;
-import com.composum.assets.commons.config.AssetConfig;
 import com.composum.assets.commons.config.ConfigHandle;
 import com.composum.assets.commons.config.RenditionConfig;
 import com.composum.assets.commons.config.VariationConfig;
@@ -79,7 +78,34 @@ public class AdaptiveImageServlet extends SlingSafeMethodsServlet {
 
     private static final Logger LOG = LoggerFactory.getLogger(AdaptiveImageServlet.class);
 
-    public static final StringFilter.BlackList SELECTORS_FILTER = new StringFilter.BlackList("adaptive");
+    public static final StringFilter.BlackList SELECTORS_FILTER = new StringFilter.BlackList("adaptive", "asset");
+
+    @ObjectClassDefinition(
+            name = "Composum Assets - Adaptive Image Servlet",
+            description = "delivers renditions of image assets for the configured variations"
+    )
+    public @interface Configuration {
+
+        @AttributeDefinition(
+                name = "Simple Images",
+                description = "delivers the content of simple images if set to 'true'"
+        )
+        boolean deliverSimpleImages() default true;
+
+        @AttributeDefinition(
+                name = "Redirect",
+                description = "redirects unwanted requests to the most similar supported URL if set to 'true'"
+        )
+        boolean redirectUnwanted() default true;
+
+        @AttributeDefinition(
+                name = "Redirect to Cachefriendly",
+                description = "Redirects asset requests that do not contain a hash in the suffix that ensures that " +
+                        "the this URL always delivers the same picture to one that does."
+        )
+        boolean redirectToCachefriendlyUrl() default true;
+
+    }
 
     protected BundleContext bundleContext;
     protected Configuration config;
@@ -99,19 +125,8 @@ public class AdaptiveImageServlet extends SlingSafeMethodsServlet {
         Resource resource = AdaptiveUtil.retrieveResource(request);
 
         if (ResourceUtil.isResourceType(resource, AssetsConstants.NODE_TYPE_ASSET)) {
-            ImageAsset asset;
-
-            String assetConfigParam = request.getParameter("config"); // explicit config for the manager UI
-            Resource assetConfigRes;
-            if (StringUtils.isNotBlank(assetConfigParam) &&
-                    (assetConfigRes = request.getResourceResolver().getResource(assetConfigParam)) != null) {
-                asset = new ImageAsset(context, resource, new AssetConfig(assetConfigRes));
-            } else {
-                asset = new ImageAsset(context, resource);
-            }
-
+            ImageAsset asset = new ImageAsset(context, resource);
             if (asset.isValid()) {
-
                 handleAsset(request, response, asset);
                 return;
             }
@@ -131,13 +146,14 @@ public class AdaptiveImageServlet extends SlingSafeMethodsServlet {
      * Handle a real asset.
      */
     protected void handleAsset(@Nonnull SlingHttpServletRequest request, @Nonnull SlingHttpServletResponse response,
-                               @Nonnull ImageAsset asset) throws IOException, ServletException {
+                               @Nonnull ImageAsset asset)
+            throws IOException, ServletException {
         AssetRendition rendition = null;
-        String[] selectors = parseSelectors(request);
-        String variationName = selectors[0];
-        String renditionName = selectors[1];
-
         try {
+            String[] selectors = parseSelectors(request);
+            String variationName = selectors[0];
+            String renditionName = selectors[1];
+
             // determine the rendition if configured selectors are requested
             rendition = adaptiveImageService.getOrCreateRendition(asset, variationName, renditionName);
 
@@ -188,7 +204,7 @@ public class AdaptiveImageServlet extends SlingSafeMethodsServlet {
      * Returns array of variation name and rendition name, as determined from selectors.
      */
     @Nonnull
-    protected String[] parseSelectors(@Nonnull SlingHttpServletRequest request) {
+    public static String[] parseSelectors(@Nonnull SlingHttpServletRequest request) {
         RequestPathInfo pathInfo = request.getRequestPathInfo();
         String[] selectors = SELECTORS_FILTER.getFiltered(pathInfo.getSelectors());
         switch (selectors.length) {
@@ -293,32 +309,4 @@ public class AdaptiveImageServlet extends SlingSafeMethodsServlet {
         this.bundleContext = context.getBundleContext();
         this.config = config;
     }
-
-    @ObjectClassDefinition(
-            name = "Composum Assets - Adaptive Image Servlet",
-            description = "delivers renditions of image assets for the configured variations"
-    )
-    public @interface Configuration {
-
-        @AttributeDefinition(
-                name = "Simple Images",
-                description = "delivers the content of simple images if set to 'true'"
-        )
-        boolean deliverSimpleImages() default true;
-
-        @AttributeDefinition(
-                name = "Redirect",
-                description = "redirects unwanted requests to the most similar supported URL if set to 'true'"
-        )
-        boolean redirectUnwanted() default true;
-
-        @AttributeDefinition(
-                name = "Redirect to Cachefriendly",
-                description = "Redirects asset requests that do not contain a hash in the suffix that ensures that " +
-                        "the this URL always delivers the same picture to one that does."
-        )
-        boolean redirectToCachefriendlyUrl() default true;
-
-    }
-
 }

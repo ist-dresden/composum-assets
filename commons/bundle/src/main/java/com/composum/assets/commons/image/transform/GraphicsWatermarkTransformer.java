@@ -1,17 +1,22 @@
 package com.composum.assets.commons.image.transform;
 
-import com.composum.assets.commons.config.aspect.GenericAspect;
 import com.composum.assets.commons.config.aspect.Watermark;
 import com.composum.assets.commons.image.ImageTransformer;
 import com.composum.assets.commons.image.RenditionTransformer;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.sling.api.resource.ValueMap;
 import org.osgi.service.component.annotations.Component;
 
 import javax.annotation.Nonnull;
-import java.awt.*;
+import java.awt.AlphaComposite;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -38,20 +43,25 @@ public class GraphicsWatermarkTransformer implements ImageTransformer {
     @Override
     public BufferedImage transform(RenditionTransformer service, BufferedImage image,
                                    String operation, Object options) {
-        @SuppressWarnings("unchecked")
         Watermark watermark = options instanceof Watermark
-                ? (Watermark) options : new Watermark(new GenericAspect((Map<String, Object>) options));
+                ? (Watermark) options : new Watermark((ValueMap) options, true);
         if (watermark.isValid()) {
 
-            String text = watermark.text;
-            Watermark.Font font = watermark.font;
+            String text = watermark.getText();
+            Watermark.Font font = watermark.getFont();
             int width = image.getWidth();
             int height = image.getHeight();
             Graphics2D g2d = (Graphics2D) image.getGraphics();
 
-            AlphaComposite alphaChannel = AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, watermark.alpha);
-            g2d.setComposite(alphaChannel);
-            g2d.setColor(watermark.color);
+            Float alpha = watermark.getAlpha();
+            if (alpha != null) {
+                AlphaComposite alphaChannel = AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, alpha);
+                g2d.setComposite(alphaChannel);
+            }
+            Color color = watermark.getColor();
+            if (color != null) {
+                g2d.setColor(watermark.getColor());
+            }
             g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
             g2d.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
             g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
@@ -60,49 +70,59 @@ public class GraphicsWatermarkTransformer implements ImageTransformer {
             FontMetrics fontMetrics;
             Rectangle2D rect = null;
 
-            int fontStyle = (font.bold ? Font.BOLD : 0) | (font.italic ? Font.ITALIC : 0);
-            try {
-                int fontSize = Integer.parseInt(font.size);
-                g2d.setFont(new Font(font.family, fontStyle, fontSize));
-                fontMetrics = g2d.getFontMetrics();
-                rect = fontMetrics.getStringBounds(text, g2d);
-
-            } catch (NumberFormatException nfex) {
-
-                float fontSizeWeight = Float.parseFloat(font.size);
-                for (int fontSize = 128; fontSize > 8; fontSize = (int) (fontSize * 0.75f)) {
-                    g2d.setFont(new Font(font.family, fontStyle, fontSize));
+            String fontSizeExp = font.getSize();
+            if (StringUtils.isNotBlank(fontSizeExp)) {
+                int fontStyle = (font.isBold() ? Font.BOLD : 0) | (font.isItalic() ? Font.ITALIC : 0);
+                try {
+                    int fontSize = Integer.parseInt(fontSizeExp);
+                    g2d.setFont(new Font(font.getFamily(), fontStyle, fontSize));
                     fontMetrics = g2d.getFontMetrics();
                     rect = fontMetrics.getStringBounds(text, g2d);
-                    if (rect.getWidth() < (int) (width * fontSizeWeight) &&
-                            rect.getHeight() < (int) (height * fontSizeWeight)) {
-                        break;
+
+                } catch (NumberFormatException nfex) {
+
+                    float fontSizeWeight = Float.parseFloat(fontSizeExp);
+                    for (int fontSize = 128; fontSize > 8; fontSize = (int) (fontSize * 0.75f)) {
+                        g2d.setFont(new Font(font.getFamily(), fontStyle, fontSize));
+                        fontMetrics = g2d.getFontMetrics();
+                        rect = fontMetrics.getStringBounds(text, g2d);
+                        if (rect.getWidth() < (int) (width * fontSizeWeight) &&
+                                rect.getHeight() < (int) (height * fontSizeWeight)) {
+                            break;
+                        }
                     }
                 }
             }
 
-            int x;
-            try {
-                int xPos = Integer.parseInt(watermark.horizontal);
-                x = xPos < 0
-                        ? Math.round(width - (int) rect.getWidth()) + xPos
-                        : xPos;
-            } catch (NumberFormatException nfex) {
-                float xWeight = Float.parseFloat(watermark.horizontal);
-                x = Math.round((width - (int) rect.getWidth()) * xWeight);
+            Integer x = null;
+            if (rect != null && watermark.getHorizontal() != null) {
+                try {
+                    int xPos = Integer.parseInt(watermark.getHorizontal());
+                    x = xPos < 0
+                            ? Math.round(width - (int) rect.getWidth()) + xPos
+                            : xPos;
+                } catch (NumberFormatException nfex) {
+                    float xWeight = Float.parseFloat(watermark.getHorizontal());
+                    x = Math.round((width - (int) rect.getWidth()) * xWeight);
+                }
             }
-            int y;
-            try {
-                int yPos = Integer.parseInt(watermark.vertical);
-                y = yPos < 0
-                        ? Math.round(height - (int) rect.getHeight()) + yPos
-                        : yPos;
-            } catch (NumberFormatException nfex) {
-                float yWeight = Float.parseFloat(watermark.vertical);
-                y = Math.round((height - (int) rect.getHeight()) * yWeight);
+            Integer y = null;
+            if (rect != null && watermark.getVertical() != null) {
+                try {
+                    int yPos = Integer.parseInt(watermark.getVertical());
+                    y = yPos < 0
+                            ? Math.round(height - (int) rect.getHeight()) + yPos
+                            : yPos;
+                } catch (NumberFormatException nfex) {
+                    float yWeight = Float.parseFloat(watermark.getVertical());
+                    y = Math.round((height - (int) rect.getHeight()) * yWeight);
+                }
+                y += Math.round((int) rect.getHeight() * 0.8f);
             }
-            y += Math.round((int) rect.getHeight() * 0.8f);
-            g2d.drawString(text, x, y);
+            if (x != null && y != null) {
+                g2d.drawString(text, x, y);
+            }
+
             g2d.dispose();
         }
         return image;

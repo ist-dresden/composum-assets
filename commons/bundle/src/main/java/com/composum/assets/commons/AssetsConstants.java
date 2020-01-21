@@ -6,7 +6,6 @@
 package com.composum.assets.commons;
 
 import com.composum.sling.core.util.ResourceUtil;
-import com.composum.sling.platform.staging.StagingConstants;
 
 import java.util.Arrays;
 import java.util.List;
@@ -21,8 +20,11 @@ public class AssetsConstants {
 
     // property names
 
-    public static final String PROP_VARIATION = "variation";
-    public static final String PROP_RENDITION = "rendition";
+    public static final String VARIATION = "variation";
+    public static final String RENDITION = "rendition";
+
+    public static final String THUMBNAIL = "thumbnail";
+    public static final String ORIGINAL = "original";
 
     /**
      * Property of a transient rendition where the time of the last rendering is saved - for
@@ -30,10 +32,14 @@ public class AssetsConstants {
      */
     public static final String PROP_LAST_RENDERED = "cpa:lastRendered";
 
-    /** Property on a transient rendtion that contains the original path of the asset. */
+    /**
+     * Property on a transient rendtion that contains the original path of the asset.
+     */
     public static final String PROP_ASSETPATH = "cpa:assetPath";
 
-    /** Property on a transient rendition that contains the name of the variation. */
+    /**
+     * Property on a transient rendition that contains the name of the variation.
+     */
     public static final String PROP_VARIATIONNAME = "cpa:assetVariation";
 
     /// mime types
@@ -42,8 +48,8 @@ public class AssetsConstants {
 
     /// node types
 
-    public static final String VARIATION = "Variation";
-    public static final String RENDITION = "Rendition";
+    public static final String _VARIATION = "Variation";
+    public static final String _RENDITION = "Rendition";
     public static final String CONFIGURATION = "Configuration";
 
     public static final String NODE_TYPE_ASSET = CPA_PREFIX + "Asset";
@@ -51,8 +57,8 @@ public class AssetsConstants {
     public static final String NODE_TYPE_ASSET_CONFIG = NODE_TYPE_ASSET + CONFIGURATION;
     public static final String NODE_TYPE_IMAGE_CONFIG = CPA_PREFIX + "Image" + CONFIGURATION;
 
-    public static final String NODE_TYPE_VARIATION = CPA_PREFIX + VARIATION;
-    public static final String NODE_TYPE_RENDITION = CPA_PREFIX + RENDITION;
+    public static final String NODE_TYPE_VARIATION = CPA_PREFIX + _VARIATION;
+    public static final String NODE_TYPE_RENDITION = CPA_PREFIX + _RENDITION;
 
     public static final String NODE_TYPE_VARIATION_CONFIG = NODE_TYPE_VARIATION + "Config";
     public static final String NODE_TYPE_RENDITION_CONFIG = NODE_TYPE_RENDITION + "Config";
@@ -60,7 +66,9 @@ public class AssetsConstants {
     public static final List<String> ASSET_CONFIG_TYPE_SET = Arrays.asList(
             NODE_TYPE_ASSET_CONFIG, NODE_TYPE_VARIATION_CONFIG, NODE_TYPE_RENDITION_CONFIG);
 
-    /** resource types */
+    /**
+     * resource types
+     */
 
     public static final String MANAGER_RESOURCE_BASE = "composum/assets/manager/image";
     public static final String RESOURCE_TYPE_VARIATION = MANAGER_RESOURCE_BASE + "/variation";
@@ -70,7 +78,9 @@ public class AssetsConstants {
     public static final String RESOURCE_TYPE_VARIATION_CONFIG = RESOURCE_TYPE_CONFIG + "/variation";
     public static final String RESOURCE_TYPE_RENDITION_CONFIG = RESOURCE_TYPE_CONFIG + "/rendition";
 
-    /** asset structure */
+    /**
+     * asset structure
+     */
 
     public static final String NODE_CONTENT = ResourceUtil.CONTENT_NODE;
     public static final String NODE_META = "meta";
@@ -78,7 +88,9 @@ public class AssetsConstants {
     public static final String IMAGE_CONFIG = "imageconfig";
     public static final String PATH_IMAGE_CONFIG = NODE_CONTENT + "/" + IMAGE_CONFIG;
 
-    /** Path below which transient renderings are stored. */
+    /**
+     * Path below which transient renderings are stored.
+     */
     public static final String PATH_TRANSIENTS = "/var/composum/assets";
 
     /**
@@ -87,7 +99,9 @@ public class AssetsConstants {
      */
     public static final String NODE_WORKSPACECONFIGURED = "workspace";
 
-    /** general properties */
+    /**
+     * general properties
+     */
 
     public static final String PROP_CREATION_DATE = "jcr:created";
     public static final String PROP_LAST_MODIFIED = ResourceUtil.PROP_LAST_MODIFIED;

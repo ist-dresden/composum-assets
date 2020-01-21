@@ -88,7 +88,7 @@ public class RenditionConfigBean extends AbstractConfigBean {
 
     public String getTabCssClass() {
         return StringUtils.isNotBlank(getRequest().getSelectors(
-                new StringFilter.WhiteList(AssetsConstants.PROP_VARIATION, AssetsConstants.PROP_RENDITION)))
+                new StringFilter.WhiteList(AssetsConstants.VARIATION, AssetsConstants.RENDITION)))
                 ? "in" : "";
     }
 
@@ -131,29 +131,29 @@ public class RenditionConfigBean extends AbstractConfigBean {
     public static List<RenditionValue> getValues(RenditionConfig config) {
 
         List<RenditionValue> values = new ArrayList<>();
-        values.add(new RenditionValue(ConfigHandle.WIDTH, config.getSize().width));
-        values.add(new RenditionValue(ConfigHandle.HEIGHT, config.getSize().height));
-        values.add(new RenditionValue(ConfigHandle.ASPECT_RATIO, config.getSize().aspectRatio));
+        values.add(new RenditionValue(ConfigHandle.WIDTH, config.getSize().getWidth()));
+        values.add(new RenditionValue(ConfigHandle.HEIGHT, config.getSize().getHeight()));
+        values.add(new RenditionValue(ConfigHandle.ASPECT_RATIO, config.getSize().getAspectRatio()));
         if (!config.getCrop().isDefault()) {
-            values.add(new RenditionValue(ConfigHandle.CROP_HORIZONTAL, config.getCrop().horizontal));
-            values.add(new RenditionValue(ConfigHandle.CROP_VERTICAL, config.getCrop().vertical));
-            values.add(new RenditionValue(ConfigHandle.CROP_SCALE, config.getCrop().scale));
+            values.add(new RenditionValue(ConfigHandle.CROP_HORIZONTAL, config.getCrop().getHorizontal()));
+            values.add(new RenditionValue(ConfigHandle.CROP_VERTICAL, config.getCrop().getVertical()));
+            values.add(new RenditionValue(ConfigHandle.CROP_SCALE, config.getCrop().getScale()));
         }
         if (config.getWatermark().isValid()) {
-            values.add(new RenditionValue(ConfigHandle.WATERMARK_TEXT, config.getWatermark().text));
-            values.add(new RenditionValue(ConfigHandle.WATERMARK_FONT_FAMILY, config.getWatermark().font.family));
-            values.add(new RenditionValue(ConfigHandle.WATERMARK_FONT_BOLD, config.getWatermark().font.bold));
-            values.add(new RenditionValue(ConfigHandle.WATERMARK_FONT_ITALIC, config.getWatermark().font.italic));
-            values.add(new RenditionValue(ConfigHandle.WATERMARK_FONT_SIZE, config.getWatermark().font.size));
-            values.add(new RenditionValue(ConfigHandle.WATERMARK_POS_HORIZONTAL, config.getWatermark().horizontal));
-            values.add(new RenditionValue(ConfigHandle.WATERMARK_POS_VERTICAL, config.getWatermark().vertical));
+            values.add(new RenditionValue(ConfigHandle.WATERMARK_TEXT, config.getWatermark().getText()));
+            values.add(new RenditionValue(ConfigHandle.WATERMARK_FONT_FAMILY, config.getWatermark().getFont().getFamily()));
+            values.add(new RenditionValue(ConfigHandle.WATERMARK_FONT_BOLD, config.getWatermark().getFont().isBold()));
+            values.add(new RenditionValue(ConfigHandle.WATERMARK_FONT_ITALIC, config.getWatermark().getFont().isItalic()));
+            values.add(new RenditionValue(ConfigHandle.WATERMARK_FONT_SIZE, config.getWatermark().getFont().getSize()));
+            values.add(new RenditionValue(ConfigHandle.WATERMARK_POS_HORIZONTAL, config.getWatermark().getHorizontal()));
+            values.add(new RenditionValue(ConfigHandle.WATERMARK_POS_VERTICAL, config.getWatermark().getVertical()));
             values.add(new RenditionValue(ConfigHandle.WATERMARK_COLOR, config.getWatermark().getColorCode()));
-            values.add(new RenditionValue(ConfigHandle.WATERMARK_ALPHA, config.getWatermark().alpha));
+            values.add(new RenditionValue(ConfigHandle.WATERMARK_ALPHA, config.getWatermark().getAlpha()));
         }
         if (config.getBlur().isValid()) {
             values.add(new RenditionValue(ConfigHandle.TRANSFORMATION_BLUR_FACTOR, config.getBlur().getFactor()));
         }
-        values.add(new RenditionValue(ConfigHandle.FILE_QUALITY, config.getFile().quality));
+        values.add(new RenditionValue(ConfigHandle.FILE_QUALITY, config.getFile().getQuality()));
 
         return values;
     }

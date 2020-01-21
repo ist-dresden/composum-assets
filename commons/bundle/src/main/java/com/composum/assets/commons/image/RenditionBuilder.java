@@ -17,7 +17,6 @@ import com.composum.assets.commons.service.AdaptiveImageService;
 import com.composum.sling.core.concurrent.LazyCreationService;
 import com.composum.sling.core.util.ResourceUtil;
 import com.google.common.collect.ImmutableMap;
-import org.apache.jackrabbit.JcrConstants;
 import org.apache.sling.api.resource.ModifiableValueMap;
 import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
@@ -130,7 +129,6 @@ public class RenditionBuilder {
                 RenditionReader reader = new RenditionReader();
                 BufferedImage image = reader.readImage(original, context);
 
-                // TODO make transformers configurable via OSGi
                 RenditionTransformer transformer = context.getService().getRenditionTransformer();
                 image = transformer.transform(rendition, image, context);
 
