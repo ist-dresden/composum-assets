@@ -17,7 +17,7 @@
                 this.$content = this.$('.folder-content');
                 manager.AbstractManagerTab.prototype.initialize.apply(this, [options]);
                 this.initContent();
-                this.$detailActions.find('.config').click(_.bind(this.createConfig, this));
+                // FIXME this.$detailActions.find('.config').click(_.bind(this.createConfig, this));
                 this.$('.detail-toolbar .create-folder').click(_.bind(assets.treeActions.createFolder, assets.treeActions));
                 this.$('.detail-toolbar .create-asset').click(_.bind(assets.treeActions.createAsset, assets.treeActions));
                 this.$('.detail-toolbar .meta').click(_.bind(this.refreshMetaData, this));

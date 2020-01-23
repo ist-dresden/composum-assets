@@ -23,6 +23,9 @@
                     _rendition: '-rendition'
                 },
                 url: {
+                    config: {
+                        base: '/libs/composum/assets/commons/widget/config'
+                    },
                     form: {
                         base: '/libs/composum/assets/commons/widget/config/form'
                     },
@@ -35,7 +38,11 @@
             preview: {
                 css: {
                     base: 'composum-assets-widget-preview',
-                    _image: '_file_asset'
+                    config: 'composum-assets-widget-config_preview',
+                    _image: '_file_asset',
+                    _path: '_path',
+                    _clear: '_path-clear',
+                    _refresh: '_refresh'
                 }
             },
             form: {
@@ -67,8 +74,8 @@
 
         config.FormWidget = core.components.FormWidget.extend({
 
-            onChange: function (event) {
-                core.components.FormWidget.prototype.onChange.call(this, event);
+            onChanged: function (event) {
+                core.components.FormWidget.prototype.onChanged.call(this, event);
             }
         });
 
@@ -79,13 +86,12 @@
                 this.editor = options.editor;
                 this.$tabs = this.$('.' + c.base + c._tabs);
                 this.$panel = this.$('.' + c.base + c._panel);
+                this.data = {};
                 this.variationSelect = core.getWidget(this.$el, '.' + c.base + c._select + c._variation, core.components.SelectWidget);
                 this.renditionSelect = core.getWidget(this.$el, '.' + c.base + c._select + c._rendition, core.components.SelectWidget);
-                this.variationSelect.setValue(assets.profile.get('config', 'variation', this.variationSelect.getValue()));
-                this.renditionSelect.setValue(assets.profile.get('config', 'rendition', this.renditionSelect.getValue()));
-                this.variationSelect.onChange('ConfigForm', _.bind(this.selectVariation, this));
-                this.renditionSelect.onChange('ConfigForm', _.bind(this.selectRendition, this));
-                this.selectTab(undefined, assets.profile.get('config', 'configTab', 'node'));
+                this.variationSelect.changed('ConfigForm', _.bind(this.selectVariation, this));
+                this.renditionSelect.changed('ConfigForm', _.bind(this.selectRendition, this));
+                this.variationSelect.setValue(assets.profile.get('config', 'variation', this.variationSelect.getValue()), true);
                 this.$tabs.find('a').click(_.bind(this.selectTab, this));
             },
 
@@ -95,9 +101,11 @@
                         key = this.variationSelect.getValue();
                     }
                 }
-                if (this.variation !== key) {
-                    this.variation = key;
+                if (this.data.variation !== key) {
+                    this.data.variation = key;
                     assets.profile.set('config', 'variation', key);
+                    this.data.rendition = undefined;
+                    this.loadRenditions();
                 }
             },
 
@@ -107,13 +115,14 @@
                         key = this.renditionSelect.getValue();
                     }
                 }
-                if (this.rendition !== key) {
-                    this.rendition = key;
+                if (this.data.rendition !== key) {
+                    this.data.rendition = key;
                     assets.profile.set('config', 'rendition', key);
+                    this.selectTab(undefined, assets.profile.get('config', 'configTab', 'node'), true);
                 }
             },
 
-            selectTab: function (event, tab) {
+            selectTab: function (event, tab, force) {
                 var c = config.const.general.css;
                 if (event) {
                     event.preventDefault();
@@ -122,42 +131,66 @@
                         tab = $tab.data('key');
                     }
                 }
-                if (tab && this.currentTab !== tab) {
+                if ((tab && this.data.tab !== tab) || force) {
                     if (this.form && this.form.isChanged()) {
                         this.saveForm(_.bind(function () {
-                            this.loadForm(tab);
+                            this.loadForm(tab || this.data.tab);
                         }, this));
                     } else {
-                        this.loadForm(tab);
+                        this.loadForm(tab || this.data.tab);
                     }
                 }
                 return false;
             },
 
+            loadUrl: function (uri) {
+                var url = new core.SlingUrl(uri + '.html');
+                if (this.data.variation) {
+                    url.parameters.variation = this.data.variation;
+                }
+                if (this.data.rendition) {
+                    url.parameters.rendition = this.data.rendition;
+                }
+                url.suffix = this.editor.data.path;
+                return url.build();
+            },
+
+            loadRenditions: function () {
+                core.getHtml(this.loadUrl(config.const.general.url.config.base + '.renditions'),
+                    _.bind(function (content) {
+                        this.renditionSelect.$el.html(content);
+                        this.renditionSelect.setValue(
+                            assets.profile.get('config', 'rendition', this.renditionSelect.getValue()), true);
+                    }, this));
+            },
+
             loadForm: function (tab) {
-                var u = config.const.general.url.form;
-                var path = this.editor.data.path;
-                var url = new core.SlingUrl(u.base + '.' + tab + '.html');
-                url.suffix = path;
-                core.getHtml(url.build(), _.bind(function (content) {
-                    var c = config.const.general.css;
-                    this.currentTab = tab;
-                    assets.profile.set('config', 'configTab', tab);
-                    this.$tabs.find('.' + c.base + c._tab).removeClass('active');
-                    this.$tabs.find('.' + c.base + c._tab + '[data-key="' + tab + '"]').addClass('active');
-                    c = config.const.form.css;
-                    this.$panel.html(content);
-                    this.form = core.getWidget(this.$panel, '.' + c.base + c._form, config.FormWidget);
-                    this.formTabs = core.getWidget(this.$panel, '.' + c.base + c._content, config.FormTabs);
-                    window.widgets.setUp(this.$panel);
-                }, this));
+                core.getHtml(this.loadUrl(config.const.general.url.form.base + '.' + tab),
+                    _.bind(function (content) {
+                        var c = config.const.general.css;
+                        var f = assets.widgets.const.assetfield.css;
+                        this.data.tab = tab;
+                        assets.profile.set('config', 'configTab', tab);
+                        this.$tabs.find('.' + c.base + c._tab).removeClass('active');
+                        this.$tabs.find('.' + c.base + c._tab + '[data-key="' + tab + '"]').addClass('active');
+                        c = config.const.form.css;
+                        this.$panel.html(content);
+                        this.form = core.getWidget(this.$panel, '.' + c.base + c._form, config.FormWidget);
+                        this.formTabs = core.getWidget(this.$panel, '.' + c.base + c._content, config.FormTabs);
+                        window.widgets.setUp(this.$panel);
+                        this.editor.setExample(this.form.$el.data('example'));
+                    }, this));
             },
 
             saveForm: function (onSuccess) {
-                if (this.form) {
+                if (false && this.form) { // FIXME
                     this.form.doFormSubmit(_.bind(function (type, label, message, hint) {
                         // TODO validation message...
                     }, this), onSuccess);
+                } else {
+                    if (_.isFunction(onSuccess)) {
+                        onSuccess();
+                    }
                 }
             }
         });
@@ -166,15 +199,53 @@
 
             initialize: function (options) {
                 var c = config.const.preview.css;
+                var f = assets.widgets.const.assetfield.css;
+                this.editor = options.editor;
+                this.data = {
+                    timestamp: new Date().getTime()
+                };
                 this.$image = this.$('.' + c.base + c._image);
+                this.path = core.getWidget(this.$el, '.' + f.base, assets.widgets.AssetFieldWidget);
+                this.path.setValue(assets.profile.get('config', 'example'));
+                this.path.changed('ConfigPreview', _.bind(this.adjustPreview, this));
+                this.$('.' + c.config + c._clear).click(_.bind(function () {
+                    this.path.setValue('', true);
+                }, this));
+                this.$('.' + c.config + c._refresh).click(_.bind(function () {
+                    this.adjustPreview(undefined, true);
+                }, this));
+            },
+
+            setExample: function (path) {
+                this.data.example = path;
+                this.path.$input.attr('placeholder', path);
                 this.adjustPreview();
             },
 
-            adjustPreview: function () {
-                var url = new core.SlingUrl(core.encodePath('/content/composum/prototype/assets/demo/site-3/extended/image-04.jpg'));
-                url.selectors = ['asset', 'vertical', 'half-scale'];
-                url.suffix = core.encodePath('/content/composum/prototype/assets/demo/site-1/jcr:content/assetconfig');
-                this.$image.attr('src', url.build());
+            adjustPreview: function (event, force) {
+                var src = '';
+                if (event) {
+                    assets.profile.set('config', 'example', this.path.getValue());
+                }
+                if (force) {
+                    this.data.timestamp = new Date().getTime();
+                }
+                var path = this.path.getValue() || this.data.example;
+                if (path) {
+                    var url = new core.SlingUrl(core.encodePath(path));
+                    url.selectors = ['asset',
+                        this.editor.getVariation() || 'default',
+                        this.editor.getRendition() || 'default'];
+                    if (this.editor.data.path) {
+                        url.suffix = core.encodePath(this.editor.data.path);
+                    }
+                    url.parameters.ts = this.data.timestamp;
+                    src = url.build();
+                }
+                if (this.data.src !== src) {
+                    this.data.src = src;
+                    this.$image.attr('src', src);
+                }
             }
         });
 
@@ -185,11 +256,29 @@
                 this.data = {
                     path: this.$el.data('path')
                 };
-                this.configPreview = core.getWidget(this.$el, '.' + c.base + c._preview, config.ConfigPreview);
+                this.configPreview = core.getWidget(this.$el, '.' + c.base + c._preview, config.ConfigPreview, {
+                    editor: this
+                });
                 this.configForm = core.getWidget(this.$el, '.' + c.base + c._form, config.ConfigForm,
                     {
                         editor: this
                     });
+            },
+
+            getVariation: function () {
+                return this.configForm.data.variation;
+            },
+
+            getRendition: function () {
+                return this.configForm.data.rendition;
+            },
+
+            setExample: function (path) {
+                this.configPreview.setExample(path);
+            },
+
+            adjustPreview: function () {
+                this.configPreview.adjustPreview();
             }
         });
 

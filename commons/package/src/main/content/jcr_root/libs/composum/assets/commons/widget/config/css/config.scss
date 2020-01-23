@@ -2,15 +2,6 @@
 
 @import "../../../css/mixins";
 
-$assets-config-tabs-width: 170px;
-$assets-config-tabs-height: 80px;
-$assets-config-btn-size: 28px;
-
-$assets-config-tab-border: 1px solid #ccc;
-$assets-config-tab-gap: 1px solid #fff;
-$assets-config-tab-bg: #f8f8f8;
-$assets-config-tab-fg-disabled: #aaa;
-
 .composum-assets-widget-config {
     display: flex;
     flex-direction: column;
@@ -20,8 +11,9 @@ $assets-config-tab-fg-disabled: #aaa;
     .composum-assets-widget-config {
 
         &_preview {
+            position: relative;
             flex-grow: 1;
-            background-color: rgba(0, 0, 0, 0.6);
+            background-color: $assets-preview-bg;
 
             .composum-assets-widget-preview {
 
@@ -37,12 +29,50 @@ $assets-config-tab-fg-disabled: #aaa;
                     img {
                         max-width: 100%;
                     }
+
+                    img, video {
+                        background: url('/libs/composum/nodes/commons/images/image-background-dk.png');
+                    }
+                }
+            }
+
+            &_image {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 40px;
+                overflow: auto;
+            }
+
+            &_path {
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                padding: 10px 15px;
+                background-color: $assets-preview-bg;
+
+                .form-control {
+                    @include input-dark;
+                    height: 29px;
+                }
+
+                .input-group-addon, .input-group-btn .btn {
+                    @include btn-dark;
+                    height: 29px;
+                    line-height: 10px;
+                }
+
+                &-clear {
+                    padding: 9px 8px 7px;
                 }
             }
         }
 
         &_form {
             display: flex;
+            min-height: 360px;
         }
 
         &_form-panel {
@@ -56,16 +86,21 @@ $assets-config-tab-fg-disabled: #aaa;
 
         &_tab {
             display: block;
-            cursor: pointer;
-            flex-grow: 1;
             min-width: $assets-config-tabs-width;
             max-width: $assets-config-tabs-width;
             min-height: $assets-config-tabs-height;
-            padding: 8px 10px;
+            padding: 10px;
             border-top: $assets-config-tab-gap;
             border-bottom: $assets-config-tab-gap;
             border-left: $assets-config-tab-border;
             background-color: $assets-config-tab-bg;
+
+            &_space {
+                flex-grow: 1;
+                min-height: 0;
+                padding: 0;
+                border-bottom: none;
+            }
 
             &:first-child {
                 border-top: none;
@@ -119,12 +154,21 @@ $assets-config-tab-fg-disabled: #aaa;
 
                 &_select {
                     width: 100%;
+                    margin: 6px 0;
                 }
             }
         }
     }
 
     .composum-assets-widget-config-form {
+
+        &_form {
+            margin: 0;
+        }
+
+        &_content {
+            padding-top: 5px;
+        }
 
         &_tab-panel {
             padding: 10px 15px;

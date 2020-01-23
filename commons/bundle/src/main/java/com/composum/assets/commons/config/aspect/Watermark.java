@@ -10,6 +10,8 @@ import java.awt.Color;
 
 public class Watermark {
 
+    public static final String NONE = "none";
+
     public static final String DEFAULT_VERTICAL = "0.5";
     public static final String DEFAULT_HORIZONTAL = "0.5";
     public static final String DEFAULT_COLOR = "ffffff";
@@ -134,7 +136,7 @@ public class Watermark {
     }
 
     public boolean isValid() {
-        return StringUtils.isNotBlank(text);
+        return StringUtils.isNotBlank(text) && !NONE.equals(text);
     }
 
     @Nullable

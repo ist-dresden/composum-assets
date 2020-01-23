@@ -1,13 +1,28 @@
 <%@page session="false" pageEncoding="UTF-8" %>
 <%@taglib prefix="sling" uri="http://sling.apache.org/taglibs/sling/1.2" %>
 <%@taglib prefix="cpn" uri="http://sling.composum.com/cpnl/1.0" %>
-<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <sling:defineObjects/>
-<cpn:clientlib type="css" category="composum.assets.configuration"/>
-<cpn:component var="model" type="com.composum.assets.commons.widget.ConfigModel">
+<cpn:component var="model" type="com.composum.assets.commons.widget.ConfigModel" scope="request">
     <div class="composum-assets-widget-config" data-path="${model.path}">
         <div class="composum-assets-widget-config_preview">
-            <sling:include resourceType="composum/assets/commons/widget/preview/asset" replaceSelectors="placeholder"/>
+            <div class="composum-assets-widget-config_preview_image">
+                <sling:include resourceType="composum/assets/commons/widget/preview/asset"
+                               replaceSelectors="placeholder"/>
+            </div>
+            <div class="composum-assets-widget-config_preview_path">
+                <div class="input-group composum-assets-widget-assetfield" data-root="${model.contentRoot}">
+                    <span class="composum-assets-widget-config_preview_path-clear path-reset input-group-addon fa fa-times-circle"></span>
+                    <input class="composum-assets-widget-assetfield_input path-input form-control path-input form-control"
+                           type="text"/>
+                    <span class="composum-assets-widget-assetfield_popup-button input-group-btn"><button
+                            class="composum-assets-widget-assetfield_select select btn btn-default fa fa-folder-open-o"
+                            type="button"
+                            title="${cpn:i18n(slingRequest,'Select the preview image path')}"></button><button
+                            class="composum-assets-widget-config_preview_refresh btn btn-default fa fa-refresh"
+                            type="button"
+                            title="${cpn:i18n(slingRequest,'Refresh the image view')}"></button></span>
+                </div>
+            </div>
         </div>
         <div class="composum-assets-widget-config_form">
             <div class="composum-assets-widget-config_form-panel">
@@ -39,13 +54,11 @@
                     </div>
                     <select class="composum-assets-widget-config_select composum-assets-widget-config_select-variation"
                             data-default="${model.variation.name}">
-                        <c:forEach items="${model.variations}" var="item">
-                            <option value="${item.name}">${item.name}</option>
-                        </c:forEach>
+                        <sling:include replaceSelectors="variations"/>
                     </select>
                 </div>
                 <div class="composum-assets-widget-config_tab composum-assets-widget-config_tab_rendition"
-                     data-key="redition">
+                     data-key="rendition">
                     <h5 class="composum-assets-widget-config_tab-title"><a
                             href="#">${cpn:i18n(slingRequest,'Rendition')}</a></h5>
                     <div class="composum-assets-widget-config_tab-actions btn-group btn-group-sm">
@@ -56,19 +69,12 @@
                     </div>
                     <select class="composum-assets-widget-config_select composum-assets-widget-config_select-rendition"
                             data-default="${model.rendition.name}">
-                        <c:forEach items="${model.renditions}" var="item">
-                            <option value="${item.name}">${item.name}</option>
-                        </c:forEach>
+                            <%-- sling:include replaceSelectors="renditions"/ --%>
                     </select>
                 </div>
+                <div class="composum-assets-widget-config_tab composum-assets-widget-config_tab_space"></div>
             </div>
         </div>
     </div>
-    <cpn:clientlib type="js" category="composum.assets.configuration"/>
-    <script>
-        $(document).ready(function () {
-            window.core.getWidget(document, '.composum-assets-widget-config', window.composum.assets.config.ConfigEditor);
-        });
-    </script>
 </cpn:component>
 

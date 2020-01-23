@@ -7,6 +7,7 @@ package com.composum.assets.commons;
 
 import com.composum.sling.core.BeanContext;
 import com.composum.sling.core.filter.ResourceFilter;
+import com.composum.sling.core.filter.StringFilter;
 import com.composum.sling.core.mapping.jcr.ResourceFilterMapping;
 import com.composum.sling.core.util.RequestUtil;
 import org.apache.jackrabbit.JcrConstants;
@@ -80,7 +81,7 @@ public class AssetsConfigImpl implements AssetsConfiguration {
         @AttributeDefinition(
                 description = "the filter configuration to restrict Assets content paths"
         )
-        String contentRootFilterRule() default "Path(+'^/(content)')";
+        String contentRoot() default "/content";
 
         @AttributeDefinition(
                 description = "the filter configuration for tree itermediate nodes (folders, sites, ...)"
@@ -109,6 +110,7 @@ public class AssetsConfigImpl implements AssetsConfiguration {
     private Map<String, ConfigurableFilter> availableFilters;
     private Map<String, ResourceFilter> fileFilters;
 
+    private String contentRoot;
     private ResourceFilter contentRootFilter;
     private ResourceFilter treeIntermediateFilter;
     private ResourceFilter assetContentFilter = new AssetContentFilter();
@@ -263,6 +265,12 @@ public class AssetsConfigImpl implements AssetsConfiguration {
 
     @Nonnull
     @Override
+    public String getContentRoot() {
+        return contentRoot;
+    }
+
+    @Nonnull
+    @Override
     public ResourceFilter getTreeIntermediateFilter() {
         return treeIntermediateFilter;
     }
@@ -285,7 +293,8 @@ public class AssetsConfigImpl implements AssetsConfiguration {
         this.config = config;
         this.fileFilters = new LinkedHashMap<>();
         this.availableFilters = new LinkedHashMap<>();
-        contentRootFilter = ResourceFilterMapping.fromString(config.contentRootFilterRule());
+        contentRoot = config.contentRoot();
+        contentRootFilter = new ResourceFilter.PathFilter(new StringFilter.WhiteList("^" + contentRoot));
         treeIntermediateFilter = new ResourceFilter.FilterSet(ResourceFilter.FilterSet.Rule.and,
                 contentRootFilter, ResourceFilterMapping.fromString(config.treeIntermediateFilterRule()));
         imageSimpleFileFilter = new ResourceFilter.FilterSet(ResourceFilter.FilterSet.Rule.and,

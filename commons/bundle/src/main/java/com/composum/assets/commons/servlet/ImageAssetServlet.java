@@ -15,8 +15,10 @@ import com.composum.assets.commons.handle.ImageAsset;
 import com.composum.assets.commons.handle.SimpleImageRendition;
 import com.composum.assets.commons.service.AdaptiveImageService;
 import com.composum.assets.commons.util.AdaptiveUtil;
+import com.composum.assets.commons.util.AssetConfigUtil;
 import com.composum.sling.clientlibs.handle.FileHandle;
 import com.composum.sling.core.BeanContext;
+import com.composum.sling.core.ResourceHandle;
 import com.composum.sling.core.util.ResourceUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
@@ -44,6 +46,10 @@ import java.io.InputStream;
 import static com.composum.assets.commons.handle.AssetHandle.IMAGE_RESOURCE_TYPE;
 import static com.composum.assets.commons.servlet.AdaptiveImageServlet.parseSelectors;
 
+/**
+ * the servlet to deliver asset originals or volatile configuration example images
+ * {/path/to/image(asset)}.asset[.{variation}[.{rendition}]].ext[{/path/to/asset/config}]
+ */
 @Component(
         service = Servlet.class,
         property = {
@@ -82,15 +88,15 @@ public class ImageAssetServlet extends SlingSafeMethodsServlet {
                     resource);
             String[] selectors = parseSelectors(context.getRequest());
 
-            String assetConfigPath = request.getRequestPathInfo().getSuffix();
+            String configPath = request.getRequestPathInfo().getSuffix();
             Resource assetConfigRes;
             // explicit config suffix for a config preview and variation and rendition selectors?...
-            if (StringUtils.isNotBlank(assetConfigPath) && selectors.length > 1 &&
-                    (assetConfigRes = request.getResourceResolver().getResource(assetConfigPath)) != null
+            if (StringUtils.isNotBlank(configPath) && selectors.length > 1 &&
+                    (assetConfigRes = request.getResourceResolver().getResource(configPath)) != null
                     && assetsConfig.getContentRootFilter().accept(assetConfigRes)) {
 
                 // render configuration preview of the requested example image
-                AssetConfig assetConfig = new AssetConfig(assetConfigRes);
+                AssetConfig assetConfig = new AssetConfig(AssetConfigUtil.configCascade(ResourceHandle.use(assetConfigRes)));
                 VariationConfig variationConfig = assetConfig.getVariation(selectors[0]);
                 RenditionConfig renditionConfig;
                 if (variationConfig != null
@@ -141,16 +147,15 @@ public class ImageAssetServlet extends SlingSafeMethodsServlet {
         AssetVariation variation = null;
         if (resource.isResourceType(IMAGE_RESOURCE_TYPE)) {
             // use the asset behaviour if the resource is an image asset
-            imageAsset = new ImageAsset(context, resource, assetConfig);
+            imageAsset = new ImageAsset(context, resource);
             variation = imageAsset.getVariation(selectors[0]);
             AssetRendition originalRendition = variation != null
                     ? variation.getOriginal() : imageAsset.getOriginal();
             original = getReditionResource(
                     variation != null ? variation.getOriginal() : null, imageAsset.getOriginal());
-        } else {
-            // use a 'fake asset' based on the given resource
-            imageAsset = new ImageAsset(context, resource, assetConfig);
         }
+        // use an image asset based on the given resource (maybe not an Asset) with the requested configuration
+        imageAsset = new ImageAsset(context, resource, assetConfig);
         if (variation == null) {
             // resource is not an asset or the used asset itself doesn't know the requested variation
             variation = new AssetVariation(context, resource, imageAsset, renditionConfig.getVariation());
@@ -165,8 +170,7 @@ public class ImageAssetServlet extends SlingSafeMethodsServlet {
             // render the volatile rendition image direct to the response...
             response.setContentType(rendition.getMimeType());
             adaptiveImageService.volatileRendition(rendition, response.getOutputStream());
-        } catch (
-                Exception ex) {
+        } catch (Exception ex) {
             LOG.error(ex.getMessage(), ex);
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }

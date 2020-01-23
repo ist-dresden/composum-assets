@@ -149,5 +149,8 @@ public interface AssetsConfiguration {
     ResourceFilter getContentRootFilter();
 
     @Nonnull
+    String getContentRoot();
+
+    @Nonnull
     ResourceFilter getTreeIntermediateFilter();
 }
