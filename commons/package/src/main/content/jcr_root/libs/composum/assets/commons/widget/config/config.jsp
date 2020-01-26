@@ -3,14 +3,18 @@
 <%@taglib prefix="cpn" uri="http://sling.composum.com/cpnl/1.0" %>
 <sling:defineObjects/>
 <cpn:component var="model" type="com.composum.assets.commons.widget.ConfigModel" scope="request">
-    <div class="composum-assets-widget-config" data-path="${model.path}">
+    <div class="composum-assets-widget-config" data-path="${model.path}" data-base="${model.basePath}"
+         data-scope="${model.scope}" data-valid="${model.valid}">
         <div class="composum-assets-widget-config_preview">
             <div class="composum-assets-widget-config_preview_image">
                 <sling:include resourceType="composum/assets/commons/widget/preview/asset"
                                replaceSelectors="placeholder"/>
             </div>
+            <div class="composum-assets-widget-config_preview_image-loading"><i
+                    class="fa fa-spinner fa-pulse fa-5x fa-fw"></i></div>
             <div class="composum-assets-widget-config_preview_path">
-                <div class="input-group composum-assets-widget-assetfield" data-root="${model.contentRoot}">
+                <div class="input-group composum-assets-widget-assetfield"
+                     data-root="${model.contentRoot}" data-filter="image">
                     <span class="composum-assets-widget-config_preview_path-clear path-reset input-group-addon fa fa-times-circle"></span>
                     <input class="composum-assets-widget-assetfield_input path-input form-control path-input form-control"
                            type="text"/>
@@ -28,12 +32,12 @@
             <div class="composum-assets-widget-config_form-panel">
             </div>
             <div class="composum-assets-widget-config_form-tabs">
-                <div class="composum-assets-widget-config_tab composum-assets-widget-config_tab_base disabled"
+                <div class="composum-assets-widget-config_tab composum-assets-widget-config_tab_base"
                      data-key="base">
                     <h5 class="composum-assets-widget-config_tab-title"><a href="#">${cpn:i18n(slingRequest,'Base')}</a>
                     </h5>
                 </div>
-                <div class="composum-assets-widget-config_tab composum-assets-widget-config_tab_node"
+                <div class="composum-assets-widget-config_tab composum-assets-widget-config_tab_node composum-assets-widget-config_tab_valid"
                      data-key="node">
                     <h5 class="composum-assets-widget-config_tab-title"><a
                             href="#">${cpn:i18n(slingRequest,'Configuration')}</a></h5>
@@ -42,7 +46,7 @@
                                 title="${cpn:i18n(slingRequest,'Delete Configuration')}"></button>
                     </div>
                 </div>
-                <div class="composum-assets-widget-config_tab composum-assets-widget-config_tab_variation"
+                <div class="composum-assets-widget-config_tab composum-assets-widget-config_tab_variation composum-assets-widget-config_tab_valid"
                      data-key="variation">
                     <h5 class="composum-assets-widget-config_tab-title"><a
                             href="#">${cpn:i18n(slingRequest,'Variation')}</a></h5>
@@ -57,7 +61,7 @@
                         <sling:include replaceSelectors="variations"/>
                     </select>
                 </div>
-                <div class="composum-assets-widget-config_tab composum-assets-widget-config_tab_rendition"
+                <div class="composum-assets-widget-config_tab composum-assets-widget-config_tab_rendition composum-assets-widget-config_tab_valid"
                      data-key="rendition">
                     <h5 class="composum-assets-widget-config_tab-title"><a
                             href="#">${cpn:i18n(slingRequest,'Rendition')}</a></h5>

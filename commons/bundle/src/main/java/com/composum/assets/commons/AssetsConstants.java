@@ -6,6 +6,7 @@
 package com.composum.assets.commons;
 
 import com.composum.sling.core.util.ResourceUtil;
+import org.apache.jackrabbit.JcrConstants;
 
 import java.util.Arrays;
 import java.util.List;
@@ -74,7 +75,7 @@ public class AssetsConstants {
     public static final String RESOURCE_TYPE_VARIATION = MANAGER_RESOURCE_BASE + "/variation";
     public static final String RESOURCE_TYPE_RENDITION = MANAGER_RESOURCE_BASE + "/rendition";
 
-    public static final String RESOURCE_TYPE_CONFIG = "composum/assets/manager/config";
+    public static final String RESOURCE_TYPE_CONFIG = "composum/assets/config";
     public static final String RESOURCE_TYPE_VARIATION_CONFIG = RESOURCE_TYPE_CONFIG + "/variation";
     public static final String RESOURCE_TYPE_RENDITION_CONFIG = RESOURCE_TYPE_CONFIG + "/rendition";
 
@@ -82,11 +83,12 @@ public class AssetsConstants {
      * asset structure
      */
 
-    public static final String NODE_CONTENT = ResourceUtil.CONTENT_NODE;
     public static final String NODE_META = "meta";
-    public static final String PATH_META = NODE_CONTENT + "/" + NODE_META;
+    public static final String PATH_META = JcrConstants.JCR_CONTENT + "/" + NODE_META;
+    public static final String ASSET_CONFIG = "assetconfig";
+    public static final String PATH_ASSET_CONFIG = JcrConstants.JCR_CONTENT + "/" + ASSET_CONFIG;
     public static final String IMAGE_CONFIG = "imageconfig";
-    public static final String PATH_IMAGE_CONFIG = NODE_CONTENT + "/" + IMAGE_CONFIG;
+    public static final String PATH_IMAGE_CONFIG = JcrConstants.JCR_CONTENT + "/" + IMAGE_CONFIG;
 
     /**
      * Path below which transient renderings are stored.

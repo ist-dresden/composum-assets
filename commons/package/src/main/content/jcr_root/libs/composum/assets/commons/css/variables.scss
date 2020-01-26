@@ -2,12 +2,16 @@
 
 @import "../../../../../../../../../../../_import/style/bootstrap/variables";
 
-$assets-preview-bg: #555;
+$assets-light-preview-bg: #f8f8f8;
+$assets-light-symbol-fg: #aaa;
+$assets-light-spinner-fg: #888;
 
+$assets-dark-preview-bg: #555;
 $assets-dark-button-bg: #666;
 $assets-dark-input-bg: #777;
 $assets-dark-input-border: #aaa;
 $assets-dark-input-fg: #eee;
+$assets-dark-spinner-fg: #888;
 
 $assets-config-tabs-width: 170px;
 $assets-config-tabs-height: 70px;

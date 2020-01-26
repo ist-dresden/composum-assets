@@ -20,7 +20,14 @@
                     _panel: '_form-panel',
                     _select: '_select',
                     _variation: '-variation',
-                    _rendition: '-rendition'
+                    _rendition: '-rendition',
+                    tabs: {
+                        _valid: '_valid',
+                        _base: '_base',
+                        _node: '_node',
+                        _variation: '_variation',
+                        _rendition: '_rendition'
+                    }
                 },
                 url: {
                     config: {
@@ -39,7 +46,7 @@
                 css: {
                     base: 'composum-assets-widget-preview',
                     config: 'composum-assets-widget-config_preview',
-                    _image: '_file_asset',
+                    _image: '_image',
                     _path: '_path',
                     _clear: '_path-clear',
                     _refresh: '_refresh'
@@ -84,15 +91,23 @@
             initialize: function (options) {
                 var c = config.const.general.css;
                 this.editor = options.editor;
+                this.data = {};
                 this.$tabs = this.$('.' + c.base + c._tabs);
                 this.$panel = this.$('.' + c.base + c._panel);
-                this.data = {};
-                this.variationSelect = core.getWidget(this.$el, '.' + c.base + c._select + c._variation, core.components.SelectWidget);
-                this.renditionSelect = core.getWidget(this.$el, '.' + c.base + c._select + c._rendition, core.components.SelectWidget);
-                this.variationSelect.changed('ConfigForm', _.bind(this.selectVariation, this));
-                this.renditionSelect.changed('ConfigForm', _.bind(this.selectRendition, this));
-                this.variationSelect.setValue(assets.profile.get('config', 'variation', this.variationSelect.getValue()), true);
-                this.$tabs.find('a').click(_.bind(this.selectTab, this));
+                if (!this.editor.data.base) {
+                    this.$tabs.find('.' + c.base + c._tab + c.tabs._base).addClass('disabled');
+                }
+                if (!this.editor.data.valid) {
+                    this.$tabs.find('.' + c.base + c._tab + c.tabs._valid).addClass('disabled');
+                }
+                if (this.editor.data.base || this.editor.data.valid) {
+                    this.variationSelect = core.getWidget(this.$el, '.' + c.base + c._select + c._variation, core.components.SelectWidget);
+                    this.renditionSelect = core.getWidget(this.$el, '.' + c.base + c._select + c._rendition, core.components.SelectWidget);
+                    this.variationSelect.changed('ConfigForm', _.bind(this.selectVariation, this));
+                    this.renditionSelect.changed('ConfigForm', _.bind(this.selectRendition, this));
+                    this.variationSelect.setValue(assets.profile.get('config', 'variation', this.variationSelect.getValue()), true);
+                    this.$tabs.find('a').click(_.bind(this.selectTab, this));
+                }
             },
 
             selectVariation: function (event, key) {
@@ -118,8 +133,21 @@
                 if (this.data.rendition !== key) {
                     this.data.rendition = key;
                     assets.profile.set('config', 'rendition', key);
-                    this.selectTab(undefined, assets.profile.get('config', 'configTab', 'node'), true);
+                    this.selectTab(undefined, this.adjustTab(), true);
                 }
+            },
+
+            adjustTab: function (tab) {
+                if (!tab) {
+                    tab = assets.profile.get('config', 'configTab', 'node');
+                }
+                if (!this.editor.data.base && tab === 'base') {
+                    tab = 'node'
+                }
+                if (!this.editor.data.valid) {
+                    tab = 'base';
+                }
+                return tab;
             },
 
             selectTab: function (event, tab, force) {
@@ -128,7 +156,7 @@
                     event.preventDefault();
                     if (!tab) {
                         var $tab = $(event.currentTarget).closest('.' + c.base + c._tab);
-                        tab = $tab.data('key');
+                        tab = this.adjustTab($tab.data('key'));
                     }
                 }
                 if ((tab && this.data.tab !== tab) || force) {
@@ -204,7 +232,7 @@
                 this.data = {
                     timestamp: new Date().getTime()
                 };
-                this.$image = this.$('.' + c.base + c._image);
+                this.image = core.getWidget(this.$el, '.' + c.config + c._image, assets.widgets.AssetPreviewWidget);
                 this.path = core.getWidget(this.$el, '.' + f.base, assets.widgets.AssetFieldWidget);
                 this.path.setValue(assets.profile.get('config', 'example'));
                 this.path.changed('ConfigPreview', _.bind(this.adjustPreview, this));
@@ -242,10 +270,7 @@
                     url.parameters.ts = this.data.timestamp;
                     src = url.build();
                 }
-                if (this.data.src !== src) {
-                    this.data.src = src;
-                    this.$image.attr('src', src);
-                }
+                this.image.adjustImage(src);
             }
         });
 
@@ -254,7 +279,10 @@
             initialize: function (options) {
                 var c = config.const.general.css;
                 this.data = {
-                    path: this.$el.data('path')
+                    path: this.$el.data('path'),
+                    base: this.$el.data('base'),
+                    scope: this.$el.data('scope'),
+                    valid: this.$el.data('valid')
                 };
                 this.configPreview = core.getWidget(this.$el, '.' + c.base + c._preview, config.ConfigPreview, {
                     editor: this

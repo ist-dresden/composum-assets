@@ -9,7 +9,7 @@
         <sling:call script="/libs/composum/nodes/console/page/head.jsp"/>
         <cpn:clientlib type="css" category="composum.assets.manager"/>
     </head>
-    <body id="assets" class="console left-open top-open">
+    <body id="assets" class="console left-open top-open assets-preview-mode-dark">
     <div id="ui">
         <sling:include resourceType="composum/assets/manager/dialogs"/>
         <sling:include resourceType="composum/nodes/console/components/navbar"/>

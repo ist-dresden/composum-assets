@@ -15,7 +15,11 @@
         width: 100%;
         height: 100%;
         overflow: auto;
-        background-color: rgba(0, 0, 0, 0.6);
+        background-color: $assets-light-preview-bg;
+
+        .assets-preview-mode-dark & {
+            background-color: $assets-dark-preview-bg;
+        }
 
         .composum-assets-widget-preview {
 
@@ -30,7 +34,10 @@
 
                 img, video {
                     max-width: 100%;
-                    background: url('/libs/composum/nodes/commons/images/image-background-dk.png');
+
+                    .assets-preview-mode-dark & {
+                        background: url('/libs/composum/nodes/commons/images/image-background-dk.png');
+                    }
                 }
 
                 .thumbnail {
@@ -42,7 +49,11 @@
                             display: block;
                             margin: 0 auto 20px;
                             font-size: 84px;
-                            color: #eee;
+                            color: $assets-light-symbol-fg;
+
+                            .assets-preview-mode-dark & {
+                                color: $assets-dark-input-fg;
+                            }
                         }
                     }
                 }
@@ -51,13 +62,6 @@
             &_type {
 
                 &-image {
-
-                    .composum-assets-widget-preview {
-
-                        &_frame {
-                            //background-color: #fff;
-                        }
-                    }
 
                     &.mimetype-image {
 
