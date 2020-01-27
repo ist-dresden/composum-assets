@@ -289,6 +289,10 @@ public class ConfigModel extends AbstractServletBean {
         return handle;
     }
 
+    public String getHandlePath() {
+        return handle != null ? handle.getPath() : "";
+    }
+
     public List<String> getCategories() {
         if (categories == null) {
             categories = Arrays.asList(values.get(CATEGORIES, new String[0]));

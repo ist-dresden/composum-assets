@@ -3,8 +3,8 @@
 <%@taglib prefix="cpn" uri="http://sling.composum.com/cpnl/1.0" %>
 <sling:defineObjects/>
 <cpn:component var="model" type="com.composum.assets.commons.widget.ConfigModel" scope="request">
-    <div class="composum-assets-widget-config" data-path="${model.path}" data-base="${model.basePath}"
-         data-scope="${model.scope}" data-valid="${model.valid}">
+    <div class="composum-assets-widget-config" data-scope="${model.scope}" data-valid="${model.valid}"
+         data-path="${model.path}" data-config="${model.handlePath}" data-base="${model.basePath}">
         <div class="composum-assets-widget-config_preview">
             <div class="composum-assets-widget-config_preview_image">
                 <sling:include resourceType="composum/assets/commons/widget/preview/asset"
@@ -56,10 +56,9 @@
                         <button class="remove fa fa-minus btn btn-default"
                                 title="${cpn:i18n(slingRequest,'Remove Variation')}"></button>
                     </div>
-                    <select class="composum-assets-widget-config_select composum-assets-widget-config_select-variation"
-                            data-default="${model.variation.name}">
-                        <sling:include replaceSelectors="variations"/>
-                    </select>
+                    <div class="composum-assets-widget-config_select-variation">
+                        <select class="composum-assets-widget-config_select"></select>
+                    </div>
                 </div>
                 <div class="composum-assets-widget-config_tab composum-assets-widget-config_tab_rendition composum-assets-widget-config_tab_valid"
                      data-key="rendition">
@@ -71,10 +70,9 @@
                         <button class="remove fa fa-minus btn btn-default"
                                 title="${cpn:i18n(slingRequest,'Remove Rendition')}"></button>
                     </div>
-                    <select class="composum-assets-widget-config_select composum-assets-widget-config_select-rendition"
-                            data-default="${model.rendition.name}">
-                            <%-- sling:include replaceSelectors="renditions"/ --%>
-                    </select>
+                    <div class="composum-assets-widget-config_select-rendition">
+                        <select class="composum-assets-widget-config_select"></select>
+                    </div>
                 </div>
                 <div class="composum-assets-widget-config_tab composum-assets-widget-config_tab_space"></div>
             </div>

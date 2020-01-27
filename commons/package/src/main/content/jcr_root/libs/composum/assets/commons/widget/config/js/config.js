@@ -31,7 +31,9 @@
                 },
                 url: {
                     config: {
-                        base: '/libs/composum/assets/commons/widget/config'
+                        base: '/bin/cpm/assets/config',
+                        _variations: '.variations.json',
+                        _renditions: '.renditions.json'
                     },
                     form: {
                         base: '/libs/composum/assets/commons/widget/config/form'
@@ -103,9 +105,10 @@
                 if (this.editor.data.base || this.editor.data.valid) {
                     this.variationSelect = core.getWidget(this.$el, '.' + c.base + c._select + c._variation, core.components.SelectWidget);
                     this.renditionSelect = core.getWidget(this.$el, '.' + c.base + c._select + c._rendition, core.components.SelectWidget);
+                    this.loadVariations();
+                    this.loadRenditions();
                     this.variationSelect.changed('ConfigForm', _.bind(this.selectVariation, this));
                     this.renditionSelect.changed('ConfigForm', _.bind(this.selectRendition, this));
-                    this.variationSelect.setValue(assets.profile.get('config', 'variation', this.variationSelect.getValue()), true);
                     this.$tabs.find('a').click(_.bind(this.selectTab, this));
                 }
             },
@@ -114,11 +117,11 @@
                 if (event) {
                     if (!key) {
                         key = this.variationSelect.getValue();
+                        assets.profile.set('config', 'variation', key);
                     }
                 }
                 if (this.data.variation !== key) {
                     this.data.variation = key;
-                    assets.profile.set('config', 'variation', key);
                     this.data.rendition = undefined;
                     this.loadRenditions();
                 }
@@ -128,11 +131,11 @@
                 if (event) {
                     if (!key) {
                         key = this.renditionSelect.getValue();
+                        assets.profile.set('config', 'rendition', key);
                     }
                 }
                 if (this.data.rendition !== key) {
                     this.data.rendition = key;
-                    assets.profile.set('config', 'rendition', key);
                     this.selectTab(undefined, this.adjustTab(), true);
                 }
             },
@@ -156,9 +159,11 @@
                     event.preventDefault();
                     if (!tab) {
                         var $tab = $(event.currentTarget).closest('.' + c.base + c._tab);
-                        tab = this.adjustTab($tab.data('key'));
+                        tab = $tab.data('key');
+                        assets.profile.set('config', 'configTab', tab);
                     }
                 }
+                tab = this.adjustTab(tab);
                 if ((tab && this.data.tab !== tab) || force) {
                     if (this.form && this.form.isChanged()) {
                         this.saveForm(_.bind(function () {
@@ -171,34 +176,50 @@
                 return false;
             },
 
-            loadUrl: function (uri) {
-                var url = new core.SlingUrl(uri + '.html');
+            loadUrl: function (uri, path) {
+                var url = new core.SlingUrl(uri);
                 if (this.data.variation) {
                     url.parameters.variation = this.data.variation;
                 }
                 if (this.data.rendition) {
                     url.parameters.rendition = this.data.rendition;
                 }
-                url.suffix = this.editor.data.path;
+                url.suffix = path || this.editor.data.path;
                 return url.build();
             },
 
+            loadVariations: function () {
+                var u = config.const.general.url.config;
+                var oldValue = this.variationSelect.getValue();
+                core.getJson(this.loadUrl(u.base + u._variations, this.editor.data.config),
+                    _.bind(function (result) {
+                        this.variationSelect.setOptions(result.list.variations);
+                        var value = result.data.variations[assets.profile.get('config', 'variation')];
+                        this.data.variation = value ? value.name || value : result.data.configuration.defaultVariation;
+                        this.variationSelect.setValue(this.data.variation, false);
+                        this.loadRenditions();
+                    }, this));
+            },
+
             loadRenditions: function () {
-                core.getHtml(this.loadUrl(config.const.general.url.config.base + '.renditions'),
-                    _.bind(function (content) {
-                        this.renditionSelect.$el.html(content);
-                        this.renditionSelect.setValue(
-                            assets.profile.get('config', 'rendition', this.renditionSelect.getValue()), true);
+                var u = config.const.general.url.config;
+                var oldValue = this.renditionSelect.getValue();
+                core.getJson(this.loadUrl(u.base + u._renditions, this.editor.data.config),
+                    _.bind(function (result) {
+                        this.renditionSelect.setOptions(result.list.renditions);
+                        var value = result.data.renditions[assets.profile.get('config', 'rendition')];
+                        this.data.rendition = value ? value.name || value : result.data.variation.defaultRendition;
+                        this.renditionSelect.setValue(this.data.rendition, false);
+                        this.selectTab(undefined, this.adjustTab(), true);
                     }, this));
             },
 
             loadForm: function (tab) {
-                core.getHtml(this.loadUrl(config.const.general.url.form.base + '.' + tab),
+                core.getHtml(this.loadUrl(config.const.general.url.form.base + '.' + tab + '.html'),
                     _.bind(function (content) {
                         var c = config.const.general.css;
                         var f = assets.widgets.const.assetfield.css;
                         this.data.tab = tab;
-                        assets.profile.set('config', 'configTab', tab);
                         this.$tabs.find('.' + c.base + c._tab).removeClass('active');
                         this.$tabs.find('.' + c.base + c._tab + '[data-key="' + tab + '"]').addClass('active');
                         c = config.const.form.css;
@@ -280,6 +301,7 @@
                 var c = config.const.general.css;
                 this.data = {
                     path: this.$el.data('path'),
+                    config: this.$el.data('config'),
                     base: this.$el.data('base'),
                     scope: this.$el.data('scope'),
                     valid: this.$el.data('valid')
