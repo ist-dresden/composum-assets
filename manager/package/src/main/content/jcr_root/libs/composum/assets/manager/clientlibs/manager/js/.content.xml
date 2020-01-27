@@ -2,13 +2,12 @@
 <jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0"
         jcr:primaryType="sling:OrderedFolder"
         depends="[category:composum.nodes.console.default]"
-        embed="[category:composum.assets.commons,
+        embed="[category:composum.assets.widgets,
                 category:composum.assets.components,
-                category:composum.assets.navigator,
                 composum/assets/manager/js/dialogs.js,
                 composum/assets/manager/js/console.js,
                 composum/assets/manager/tabs/folder/js/folder.js,
-                composum/assets/manager/tabs/folder/config/js/config.js,
+                composum/assets/manager/tabs/config/js/config.js,
                 composum/assets/manager/tabs/asset/general/js/general.js,
                 composum/assets/manager/tabs/asset/renditions/js/renditions.js,
                 composum/assets/manager/tabs/image/js/image.js,

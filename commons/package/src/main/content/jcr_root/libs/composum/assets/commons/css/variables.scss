@@ -1,3 +1,23 @@
 @charset "UTF-8";
 
 @import "../../../../../../../../../../../_import/style/bootstrap/variables";
+
+$assets-light-preview-bg: #f8f8f8;
+$assets-light-symbol-fg: #aaa;
+$assets-light-spinner-fg: #888;
+
+$assets-dark-preview-bg: #555;
+$assets-dark-button-bg: #666;
+$assets-dark-input-bg: #777;
+$assets-dark-input-border: #aaa;
+$assets-dark-input-fg: #eee;
+$assets-dark-spinner-fg: #888;
+
+$assets-config-tabs-width: 170px;
+$assets-config-tabs-height: 70px;
+$assets-config-btn-size: 28px;
+
+$assets-config-tab-border: 1px solid #ccc;
+$assets-config-tab-gap: 1px solid #fff;
+$assets-config-tab-bg: #f8f8f8;
+$assets-config-tab-fg-disabled: #aaa;

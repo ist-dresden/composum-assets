@@ -4,14 +4,14 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <sling:defineObjects/>
 <cpn:component var="model" type="com.composum.assets.commons.widget.ReferenceModel">
-    <div class="composum-assets-widget-assetfield${model.required?' required':''} form-group"
+    <div class="composum-assets-widget-assetfield widget assetfield-widget${model.required?' required':''} form-group"
          data-filter="${model.filter}">
         <sling:call script="label.jsp"/>
         <c:if test="${!model.blankAllowed}">
             <input type="hidden" class="sling-post-hint" name="${model.name}@Delete" value="true"/>
             <input type="hidden" class="sling-post-hint" name="${model.name}@IgnoreBlanks" value="true"/>
         </c:if>
-        <div class="composum-assets-widget-assetfield_path-field widget assetfield-widget widget-name_${model.cssName}">
+        <div class="composum-assets-widget-assetfield_path-field widget-name_${model.cssName}">
             <div class="composum-assets-widget-assetfield_preview empty-value"></div>
             <div class="input-group">
                 <input name="${model.name}" class="composum-assets-widget-assetfield_input path-input form-control"

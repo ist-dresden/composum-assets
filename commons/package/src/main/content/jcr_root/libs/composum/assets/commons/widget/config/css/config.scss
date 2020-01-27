@@ -1,0 +1,222 @@
+@charset "UTF-8";
+
+@import "../../../css/mixins";
+
+.composum-assets-widget-config {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+
+    .composum-assets-widget-config {
+
+        &_preview {
+            position: relative;
+            flex-grow: 1;
+            background-color: $assets-light-preview-bg;
+
+            .assets-preview-mode-dark & {
+                background-color: $assets-dark-preview-bg;
+            }
+
+            .composum-assets-widget-preview {
+
+                &_wrapper {
+                    width: 100%;
+                    padding: 15px;
+                }
+
+                &_frame {
+                    display: table;
+                    margin: auto;
+
+                    img {
+                        max-width: 100%;
+                    }
+
+                    img, video {
+                        background: url('/libs/composum/nodes/commons/images/image-background.png');
+
+                        .assets-preview-mode-dark & {
+                            background: url('/libs/composum/nodes/commons/images/image-background-dk.png');
+                        }
+                    }
+                }
+            }
+
+            &_image {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 40px;
+                overflow: auto;
+
+                &-loading {
+                    display: none;
+                    position: absolute;
+                    top: 30%;
+                    left: 0;
+                    right: 0;
+                    text-align: center;
+                    color: $assets-light-spinner-fg;
+                    mix-blend-mode: difference;
+
+                    .assets-preview-mode-dark & {
+                        color: $assets-dark-spinner-fg;
+                    }
+                }
+            }
+
+            &.loading {
+
+                .composum-assets-widget-config_preview {
+
+                    &_image-loading {
+                        display: block;
+                    }
+                }
+            }
+
+            &_path {
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                padding: 10px 15px 9px;
+                border-bottom: 1px solid $assets-dark-preview-bg;
+                background-color: $assets-light-preview-bg;
+
+                .assets-preview-mode-dark & {
+                    background-color: $assets-dark-preview-bg;
+                }
+
+                .form-control {
+                    height: 29px;
+
+                    .assets-preview-mode-dark & {
+                        @include input-dark;
+                    }
+                }
+
+                .input-group-addon, .input-group-btn .btn {
+                    height: 29px;
+                    line-height: 10px;
+
+                    .assets-preview-mode-dark & {
+                        @include btn-dark;
+                    }
+                }
+
+                &-clear {
+                    padding: 9px 8px 7px;
+                }
+            }
+        }
+
+        &_form {
+            display: flex;
+            min-height: 360px;
+        }
+
+        &_form-panel {
+            flex-grow: 1;
+        }
+
+        &_form-tabs {
+            display: flex;
+            flex-direction: column;
+        }
+
+        &_tab {
+            display: block;
+            min-width: $assets-config-tabs-width;
+            max-width: $assets-config-tabs-width;
+            min-height: $assets-config-tabs-height;
+            padding: 10px;
+            border-top: $assets-config-tab-gap;
+            border-bottom: $assets-config-tab-gap;
+            border-left: $assets-config-tab-border;
+            background-color: $assets-config-tab-bg;
+
+            &_space {
+                flex-grow: 1;
+                min-height: 0;
+                padding: 0;
+                border-bottom: none;
+            }
+
+            &:first-child {
+                border-top: none;
+            }
+
+            a {
+                &, &:active, &:focus, &:visited, &:hover {
+                    text-decoration: none;
+                }
+            }
+
+            &.disabled {
+                cursor: none;
+                pointer-events: none;
+
+                a {
+                    &, &:active, &:focus, &:visited, &:hover {
+                        color: $assets-config-tab-fg-disabled;
+                    }
+                }
+            }
+
+            &.active {
+                border-top: $assets-config-tab-border;
+                border-bottom: $assets-config-tab-border;
+                border-left: 1px solid transparent;
+                background-color: transparent;
+            }
+
+            .composum-assets-widget-config {
+
+                &_tab {
+
+                    &-title {
+                        display: inline-block;
+                        margin: 0;
+                        padding: 4px 15px 10px 0;
+                    }
+
+                    &-actions {
+                        float: right;
+                        margin-bottom: 10px;
+
+                        .btn {
+                            height: $assets-config-btn-size;
+                            width: $assets-config-btn-size;
+                            padding: 5px 7px;
+                        }
+                    }
+                }
+
+                &_select {
+                    pointer-events: auto;
+                    width: 100%;
+                    margin: 6px 0;
+                }
+            }
+        }
+    }
+
+    .composum-assets-widget-config-form {
+
+        &_form {
+            margin: 0;
+        }
+
+        &_content {
+            padding-top: 5px;
+        }
+
+        &_tab-panel {
+            padding: 10px 15px;
+        }
+    }
+}

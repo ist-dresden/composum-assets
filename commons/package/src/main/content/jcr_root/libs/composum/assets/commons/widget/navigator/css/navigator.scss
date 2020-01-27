@@ -396,6 +396,16 @@ $assets-navigation-selection-width: 4px;
                     font-size: 14px;
                 }
             }
+
+            .btn, .form-control {
+                height: 29px !important;
+            }
+
+            .btn {
+                width: 31px !important;
+                padding: 4px 7px 3px !important;
+                font-size: 14px;
+            }
         }
 
         &_subfolders-item {

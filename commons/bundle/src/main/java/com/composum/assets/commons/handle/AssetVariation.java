@@ -48,10 +48,16 @@ public class AssetVariation extends AssetHandle<VariationConfig> {
     protected final AbstractAsset asset;
     protected final VariationConfig config;
 
-    public AssetVariation(@Nonnull BeanContext context, @Nonnull Resource resource, @Nonnull AbstractAsset asset) {
+    public AssetVariation(@Nonnull final BeanContext context, @Nonnull final Resource resource,
+                          @Nonnull final AbstractAsset asset) {
+        this(context, resource, asset, asset.getChildConfig(resource.getName()));
+    }
+
+    public AssetVariation(@Nonnull final BeanContext context, @Nonnull final Resource resource,
+                          @Nonnull final AbstractAsset asset, @Nonnull final VariationConfig config) {
         super(context, resource);
         this.asset = asset;
-        this.config = asset.getChildConfig(resource.getName());
+        this.config = config;
     }
 
     @Override
@@ -72,7 +78,7 @@ public class AssetVariation extends AssetHandle<VariationConfig> {
 
     /**
      * The folder where the transients are stored. For Variations, this is a subfolder {@link #getName()}/{originalversion} of
-     * {@link #getAsset()}. {@link Asset#getTransientsPath()} which stores the renditions dependent on that original
+     * {@link #getAsset()}. {@link AssetHandle#getTransientsPath()} which stores the renditions dependent on that original
      * version. *
      */
     @Override
@@ -80,7 +86,7 @@ public class AssetVariation extends AssetHandle<VariationConfig> {
     public String getTransientsPath() {
         if (transientsPath == null) {
             AssetRendition original = getOriginal();
-            Resource fileresource = original.getFile() != null ? original.getFile().getResource() : null;
+            Resource fileresource = original != null && original.getFile() != null ? original.getFile().getResource() : null;
             String originalversion = fileresource != null ? versionMarker(fileresource) : null;
             transientsPath =
                     getAsset().getTransientsPath() + "/" + getName() + "/" + StringUtils.defaultIfBlank(originalversion,
@@ -136,7 +142,7 @@ public class AssetVariation extends AssetHandle<VariationConfig> {
      */
     @Nonnull
     public AssetRendition giveRendition(@Nonnull RenditionConfig renditionConfig) {
-        AssetRendition rendition = null;
+        AssetRendition rendition;
         Resource renditionResource = resource.getChild(renditionConfig.getName());
         if (renditionResource != null) {
             rendition = new AssetRendition(context, renditionResource, this);

@@ -1,7 +1,6 @@
 package com.composum.assets.commons.servlet;
 
 import com.composum.assets.commons.AssetsConfiguration;
-import com.composum.assets.commons.AssetsConstants;
 import com.composum.assets.commons.service.AssetsService;
 import com.composum.assets.commons.service.MetaPropertiesService;
 import com.composum.sling.core.BeanContext;
@@ -11,7 +10,6 @@ import com.composum.sling.core.servlet.AbstractServiceServlet;
 import com.composum.sling.core.servlet.ServletOperation;
 import com.composum.sling.core.servlet.ServletOperationSet;
 import com.composum.sling.core.servlet.Status;
-import com.composum.sling.core.util.ResourceUtil;
 import com.composum.sling.core.util.ResponseUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
@@ -67,6 +65,12 @@ public class CommonsServlet extends AbstractServiceServlet {
 
     protected BundleContext bundleContext;
 
+    @Activate
+    @Modified
+    protected void activate(ComponentContext context) {
+        this.bundleContext = context.getBundleContext();
+    }
+
     //
     // Servlet operations
     //
@@ -76,9 +80,8 @@ public class CommonsServlet extends AbstractServiceServlet {
     }
 
     public enum Operation {
-        folder,
-        createImage, uploadImage, deleteImage, toImageAsset, toSimpleImage,
-        createConfig, copyConfig, deleteConfig, configDefault, refreshMeta
+        folder, refreshMeta,
+        createImage, uploadImage, deleteImage, toImageAsset, toSimpleImage
     }
 
     protected AssetsOperationSet operations = new AssetsOperationSet();
@@ -104,13 +107,9 @@ public class CommonsServlet extends AbstractServiceServlet {
         operations.setOperation(ServletOperationSet.Method.GET, Extension.json,
                 Operation.folder, new GetFolderOperation());
         operations.setOperation(ServletOperationSet.Method.GET, Extension.json,
-                Operation.createConfig, new ConfigCreateOperation());
-        operations.setOperation(ServletOperationSet.Method.GET, Extension.json,
                 Operation.refreshMeta, new RefreshMetaDataOperation());
 
         // POST
-        operations.setOperation(ServletOperationSet.Method.POST, Extension.json,
-                Operation.createConfig, new ConfigCreateOperation());
         operations.setOperation(ServletOperationSet.Method.POST, Extension.json,
                 Operation.refreshMeta, new RefreshMetaDataOperation());
         operations.setOperation(ServletOperationSet.Method.POST, Extension.json,
@@ -123,13 +122,6 @@ public class CommonsServlet extends AbstractServiceServlet {
                 Operation.toImageAsset, new TransformToImageAssetOperation());
         operations.setOperation(ServletOperationSet.Method.POST, Extension.json,
                 Operation.toSimpleImage, new TransformToSimpleImageOperation());
-
-        operations.setOperation(ServletOperationSet.Method.POST, Extension.json,
-                Operation.createConfig, new ConfigCreateOperation());
-        operations.setOperation(ServletOperationSet.Method.POST, Extension.json,
-                Operation.copyConfig, new ConfigCopyOperation());
-        operations.setOperation(ServletOperationSet.Method.POST, Extension.json,
-                Operation.deleteConfig, new ConfigDeleteOperation());
     }
 
     public class AssetsOperationSet extends ServletOperationSet<Extension, Operation> {
@@ -318,108 +310,5 @@ public class CommonsServlet extends AbstractServiceServlet {
 
             status.sendJson();
         }
-    }
-
-    //
-    // Configuration
-    //
-
-    public static boolean isConfigResource(@Nullable final Resource resource) {
-        return ResourceUtil.isResourceType(resource, AssetsConstants.NODE_TYPE_IMAGE_CONFIG) ||
-                ResourceUtil.isResourceType(resource, AssetsConstants.NODE_TYPE_ASSET_CONFIG) ||
-                ResourceUtil.isResourceType(resource, AssetsConstants.NODE_TYPE_VARIATION_CONFIG) ||
-                ResourceUtil.isResourceType(resource, AssetsConstants.NODE_TYPE_RENDITION_CONFIG);
-    }
-
-    public class ConfigCreateOperation implements ServletOperation {
-
-        @Override
-        public void doIt(@Nonnull final SlingHttpServletRequest request,
-                         @Nonnull final SlingHttpServletResponse response,
-                         final ResourceHandle resource)
-                throws IOException {
-            Status status = new Status(request, response);
-
-            BeanContext context = new BeanContext.Servlet(getServletContext(), bundleContext, request, response);
-
-            String name = request.getParameter(PARAM_NAME);
-
-            if (!isConfigResource(resource) || StringUtils.isNotBlank(name)) {
-
-                Resource configResource = assetsService.createConfigNode(context, resource, name, true);
-                if (configResource == null) {
-                    status.withLogging(LOG).error("can't create configuration: '{}:{}'", resource.getPath(), name);
-                }
-
-            } else {
-                status.withLogging(LOG).error("configuration exists always: '{}'", resource.getPath());
-            }
-
-            status.sendJson();
-        }
-    }
-
-    public class ConfigCopyOperation implements ServletOperation {
-
-        @Override
-        public void doIt(@Nonnull final SlingHttpServletRequest request,
-                         @Nonnull final SlingHttpServletResponse response,
-                         final ResourceHandle resource)
-                throws IOException {
-            Status status = new Status(request, response);
-
-            BeanContext context = new BeanContext.Servlet(getServletContext(), bundleContext, request, response);
-
-            String path = request.getParameter(PARAM_PATH);
-            Resource parent;
-
-            if (StringUtils.isNotBlank(path) && (parent = context.getResolver().getResource(path)) != null) {
-
-                if (isConfigResource(resource)) {
-
-                    Resource configResource = assetsService.copyConfigNode(context, parent, resource, true);
-                    if (configResource == null) {
-                        status.withLogging(LOG).error("can't copy configuration: '{}'", resource.getPath());
-                    }
-
-                } else {
-                    status.withLogging(LOG).error("configuration template doesn't exist: '{}'" + resource.getPath());
-                }
-            } else {
-                status.withLogging(LOG).error("invalid configuration parent: '{}'" + path);
-            }
-
-            status.sendJson();
-        }
-    }
-
-    public class ConfigDeleteOperation implements ServletOperation {
-
-        @Override
-        public void doIt(@Nonnull final SlingHttpServletRequest request,
-                         @Nonnull final SlingHttpServletResponse response,
-                         final ResourceHandle resource)
-                throws IOException {
-            Status status = new Status(request, response);
-
-            BeanContext context = new BeanContext.Servlet(getServletContext(), bundleContext, request, response);
-            if (isConfigResource(resource)) {
-
-                assetsService.deleteConfigNode(context, resource, true);
-                ResponseUtil.writeEmptyObject(response);
-
-            } else {
-                status.withLogging(LOG).error("configuration node not found or not the right type: '{}'",
-                        (resource != null ? resource.getPath() : "<null>"));
-            }
-
-            status.sendJson();
-        }
-    }
-
-    @Activate
-    @Modified
-    protected void activate(ComponentContext context) {
-        this.bundleContext = context.getBundleContext();
     }
 }

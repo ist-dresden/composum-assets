@@ -15,6 +15,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.jcr.RepositoryException;
 import java.io.IOException;
+import java.io.OutputStream;
 
 public interface AdaptiveImageService {
 
@@ -28,8 +29,11 @@ public interface AdaptiveImageService {
                                        @Nonnull String variationKey, @Nonnull String renditionKey);
 
     @Nullable
-    RenditionConfig findRenditionConfig(ImageAsset asset,
+    RenditionConfig findRenditionConfig(@Nonnull ImageAsset asset,
                                         @Nonnull String variationKey, @Nonnull String renditionKey);
+
+    void volatileRendition(@Nonnull AssetRendition rendition, @Nonnull OutputStream outputStream)
+            throws RepositoryException, IOException;
 
     AssetRendition getOrCreateRendition(@Nonnull ImageAsset asset,
                                         @Nonnull String variationKey, @Nonnull String renditionKey)

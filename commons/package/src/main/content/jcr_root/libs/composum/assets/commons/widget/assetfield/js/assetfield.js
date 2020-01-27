@@ -45,15 +45,17 @@
              * @override core.components.PathWidget
              */
             selectPath: function (event) {
-                var u = widgets.const.assetfield.url.dialogs;
-                core.getHtml(u.base + u._select,
-                    _.bind(function (content) {
-                        var selectDialog = core.addLoadedDialog(assets.dialogs.AssetSelectDialog, content, {
-                            rootPath: this.getRootPath(),
-                            filter: this.getFilter()
-                        });
-                        this.openDialog(selectDialog);
-                    }, this));
+                if (!this.isDisabled()) {
+                    var u = widgets.const.assetfield.url.dialogs;
+                    core.getHtml(u.base + u._select,
+                        _.bind(function (content) {
+                            var selectDialog = core.addLoadedDialog(assets.dialogs.AssetSelectDialog, content, {
+                                rootPath: this.getRootPath(),
+                                filter: this.getFilter()
+                            });
+                            this.openDialog(selectDialog);
+                        }, this));
+                }
             },
 
             /**
@@ -102,7 +104,7 @@
             }
         });
 
-        window.widgets.register('.' + widgets.const.assetfield.css.base, widgets.AssetFieldWidget);
+        window.widgets.register('.widget.assetfield-widget', widgets.AssetFieldWidget);
 
     })(window.composum.assets.widgets, window.composum.assets, window.core);
 

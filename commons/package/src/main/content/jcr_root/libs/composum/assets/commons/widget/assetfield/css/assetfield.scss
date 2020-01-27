@@ -73,6 +73,10 @@ $assets-widget-preview-padding: 5px;
             &_frame {
                 padding: $assets-widget-preview-padding - 1px;
                 border: 1px solid #ccc;
+
+                img, video {
+                    background: url('/libs/composum/nodes/commons/images/image-background.png');
+                }
             }
 
             &_type {

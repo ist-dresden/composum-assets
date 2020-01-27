@@ -49,6 +49,13 @@ public class AssetRendition extends AssetHandle<RenditionConfig> {
         this.config = variation.getChildConfig(getConfigTargetPath());
     }
 
+    public AssetRendition(@Nonnull final BeanContext context, @Nonnull final Resource resource,
+                          @Nonnull final AssetVariation variation, @Nonnull final RenditionConfig config) {
+        super(context, resource);
+        this.variation = variation;
+        this.config = config;
+    }
+
     @Override
     public RenditionConfig getConfig() {
         return config;
@@ -75,7 +82,9 @@ public class AssetRendition extends AssetHandle<RenditionConfig> {
         return getVariation().getTransientsPath() + "/" + getName();
     }
 
-    /** The original of the rendition - which is the original of the variation. */
+    /**
+     * The original of the rendition - which is the original of the variation.
+     */
     @Nullable
     public AssetRendition getOriginal() {
         return getVariation().getOriginal();
@@ -103,7 +112,9 @@ public class AssetRendition extends AssetHandle<RenditionConfig> {
         return ImageUtil.mimeTypeToCss(getMimeType());
     }
 
-    /** Builds an URI that can be satisfied with the {@link com.composum.assets.commons.servlet.AdaptiveImageServlet}. */
+    /**
+     * Builds an URI that can be satisfied with the {@link com.composum.assets.commons.servlet.AdaptiveImageServlet}.
+     */
     public String getImageUri() {
         String rendition = this.getName();
         StringBuilder builder = new StringBuilder();
@@ -133,13 +144,14 @@ public class AssetRendition extends AssetHandle<RenditionConfig> {
         return LinkUtil.getUrl(getRequest(), url);
     }
 
-    /** The hash that's embedded into the URI that makes them different once the content changes. */
+    /**
+     * The hash that's embedded into the URI that makes them different once the content changes.
+     */
     public String getCacheHash() {
         byte[] md5 = DigestUtils.md5(getTransientsPath());
         BigInteger md5Int = new BigInteger(md5);
         return md5Int.abs().toString(36);
     }
-
 
     public FileHandle getFile() {
         if (file == null) {
@@ -202,5 +214,4 @@ public class AssetRendition extends AssetHandle<RenditionConfig> {
     public int hashCode() {
         return getPath().hashCode();
     }
-
 }

@@ -482,12 +482,19 @@
              * @extends navigator.AbstractNavWidget
              */
             setValue: function (targetPath, triggerChange, suppressReload) {
-                if (this.data.path !== targetPath) {
-                    navigator.AbstractNavWidget.prototype.setValue.call(this,
-                        targetPath, triggerChange, suppressReload);
-                    if (targetPath && this.tree.getSelectedPath() !== targetPath) {
-                        this.tree.selectNode(targetPath, _.bind(function () {
-                        }, this, true));
+                if (!this.busy) {
+                    try {
+                        this.busy = true;
+                        if (this.data.path !== targetPath) {
+                            navigator.AbstractNavWidget.prototype.setValue.call(this,
+                                targetPath, triggerChange, suppressReload);
+                            if (targetPath && this.tree.getSelectedPath() !== targetPath) {
+                                this.tree.selectNode(targetPath, _.bind(function () {
+                                }, this, true));
+                            }
+                        }
+                    } finally {
+                        this.busy = false;
                     }
                 }
             }

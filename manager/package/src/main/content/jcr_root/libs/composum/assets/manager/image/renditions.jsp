@@ -5,5 +5,5 @@
 <sling:defineObjects/>
 <cpn:component id="imageAssetBean" type="com.composum.assets.manager.image.ImageAssetBean" scope="request">
     <h2 class="page title">Image Asset - Renditions</h2>
-    <sling:include replaceSelectors="config"/>
+    <sling:include replaceSelectors="embedded"/>
 </cpn:component>

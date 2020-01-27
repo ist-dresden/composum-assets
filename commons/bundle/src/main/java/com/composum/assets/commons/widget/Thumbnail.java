@@ -1,6 +1,7 @@
 package com.composum.assets.commons.widget;
 
 import com.composum.assets.commons.AssetsConfiguration;
+import com.composum.assets.commons.AssetsConstants;
 import com.composum.assets.commons.handle.ImageAsset;
 import com.composum.assets.commons.handle.MetaData;
 import com.composum.assets.commons.service.AssetsService;
@@ -11,6 +12,7 @@ import com.composum.sling.core.bean.BeanFactory;
 import com.composum.sling.core.util.LinkUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.CompareToBuilder;
+import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 
 import javax.annotation.Nonnull;
@@ -19,6 +21,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.composum.assets.commons.AssetsConstants.ORIGINAL;
+import static com.composum.assets.commons.AssetsConstants.THUMBNAIL;
 
 @BeanFactory(serviceClass = AssetsService.class)
 public abstract class Thumbnail extends AbstractServletBean implements Comparable<Thumbnail> {
@@ -273,6 +278,9 @@ public abstract class Thumbnail extends AbstractServletBean implements Comparabl
 
         public ImageAsset asset;
 
+        private transient String variationKey;
+        private transient String renditionKey;
+
         public Asset() {
         }
 
@@ -303,6 +311,32 @@ public abstract class Thumbnail extends AbstractServletBean implements Comparabl
             return ICON_IMAGE;
         }
 
+        public String getVariationKey() {
+            if (variationKey == null) {
+                SlingHttpServletRequest request = context.getRequest();
+                if (request != null) {
+                    variationKey = request.getParameter(AssetsConstants.VARIATION);
+                }
+                if (StringUtils.isBlank(variationKey)) {
+                    variationKey = THUMBNAIL;
+                }
+            }
+            return variationKey;
+        }
+
+        public String getRenditionKey() {
+            if (renditionKey == null) {
+                SlingHttpServletRequest request = context.getRequest();
+                if (request != null) {
+                    renditionKey = request.getParameter(AssetsConstants.RENDITION);
+                }
+                if (StringUtils.isBlank(renditionKey)) {
+                    renditionKey = THUMBNAIL.equals(getVariationKey()) ? "large" : ORIGINAL;
+                }
+            }
+            return renditionKey;
+        }
+
         @Nonnull
         @Override
         public String getUrl() {
@@ -310,7 +344,7 @@ public abstract class Thumbnail extends AbstractServletBean implements Comparabl
         }
 
         public String getImageUri() {
-            return asset.getImageUri("thumbnail", "large");
+            return asset.getImageUri(getVariationKey(), getRenditionKey());
         }
 
         @Override
