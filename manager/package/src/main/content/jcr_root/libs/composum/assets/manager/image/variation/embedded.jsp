@@ -10,7 +10,7 @@
                 <a data-toggle="collapse" data-parent="#${assetBean.config.path}"
                    data-child="#${assetBean.config.path}">
                         ${assetBean.config.name}
-                    <em>${assetBean.config.categoriesString}</em>
+                    <em>${assetBean.config.categoryString}</em>
                 </a>
             </h2>
         </div>

@@ -18,7 +18,7 @@
         </div>
         <div class="config-content">
             <sling:include resource="${model.resource}"
-                           resourceType="composum/assets/commons/widget/config" replaceSelectors=""/>
+                           resourceType="composum/assets/commons/widget/config" replaceSelectors="readonly"/>
         </div>
     </div>
 </cpn:component>

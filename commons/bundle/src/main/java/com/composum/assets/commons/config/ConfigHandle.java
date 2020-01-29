@@ -11,6 +11,8 @@ import com.composum.sling.core.util.PropertyUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.SyntheticResource;
+import org.apache.sling.api.resource.ValueMap;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -24,11 +26,12 @@ import java.util.Map;
 public abstract class ConfigHandle {
 
     public static final String EXTENSION = "extension";
+    public static final String DISABLED = "disabled";
 
     public static final String DEFAULT = "default";
     public static final String ORIGINAL = "original";
 
-    public static final String CATEGORIES = "categories";
+    public static final String CATEGORY = "category";
 
     public static final String FILE = "file";
     public static final String FILE_QUALITY = FILE + "_jpg_quality";
@@ -66,16 +69,16 @@ public abstract class ConfigHandle {
     protected List<ResourceHandle> resourceCascade;
 
     private transient Boolean defaultConfig;
-    private transient List<String> categories;
-    private transient List<String> nonDefaultCategories;
+    private transient List<String> categorySet;
+    private transient List<String> nonDefaultCategory;
 
-    private transient Map<String, Object> inheritedMap;
-    private transient Map<String, Object> propertyMap;
+    private transient ValueMap inheritedMap;
+    private transient ValueMap propertyMap;
 
     public ConfigHandle(List<ResourceHandle> resourceCascade) {
-        this.resourceCascade = resourceCascade;
+        this.resourceCascade = new ArrayList<>();
         for (ResourceHandle resource : resourceCascade) {
-            resource.setUseNodeInheritance(true);
+            this.resourceCascade.add(resource.withInheritanceType(InheritedValues.Type.sameContent));
         }
     }
 
@@ -84,8 +87,7 @@ public abstract class ConfigHandle {
     public abstract RenditionConfig getOriginal();
 
     public ResourceHandle getResource() {
-        for (int i = 0; i < resourceCascade.size(); i++) {
-            ResourceHandle resource = resourceCascade.get(i);
+        for (ResourceHandle resource : resourceCascade) {
             if (!resource.isSynthetic()) {
                 return resource;
             }
@@ -137,46 +139,58 @@ public abstract class ConfigHandle {
 
     // generic property access via generic Map for direct use in templates
 
-    public abstract class GenericMap extends HashMap<String, Object> {
+    public abstract class GenericMap extends HashMap<String, Object> implements ValueMap {
 
         public static final String UNDEFINED = "<undefined>";
 
         @Override
         @Nullable
         public Object get(@Nonnull final Object key) {
-            Object value = super.get(key);
-            if (value == null) {
-                value = getValue((String) key);
-                super.put((String) key, value != null ? value : UNDEFINED);
-            }
-            return value != UNDEFINED ? value : null;
+            return get((String) key, Object.class);
         }
 
-        protected abstract Object getValue(String key);
+        @SuppressWarnings("unchecked")
+        @Override
+        public <T> T get(@NotNull String name, @NotNull Class<T> type) {
+            Object value = super.get(name);
+            if (value == null) {
+                value = getValue(name, type);
+                super.put(name, value != null ? value : UNDEFINED);
+            }
+            return value != UNDEFINED ? (T) value : null;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        @Nonnull
+        public <Type> Type get(@NotNull String name, @Nonnull Type defaultValue) {
+            Type value = (Type) get(name, defaultValue.getClass());
+            return value != null ? value : defaultValue;
+        }
+
+        protected abstract <T> T getValue(String key, @Nonnull Class<T> type);
     }
 
     public class GenericProperty extends GenericMap {
 
         @Override
         @Nullable
-        public Object getValue(@Nonnull final String key) {
-            return getProperty(key, Object.class);
+        public <T> T getValue(String key, @Nonnull Class<T> type) {
+            return getProperty(key, type);
         }
-
     }
 
     public class GenericInherited extends GenericMap {
 
         @Override
         @Nullable
-        public Object getValue(@Nonnull final String key) {
-            return getInherited(key, Object.class);
+        public <T> T getValue(String key, @Nonnull Class<T> type) {
+            return getInherited(key, type);
         }
-
     }
 
     @Nonnull
-    public Map<String, Object> getProperty() {
+    public ValueMap getProperty() {
         if (propertyMap == null) {
             propertyMap = new GenericProperty();
         }
@@ -184,7 +198,7 @@ public abstract class ConfigHandle {
     }
 
     @Nonnull
-    public Map<String, Object> getInherited() {
+    public ValueMap getInherited() {
         if (inheritedMap == null) {
             inheritedMap = new GenericInherited();
         }
@@ -193,38 +207,45 @@ public abstract class ConfigHandle {
 
     //
 
-    public Boolean isExtension() {
+    public abstract String getConfigType();
+
+    public boolean isExtension() {
+        Boolean extension = getExtension();
+        return extension != null && extension;
+    }
+
+    public Boolean getExtension() {
         return null;
     }
 
     public boolean isDefaultConfig() {
         if (defaultConfig == null) {
-            defaultConfig = getCategories().contains(ConfigHandle.DEFAULT);
+            defaultConfig = getCategory().contains(ConfigHandle.DEFAULT);
         }
         return defaultConfig;
     }
 
-    public List<String> getCategories() {
-        if (categories == null) {
-            categories = Arrays.asList(getResource().getProperty(CATEGORIES, new String[0]));
+    public List<String> getCategory() {
+        if (categorySet == null) {
+            categorySet = Arrays.asList(getResource().getProperty(CATEGORY, new String[0]));
         }
-        return categories;
+        return categorySet;
     }
 
-    public String getNonDefaultCategories() {
-        if (nonDefaultCategories == null) {
-            nonDefaultCategories = new ArrayList<>();
-            for (String category : getCategories()) {
+    public String getNonDefaultCategory() {
+        if (nonDefaultCategory == null) {
+            nonDefaultCategory = new ArrayList<>();
+            for (String category : getCategory()) {
                 if (!ConfigHandle.DEFAULT.equals(category)) {
-                    nonDefaultCategories.add(category);
+                    nonDefaultCategory.add(category);
                 }
             }
         }
-        return StringUtils.join(nonDefaultCategories, ",");
+        return StringUtils.join(nonDefaultCategory, ",");
     }
 
-    public String getCategoriesString() {
-        return StringUtils.join(getCategories(), ",");
+    public String getCategoryString() {
+        return StringUtils.join(getCategory(), ",");
     }
 
     public Map<String, List<ResourceHandle>> getChildren(String type) {
@@ -232,45 +253,48 @@ public abstract class ConfigHandle {
         for (ResourceHandle resource : resourceCascade) {
             for (ResourceHandle child : resource.getChildrenByType(type)) {
                 String name = child.getName();
-                List<ResourceHandle> cascade = result.get(name);
-                if (cascade == null) {
-                    cascade = new ArrayList<>();
-                    result.put(name, cascade);
-                }
+                List<ResourceHandle> cascade = result.computeIfAbsent(name, k -> new ArrayList<>());
                 cascade.add(child);
             }
         }
         return result;
     }
 
-    public List<ResourceHandle> findCascadeByCategoryOrName(String type, String... key) {
+    public List<ResourceHandle> findCascadeByCategoryOrName(boolean fallbackToDefault, String type, String... key) {
         List<ResourceHandle> result = null;
         for (int i = 0; (result == null || result.size() == 0) && i < key.length; i++) {
-            result = findCascadeByCategoryOrName(type, key[i]);
+            result = findCascadeByCategoryOrName(fallbackToDefault, type, key[i]);
         }
         return result;
     }
 
-    public List<ResourceHandle> findCascadeByCategoryOrName(String type, String key) {
+    public List<ResourceHandle> findCascadeByCategoryOrName(boolean fallbackToDefault, String type, String key) {
         List<ResourceHandle> result = new ArrayList<>();
         for (ResourceHandle resource : resourceCascade) {
             boolean found = false;
             ResourceHandle byName = null;
+            ResourceHandle byDefault = null;
             for (ResourceHandle child : resource.getChildrenByType(type)) {
-                String[] categories = child.getProperty(CATEGORIES, new String[0]);
-                for (String category : categories) {
+                String[] categorySet = child.getProperty(CATEGORY, new String[0]);
+                for (String category : categorySet) {
                     if (category.equals(key)) {
                         result.add(child);
                         found = true;
                         break;
+                    } else if (fallbackToDefault && DEFAULT.equals(category)) {
+                        byDefault = child;
                     }
                 }
                 if (child.getName().equals(key)) {
                     byName = child;
                 }
             }
-            if (!found && byName != null) {
-                result.add(byName);
+            if (!found) {
+                if (byName != null) {
+                    result.add(byName);
+                } else if (byDefault != null) {
+                    result.add(byDefault);
+                }
             }
         }
         return result;
@@ -284,15 +308,13 @@ public abstract class ConfigHandle {
         List<ResourceHandle> result = new ArrayList<>();
         for (ResourceHandle resource : resourceCascade) {
             ResourceHandle child = ResourceHandle.use(resource.getChild(path));
-            if (child.isValid() && child.isOfType(type)) {
-                result.add(child);
-            } else {
+            if (!child.isValid() || !child.isOfType(type)) {
                 // if the child not exists (possible by a partially overlay)
                 // use a synthetic resource to support property inheritance
                 child = ResourceHandle.use(new SyntheticResource(
                         resource.getResourceResolver(), resource.getPath() + "/" + path, type));
-                result.add(child);
             }
+            result.add(child);
         }
         return result;
     }

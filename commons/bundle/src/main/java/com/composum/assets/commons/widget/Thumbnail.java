@@ -17,6 +17,7 @@ import org.apache.sling.api.resource.Resource;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -349,7 +350,8 @@ public abstract class Thumbnail extends AbstractServletBean implements Comparabl
 
         @Override
         public Date getLastModified() {
-            return asset.getLastModified().getTime();
+            Calendar lastModified = asset.getLastModified();
+            return lastModified != null ? lastModified.getTime() : null;
         }
 
         @Override

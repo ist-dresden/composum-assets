@@ -6,7 +6,7 @@
 <cpn:component var="model" type="com.composum.assets.commons.widget.ConfigModel" scope="request">
     <div class="composum-assets-widget-config-form">
         <form class="composum-assets-widget-config-form_form widget-form"
-              data-example="${model.handle.inherited.example_image_path}">
+              data-config="${model.configPath}" data-example="${model.handle.inherited.example_image_path}">
             <div class="composum-assets-widget-config-form_content">
                 <ul class="composum-assets-widget-config-form_tabs nav nav-tabs" role="tablist">
                     <li role="presentation"><a href="#${model.domId}_general" aria-controls="${model.domId}_general"
@@ -20,6 +20,9 @@
                                                data-key="watermark">${cpn:i18n(slingRequest,'Watermark')}</a>
                     </li>
                 </ul>
+                <div class="composum-assets-widget-config-form_header">
+                    <sling:include resourceType="composum/assets/commons/widget/config/form/header/${model.scope}"/>
+                </div>
                 <div class="composum-assets-widget-config-form_panels tab-content">
                     <div id="${model.domId}_general" class="composum-assets-widget-config-form_tab-panel tab-pane"
                          role="tabpanel">

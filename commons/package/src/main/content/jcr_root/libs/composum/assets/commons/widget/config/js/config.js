@@ -106,7 +106,6 @@
                     this.variationSelect = core.getWidget(this.$el, '.' + c.base + c._select + c._variation, core.components.SelectWidget);
                     this.renditionSelect = core.getWidget(this.$el, '.' + c.base + c._select + c._rendition, core.components.SelectWidget);
                     this.loadVariations();
-                    this.loadRenditions();
                     this.variationSelect.changed('ConfigForm', _.bind(this.selectVariation, this));
                     this.renditionSelect.changed('ConfigForm', _.bind(this.selectRendition, this));
                     this.$tabs.find('a').click(_.bind(this.selectTab, this));
@@ -184,63 +183,62 @@
                 if (this.data.rendition) {
                     url.parameters.rendition = this.data.rendition;
                 }
-                url.suffix = path || this.editor.data.path;
+                url.suffix = path || this.editor.data.config || this.editor.data.base;
                 return url.build();
             },
 
             loadVariations: function () {
                 var u = config.const.general.url.config;
-                var oldValue = this.variationSelect.getValue();
-                core.getJson(this.loadUrl(u.base + u._variations, this.editor.data.config),
-                    _.bind(function (result) {
-                        this.variationSelect.setOptions(result.list.variations);
-                        var value = result.data.variations[assets.profile.get('config', 'variation')];
-                        this.data.variation = value ? value.name || value : result.data.configuration.defaultVariation;
-                        this.variationSelect.setValue(this.data.variation, false);
-                        this.loadRenditions();
-                    }, this));
+                var url = this.loadUrl(u.base + u._variations);
+                core.getJson(url, _.bind(function (result) {
+                    this.variationSelect.setOptions(result.list.variations);
+                    var value = result.data.variations[assets.profile.get('config', 'variation')];
+                    this.data.variation = value ? value.name || value : result.data.configuration.defaultVariation;
+                    this.variationSelect.setValue(this.data.variation, false);
+                    this.loadRenditions();
+                }, this));
             },
 
             loadRenditions: function () {
                 var u = config.const.general.url.config;
-                var oldValue = this.renditionSelect.getValue();
-                core.getJson(this.loadUrl(u.base + u._renditions, this.editor.data.config),
-                    _.bind(function (result) {
-                        this.renditionSelect.setOptions(result.list.renditions);
-                        var value = result.data.renditions[assets.profile.get('config', 'rendition')];
-                        this.data.rendition = value ? value.name || value : result.data.variation.defaultRendition;
-                        this.renditionSelect.setValue(this.data.rendition, false);
-                        this.selectTab(undefined, this.adjustTab(), true);
-                    }, this));
+                var url = this.loadUrl(u.base + u._renditions);
+                core.getJson(url, _.bind(function (result) {
+                    this.renditionSelect.setOptions(result.list.renditions);
+                    var value = result.data.renditions[assets.profile.get('config', 'rendition')];
+                    this.data.rendition = value ? value.name || value : result.data.variation.defaultRendition;
+                    this.renditionSelect.setValue(this.data.rendition, false);
+                    this.selectTab(undefined, this.adjustTab(), true);
+                }, this));
             },
 
             loadForm: function (tab) {
-                core.getHtml(this.loadUrl(config.const.general.url.form.base + '.' + tab + '.html'),
-                    _.bind(function (content) {
-                        var c = config.const.general.css;
-                        var f = assets.widgets.const.assetfield.css;
-                        this.data.tab = tab;
-                        this.$tabs.find('.' + c.base + c._tab).removeClass('active');
-                        this.$tabs.find('.' + c.base + c._tab + '[data-key="' + tab + '"]').addClass('active');
-                        c = config.const.form.css;
-                        this.$panel.html(content);
-                        this.form = core.getWidget(this.$panel, '.' + c.base + c._form, config.FormWidget);
-                        this.formTabs = core.getWidget(this.$panel, '.' + c.base + c._content, config.FormTabs);
-                        window.widgets.setUp(this.$panel);
-                        this.editor.setExample(this.form.$el.data('example'));
-                    }, this));
+                var url = this.loadUrl(config.const.general.url.form.base + '.readonly.' + tab + '.html');
+                core.getHtml(url, _.bind(function (content) {
+                    var c = config.const.general.css;
+                    var f = assets.widgets.const.assetfield.css;
+                    this.data.tab = tab;
+                    this.$tabs.find('.' + c.base + c._tab).removeClass('active');
+                    this.$tabs.find('.' + c.base + c._tab + '[data-key="' + tab + '"]').addClass('active');
+                    c = config.const.form.css;
+                    this.$panel.html(content);
+                    this.form = core.getWidget(this.$panel, '.' + c.base + c._form, config.FormWidget);
+                    this.formTabs = core.getWidget(this.$panel, '.' + c.base + c._content, config.FormTabs);
+                    window.widgets.setUp(this.$panel);
+                    this.data.config = this.form.$el.data('config');
+                    this.editor.setExample(this.form.$el.data('example'));
+                }, this));
             },
 
             saveForm: function (onSuccess) {
-                if (false && this.form) { // FIXME
+                /* if (this.form) { // live editing is currently not supported
                     this.form.doFormSubmit(_.bind(function (type, label, message, hint) {
-                        // TODO validation message...
+                        // ... validation message...
                     }, this), onSuccess);
-                } else {
-                    if (_.isFunction(onSuccess)) {
-                        onSuccess();
-                    }
+                } else { */
+                if (_.isFunction(onSuccess)) {
+                    onSuccess();
                 }
+                // }
             }
         });
 
@@ -255,7 +253,11 @@
                 };
                 this.image = core.getWidget(this.$el, '.' + c.config + c._image, assets.widgets.AssetPreviewWidget);
                 this.path = core.getWidget(this.$el, '.' + f.base, assets.widgets.AssetFieldWidget);
-                this.path.setValue(assets.profile.get('config', 'example'));
+                if (this.editor.data.type === 'imageconfig') {
+                    this.path.setDisabled(true);
+                } else {
+                    this.path.setValue(assets.profile.get('config', 'example'));
+                }
                 this.path.changed('ConfigPreview', _.bind(this.adjustPreview, this));
                 this.$('.' + c.config + c._clear).click(_.bind(function () {
                     this.path.setValue('', true);
@@ -266,6 +268,9 @@
             },
 
             setExample: function (path) {
+                if (this.editor.data.type === 'imageconfig') {
+                    path = this.editor.data.path; // ignore each example if an image is shown
+                }
                 this.data.example = path;
                 this.path.$input.attr('placeholder', path);
                 this.adjustPreview();
@@ -304,6 +309,7 @@
                     config: this.$el.data('config'),
                     base: this.$el.data('base'),
                     scope: this.$el.data('scope'),
+                    type: this.$el.data('type'),
                     valid: this.$el.data('valid')
                 };
                 this.configPreview = core.getWidget(this.$el, '.' + c.base + c._preview, config.ConfigPreview, {

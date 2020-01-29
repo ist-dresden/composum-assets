@@ -16,7 +16,7 @@
         "jcr:createdBy": "admin",
         "jcr:created": "Tue Jul 04 2017 18:00:47 GMT+0200",
         "sling:resourceType": "composum/assets/manager/image/variation",
-        "categories": [
+        "category": [
           "original"
         ],
         "original": {
@@ -44,7 +44,7 @@
         "jcr:createdBy": "admin",
         "jcr:created": "Tue Jul 04 2017 18:00:47 GMT+0200",
         "sling:resourceType": "composum/assets/manager/image/variation",
-        "categories": [
+        "category": [
           "original"
         ],
         "original": {
@@ -82,7 +82,7 @@
           "size.width": "640",
           "crop.vertical": "0.5",
           "sling:resourceType": "composum/assets/manager/config/rendition",
-          "categories": [
+          "category": [
             "default"
           ]
         },
@@ -90,7 +90,7 @@
           "jcr:primaryType": "cpa:RenditionConfig",
           "size.width": "1024",
           "sling:resourceType": "composum/assets/manager/config/rendition",
-          "categories": [
+          "category": [
             "default"
           ]
         },
@@ -113,7 +113,7 @@
           "jcr:primaryType": "cpa:RenditionConfig",
           "size.width": "128",
           "sling:resourceType": "composum/assets/manager/config/rendition",
-          "categories": [
+          "category": [
             "default"
           ]
         },
@@ -127,7 +127,7 @@
         "jcr:primaryType": "cpa:VariationConfig",
         "size.aspectRatio": "16:9",
         "sling:resourceType": "composum/assets/manager/config/variation",
-        "categories": [
+        "category": [
           "default"
         ],
         "small": {
@@ -145,7 +145,7 @@
           "size.aspectRatio": "1:1",
           "size.width": "128",
           "sling:resourceType": "composum/assets/manager/config/rendition",
-          "categories": [
+          "category": [
             "default",
             "icon"
           ]
@@ -177,7 +177,7 @@
           "crop.scale": "0.8",
           "crop.vertical": "0.7",
           "sling:resourceType": "composum/assets/manager/config/rendition",
-          "categories": [
+          "category": [
             "default"
           ]
         },
@@ -188,7 +188,7 @@
           "crop.horizontal": "0.6",
           "crop.vertical": "0.5",
           "sling:resourceType": "composum/assets/manager/config/rendition",
-          "categories": [
+          "category": [
             "default"
           ]
         }

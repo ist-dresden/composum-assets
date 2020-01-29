@@ -64,12 +64,12 @@ public abstract class AbstractConfigBean extends AbstractSlingBean implements Co
         String path = getPath();
         writer.name("path").value(path);
         writer.name("type").value(getType());
-        Boolean isExtension = cfHandle.isExtension();
+        Boolean isExtension = cfHandle.getExtension();
         if (isExtension != null) {
             writer.name(ConfigHandle.EXTENSION).value(isExtension);
         }
-        writer.name(ConfigHandle.CATEGORIES).beginArray();
-        for (String category: cfHandle.getCategories()) {
+        writer.name(ConfigHandle.CATEGORY).beginArray();
+        for (String category: cfHandle.getCategory()) {
             writer.value(category);
         }
         writer.endArray();

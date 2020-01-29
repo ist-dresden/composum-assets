@@ -16,21 +16,21 @@
         <div class="row">
             <div class="col col-xs-3">
                 <div>${cpn:i18n(slingRequest,'Width')}</div>
-                <input class="widget text-field-widget form-control"
+                <input class="widget text-field-widget form-control" disabled
                        name="size_width" value="${model.size.width}"
                        type="text" placeholder="${model.handle.inherited.size_width}"
                        data-rules="blank" data-pattern="^[0-9]+$"/>
             </div>
             <div class="col col-xs-3">
                 <div>${cpn:i18n(slingRequest,'Height')}</div>
-                <input class="widget text-field-widget form-control"
+                <input class="widget text-field-widget form-control" disabled
                        name="size_height" value="${model.size.height}"
                        type="text" placeholder="${model.handle.inherited.size_height}"
                        data-rules="blank" data-pattern="^[0-9]+$"/>
             </div>
             <div class="col col-xs-3">
                 <div>${cpn:i18n(slingRequest,'Aspect Ratio')}</div>
-                <input class="widget text-field-widget form-control"
+                <input class="widget text-field-widget form-control" disabled
                        name="size_aspectRatio" value="${model.size.aspectRatioRule}"
                        type="text" placeholder="${model.handle.inherited.size_aspectRatio}"
                        data-rules="blank" data-pattern="^([0-9]+:[0-9]+|[0-9]+(\.[0-9]+)?)$"
@@ -50,21 +50,21 @@
         <div class="row">
             <div class="col col-xs-3">
                 <div>${cpn:i18n(slingRequest,'Vertical')}</div>
-                <input class="widget text-field-widget form-control"
+                <input class="widget text-field-widget form-control" disabled
                        name="crop_vertical" value="${model.crop.vertical}"
                        type="text" placeholder="${model.handle.inherited.crop_vertical}"
                        data-rules="blank" data-pattern="^(0\.[0-9]+|1\.0|[0-9]+)$"/>
             </div>
             <div class="col col-xs-3">
                 <div>${cpn:i18n(slingRequest,'Horizontal')}</div>
-                <input class="widget text-field-widget form-control"
+                <input class="widget text-field-widget form-control" disabled
                        name="crop_horizontal" value="${model.crop.horizontal}"
                        type="text" placeholder="${model.handle.inherited.crop_horizontal}"
                        data-rules="blank" data-pattern="^(0\.[0-9]+|1\.0|[0-9]+)$"/>
             </div>
             <div class="col col-xs-3">
                 <div>${cpn:i18n(slingRequest,'Scale')}</div>
-                <input class="widget text-field-widget form-control"
+                <input class="widget text-field-widget form-control" disabled
                        name="crop_scale" value="${model.crop.scale}"
                        type="text" placeholder="${model.handle.inherited.crop_scale}"
                        data-rules="blank" data-pattern="^(0\.[0-9]+|1\.0)$"/>
@@ -83,7 +83,7 @@
         <div class="row">
             <div class="col col-xs-3">
                 <div>${cpn:i18n(slingRequest,'Blur Factor')}</div>
-                <input class="widget text-field-widget form-control"
+                <input class="widget text-field-widget form-control" disabled
                        name="transformation_blur_factor" value="${model.blur.factorStr}"
                        type="text" placeholder="${model.handle.inherited.transformation_blur_factor}"
                        data-rules="blank" data-pattern="^[0-9]+$"/>

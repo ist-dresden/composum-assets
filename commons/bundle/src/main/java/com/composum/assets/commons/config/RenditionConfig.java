@@ -18,6 +18,8 @@ import org.apache.sling.api.resource.Resource;
 import java.util.Collections;
 import java.util.List;
 
+import static com.composum.assets.commons.AssetsConstants.RENDITION;
+
 public class RenditionConfig extends ConfigHandle {
 
     public static final String NODE_TYPE = AssetsConstants.NODE_TYPE_RENDITION_CONFIG;
@@ -41,6 +43,12 @@ public class RenditionConfig extends ConfigHandle {
         this.variation = variation;
     }
 
+    @Override
+    public  String getConfigType(){
+        return RENDITION;
+    }
+
+    @Override
     public AssetConfig getAssetConfig() {
         return getVariation().getAssetConfig();
     }
@@ -49,6 +57,7 @@ public class RenditionConfig extends ConfigHandle {
         return variation;
     }
 
+    @Override
     public RenditionConfig getOriginal() {
         return getVariation().getOriginal();
     }

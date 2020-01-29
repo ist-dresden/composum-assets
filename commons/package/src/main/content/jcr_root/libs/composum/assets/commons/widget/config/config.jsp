@@ -1,10 +1,12 @@
 <%@page session="false" pageEncoding="UTF-8" %>
 <%@taglib prefix="sling" uri="http://sling.apache.org/taglibs/sling/1.2" %>
 <%@taglib prefix="cpn" uri="http://sling.composum.com/cpnl/1.0" %>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <sling:defineObjects/>
 <cpn:component var="model" type="com.composum.assets.commons.widget.ConfigModel" scope="request">
-    <div class="composum-assets-widget-config" data-scope="${model.scope}" data-valid="${model.valid}"
-         data-path="${model.path}" data-config="${model.handlePath}" data-base="${model.basePath}">
+    <div class="composum-assets-widget-config" data-path="${model.path}" data-scope="${model.scope}"
+         data-config="${model.configPath}" data-base="${model.basePath}"
+         data-type="${model.configType}" data-valid="${model.valid}">
         <div class="composum-assets-widget-config_preview">
             <div class="composum-assets-widget-config_preview_image">
                 <sling:include resourceType="composum/assets/commons/widget/preview/asset"
@@ -32,6 +34,9 @@
             <div class="composum-assets-widget-config_form-panel">
             </div>
             <div class="composum-assets-widget-config_form-tabs">
+                <div class="composum-assets-widget-config_tab composum-assets-widget-config_tab_header">
+                    <span class="">${cpn:i18n(slingRequest,'Select Layer')}</span>
+                </div>
                 <div class="composum-assets-widget-config_tab composum-assets-widget-config_tab_base"
                      data-key="base">
                     <h5 class="composum-assets-widget-config_tab-title"><a href="#">${cpn:i18n(slingRequest,'Base')}</a>
@@ -43,6 +48,7 @@
                             href="#">${cpn:i18n(slingRequest,'Configuration')}</a></h5>
                     <div class="composum-assets-widget-config_tab-actions btn-group btn-group-sm">
                         <button class="delete fa fa-trash btn btn-default"
+                                <c:if test="${!model.valid}">disabled</c:if>
                                 title="${cpn:i18n(slingRequest,'Delete Configuration')}"></button>
                     </div>
                 </div>
@@ -52,8 +58,10 @@
                             href="#">${cpn:i18n(slingRequest,'Variation')}</a></h5>
                     <div class="composum-assets-widget-config_tab-actions btn-group btn-group-sm">
                         <button class="add fa fa-plus btn btn-default"
+                                <c:if test="${!model.valid}">disabled</c:if>
                                 title="${cpn:i18n(slingRequest,'Add Variation')}"></button>
                         <button class="remove fa fa-minus btn btn-default"
+                                <c:if test="${!model.valid}">disabled</c:if>
                                 title="${cpn:i18n(slingRequest,'Remove Variation')}"></button>
                     </div>
                     <div class="composum-assets-widget-config_select-variation">
@@ -66,8 +74,10 @@
                             href="#">${cpn:i18n(slingRequest,'Rendition')}</a></h5>
                     <div class="composum-assets-widget-config_tab-actions btn-group btn-group-sm">
                         <button class="add fa fa-plus btn btn-default"
+                                <c:if test="${!model.valid}">disabled</c:if>
                                 title="${cpn:i18n(slingRequest,'Add Rendition')}"></button>
                         <button class="remove fa fa-minus btn btn-default"
+                                <c:if test="${!model.valid}">disabled</c:if>
                                 title="${cpn:i18n(slingRequest,'Remove Rendition')}"></button>
                     </div>
                     <div class="composum-assets-widget-config_select-rendition">

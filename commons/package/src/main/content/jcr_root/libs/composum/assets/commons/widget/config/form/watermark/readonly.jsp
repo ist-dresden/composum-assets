@@ -16,7 +16,7 @@
         <div class="row">
             <div class="col col-xs-9">
                 <div>${cpn:i18n(slingRequest,'Text')}</div>
-                <input name="watermark_text" value="${model.watermark.text}"
+                <input name="watermark_text" value="${model.watermark.text}" disabled
                        type="text" placeholder="${model.handle.inherited.watermark_text}"
                        class="widget text-field-widget form-control"
                        data-rules="blank"/>
@@ -24,7 +24,7 @@
             <div class="col col-xs-3">
                 <div>${cpn:i18n(slingRequest,'Color')}</div>
                 <div class="widget textfield-widget input-group" data-rules="blank">
-                    <input name="watermark_color" value="${model.watermark.colorCode}"
+                    <input name="watermark_color" value="${model.watermark.colorCode}" disabled
                            type="text" placeholder="${model.handle.inherited.watermark_color}"
                            class="form-control"/>
                     <span class="input-group-addon"><i></i></span>
@@ -44,14 +44,14 @@
         <div class="row">
             <div class="col col-xs-3">
                 <div>${cpn:i18n(slingRequest,'Horizontal')}</div>
-                <input name="watermark_horizontal" value="${model.watermark.horizontal}"
+                <input name="watermark_horizontal" value="${model.watermark.horizontal}" disabled
                        type="text" placeholder="${model.handle.inherited.watermark_horizontal}"
                        class="widget text-widget form-control"
                        data-rules="blank" data-pattern="^(0\.[0-9]+|1\.0|[+-]?[0-9]+)$"/>
             </div>
             <div class="col col-xs-3">
                 <div>${cpn:i18n(slingRequest,'Vertical')}</div>
-                <input name="watermark_vertical" value="${model.watermark.vertical}"
+                <input name="watermark_vertical" value="${model.watermark.vertical}" disabled
                        type="text" placeholder="${model.handle.inherited.watermark_vertical}"
                        class="widget text-widget form-control"
                        data-rules="blank" data-pattern="^(0\.[0-9]+|1\.0|[+-]?[0-9]+)$"/>
@@ -60,7 +60,7 @@
             </div>
             <div class="col col-xs-3">
                 <div>${cpn:i18n(slingRequest,'Opacity')}</div>
-                <input name="watermark_alpha" value="${model.watermark.alpha}"
+                <input name="watermark_alpha" value="${model.watermark.alpha}" disabled
                        type="text" placeholder="${model.handle.inherited.watermark_alpha}"
                        class="widget text-field-widget form-control"
                        data-rules="blank" data-pattern="^(0\.[0-9]+|1\.0)$"/>
@@ -79,14 +79,14 @@
         <div class="row">
             <div class="col col-xs-7">
                 <div>${cpn:i18n(slingRequest,'Family')}</div>
-                <input name="watermark_font_family" value="${model.watermark.font.family}"
-                       ptype="text" placeholder="${model.handle.inherited.watermark_font_family}"
+                <input name="watermark_font_family" value="${model.watermark.font.family}" disabled
+                       type="text" placeholder="${model.handle.inherited.watermark_font_family}"
                        class="widget text-field-widget form-control"
                        data-rules="blank"/>
             </div>
             <div class="col col-xs-2">
                 <div>${cpn:i18n(slingRequest,'Size')}</div>
-                <input name="watermark_font_size" value="${model.watermark.font.size}"
+                <input name="watermark_font_size" value="${model.watermark.font.size}" disabled
                        type="text" placeholder="${model.handle.inherited.watermark_font_size}"
                        class="widget text-field-widget form-control"
                        data-rules="blank" data-pattern="^[0-9]+$"/>
@@ -99,7 +99,7 @@
                     <input type="hidden" class="sling-post-delete-hint"
                            name="watermark_font_bold@Delete" value="true"/>
                     <label class="checkbox-inline">
-                        <input name="watermark_font_bold" type="checkbox"
+                        <input name="watermark_font_bold" type="checkbox" disabled
                                <c:if test="${model.watermark.font.bold}">checked</c:if>/>${cpn:i18n(slingRequest,'Bold')}
                     </label>
                     <input type="hidden" class="sling-post-type-hint"
@@ -107,7 +107,7 @@
                     <input type="hidden" class="sling-post-delete-hint"
                            name="watermark_font_italic@Delete" value="true"/>
                     <label class="checkbox-inline">
-                        <input name="watermark_font_italic" type="checkbox"
+                        <input name="watermark_font_italic" type="checkbox" disabled
                                <c:if test="${model.watermark.font.italic}">checked</c:if>/>${cpn:i18n(slingRequest,'Italic')}
                     </label>
                 </div>

@@ -10,7 +10,7 @@
                 <a data-toggle="collapse" data-parent="#${variation.path}"
                    data-child="#${variation.path}">
                         ${variation.name}
-                    <em>${variation.config.categoriesString}</em>
+                    <em>${variation.config.categoryString}</em>
                 </a>
             </h2>
         </div>

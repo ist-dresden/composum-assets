@@ -341,8 +341,8 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
         if (ConfigHandle.ORIGINAL.equals(handle.getName())) {
             return true;
         }
-        String[] categories = handle.getProperty(ConfigHandle.CATEGORIES, new String[0]);
-        for (String category : categories) {
+        String[] categorySet = handle.getProperty(ConfigHandle.CATEGORY, new String[0]);
+        for (String category : categorySet) {
             if (ConfigHandle.ORIGINAL.equals(category)) {
                 return true;
             }
