@@ -23,6 +23,7 @@ import com.composum.sling.platform.staging.impl.ReleaseChangeEventPublisherImpl;
 import com.composum.sling.platform.staging.query.QueryBuilder;
 import com.composum.sling.platform.staging.query.impl.QueryBuilderAdapterFactory;
 import com.composum.sling.platform.staging.search.PlatformSearchService;
+import com.composum.sling.platform.staging.search.SearchService;
 import com.composum.sling.platform.testing.testutil.AnnotationWithDefaults;
 import com.composum.sling.platform.testing.testutil.ErrorCollectorAlwaysPrintingFailures;
 import com.composum.sling.platform.testing.testutil.JcrTestUtils;
@@ -30,6 +31,7 @@ import com.composum.sling.platform.testing.testutil.SlingMatchers;
 import com.google.common.base.Function;
 import org.apache.commons.io.IOUtils;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
+import org.apache.poi.openxml4j.exceptions.InvalidOperationException;
 import org.apache.sling.api.resource.ModifiableValueMap;
 import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
@@ -42,6 +44,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.mockito.internal.stubbing.answers.ThrowsException;
 
 import javax.jcr.Node;
 import javax.jcr.Session;
@@ -129,6 +133,8 @@ public class AdaptiveImageServiceTest {
         context.registerInjectActivateService(new SemaphoreSequencer());
         context.registerInjectActivateService(new LazyCreationServiceImpl());
         context.registerInjectActivateService(new DefaultRenditionTransformer());
+        context.registerService(SearchService.class, Mockito.mock(SearchService.class,
+                new ThrowsException(new InvalidOperationException("unsupported by test yet."))));
         this.service = context.registerInjectActivateService(new DefaultAdaptiveImageService());
         assetService = context.registerInjectActivateService(new DefaultAssetsService());
 
