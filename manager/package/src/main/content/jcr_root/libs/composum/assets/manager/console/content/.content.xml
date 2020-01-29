@@ -8,6 +8,6 @@
             jcr:title="Assets"
             description="/libs/composum/assets/manager/console/description"
             sling:redirect="/bin/assets.html"
-            category="[nodes,assets]"
+            categories="[nodes,assets]"
             order="{Long}110"/>
 </jcr:root>
