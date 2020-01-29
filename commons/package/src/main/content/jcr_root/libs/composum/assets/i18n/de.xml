@@ -124,4 +124,52 @@
                 sling:key="use current folder as root" sling:message="aktuellen Folder als Basis nutzen"/>
     </navigator>
 
+    <config jcr:primaryType="nt:unstructured">
+
+        <SelectLayer jcr:primaryType="sling:MessageEntry"
+                sling:key="Select Layer" sling:message="Ebene Wählen"/>
+        <Base jcr:primaryType="sling:MessageEntry"
+                sling:key="Base" sling:message="Basis"/>
+        <Default jcr:primaryType="sling:MessageEntry"
+                sling:key="Default" sling:message="Standard"/>
+        <Extension jcr:primaryType="sling:MessageEntry"
+                sling:key="Extension" sling:message="Erweiterung"/>
+        <Category jcr:primaryType="sling:MessageEntry"
+                sling:key="Category" sling:message="Kategorie"/>
+        <ExampleImage jcr:primaryType="sling:MessageEntry"
+                sling:key="Example Image" sling:message="Beispielbild"/>
+        <Crop jcr:primaryType="sling:MessageEntry"
+                sling:key="Crop" sling:message="Schnitt"/>
+        <Width jcr:primaryType="sling:MessageEntry"
+                sling:key="Width" sling:message="Breite"/>
+        <Height jcr:primaryType="sling:MessageEntry"
+                sling:key="Height" sling:message="Höhe"/>
+        <AspectRatio jcr:primaryType="sling:MessageEntry"
+                sling:key="Aspect Ratio" sling:message="Seitenverhältnis"/>
+        <Vertical jcr:primaryType="sling:MessageEntry"
+                sling:key="Vertical" sling:message="Vertikal"/>
+        <Scale jcr:primaryType="sling:MessageEntry"
+                sling:key="Scale" sling:message="Skalierung"/>
+        <Watermark jcr:primaryType="sling:MessageEntry"
+                sling:key="Watermark" sling:message="Wasserzeichen"/>
+        <Color jcr:primaryType="sling:MessageEntry"
+                sling:key="Color" sling:message="Farbe"/>
+        <Opacity jcr:primaryType="sling:MessageEntry"
+                sling:key="Opacity" sling:message="Deckkraft"/>
+        <Font jcr:primaryType="sling:MessageEntry"
+                sling:key="Font" sling:message="Zeichensatz"/>
+        <Family jcr:primaryType="sling:MessageEntry"
+                sling:key="Family" sling:message="Familie"/>
+        <Style jcr:primaryType="sling:MessageEntry"
+                sling:key="Style" sling:message="Stil"/>
+        <Italic jcr:primaryType="sling:MessageEntry"
+                sling:key="Italic" sling:message="Kursiv"/>
+        <Bold jcr:primaryType="sling:MessageEntry"
+                sling:key="Bold" sling:message="Fett"/>
+        <Other jcr:primaryType="sling:MessageEntry"
+                sling:key="Other" sling:message="Weiteres"/>
+        <BlurFactor jcr:primaryType="sling:MessageEntry"
+                sling:key="Blur Factor" sling:message="Unschärfe-Faktor"/>
+    </config>
+
 </jcr:root>

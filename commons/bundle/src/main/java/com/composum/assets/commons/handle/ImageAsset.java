@@ -53,9 +53,7 @@ public class ImageAsset extends AbstractAsset {
 
     @Override
     protected List<ResourceHandle> getConfigCascade() {
-        List<ResourceHandle> cascade = super.getConfigCascade();
-        AssetConfigUtil.assetConfigCascade(cascade, resource, ImageConfig.NAME_PATTERN);
-        return cascade;
+        return AssetConfigUtil.imageConfigCascade(resource);
     }
 
     /**

@@ -39,11 +39,10 @@
                 },
                 action: {
                     select: '.asset-link',
-                    edit: '.detail-toolbar .edit',
+                    create: '.detail-toolbar .create',
                     copy: '.detail-toolbar .copy',
                     paste: '.detail-toolbar .paste',
-                    add: '.detail-toolbar .add',
-                    remove: '.detail-toolbar .remove'
+                    reload: '.detail-toolbar .reload'
                 },
                 class: {
                     checked: 'checked'
@@ -62,14 +61,21 @@
         manager.ConfigTab = manager.AbstractManagerTab.extend({
 
             initialize: function (options) {
-                var c = manager.const.config.edit;
+                var c = manager.const.config.edit.css.action;
                 manager.AbstractManagerTab.prototype.initialize.apply(this, [options]);
                 this.initContent();
-                this.$(c.css.action.edit).click(_.bind(this.edit, this));
-                this.$(c.css.action.copy).click(_.bind(this.copy, this));
-                this.$(c.css.action.paste).click(_.bind(this.paste, this));
-                this.$(c.css.action.add).click(_.bind(this.add, this));
-                this.$(c.css.action.remove).click(_.bind(this.remove, this));
+                this.$(c.create).click(_.bind(this.copy, this));
+                this.$(c.copy).click(_.bind(this.copy, this));
+                var clipboardPath = this.getClipboardPath();
+                if (!clipboardPath) {
+                    this.$(c.paste).prop('disabled', true);
+                } else {
+                    core.i18n.get('Paste Configuration', _.bind(function (text) {
+                        this.$(c.paste).attr('title', text + ': ' + clipboardPath);
+                    }, this));
+                    this.$(c.paste).click(_.bind(this.paste, this));
+                }
+                this.$(c.reload).click(_.bind(this.refresh, this));
             },
 
             initContent: function () {
@@ -82,26 +88,18 @@
                 return this.selectedPath ? this.selectedPath : this.data.path;
             },
 
-            getSelectedType: function () {
-                var c = manager.const.config.edit;
-                return this.selectedPath
-                    ? this.$(c.css.el.header + '[data-path="' + this.selectedPath + '"]').data(c.data.type)
-                    : c.type.asset;
-            },
-
-            getConfigPath: function ($el) {
-                var c = manager.const.config.edit;
-                return $el.closest(c.css.el.header).data(c.data.path);
-            },
-
-            edit: function (event) {
+            create: function (event, path) {
                 if (event) {
                     event.preventDefault();
                 }
-                var path = this.getSelectedPath();
-                assets.openAssetConfigDialog(path, _.bind(function () {
-                    this.resetView();
-                }, this));
+                var parentPath = this.getSelectedPath();
+                if (parentPath) {
+                    core.ajaxPost("/bin/cpm/assets/assets.create.json" + clipboard.path, {
+                        path: parentPath
+                    }, {}, _.bind(function () {
+                        this.resetView();
+                    }, this));
+                }
                 return false;
             },
 
@@ -110,7 +108,8 @@
                     event.preventDefault();
                 }
                 core.console.getProfile().set('nodes', 'clipboard', {
-                    path: this.getSelectedPath()
+                    path: this.getSelectedPath(),
+                    time: new Date().getTime()
                 });
                 return false;
             },
@@ -120,39 +119,23 @@
                     event.preventDefault();
                 }
                 var parentPath = this.getSelectedPath();
-                var clipboard = core.console.getProfile().get('nodes', 'clipboard');
-                if (parentPath && clipboard && clipboard.path) {
-                    var name = core.getNameFromPath(clipboard.path);
-                    core.ajaxPost("/bin/cpm/assets/assets.copyConfig.json" + clipboard.path, {
+                var path = this.getClipboardPath();
+                if (parentPath && path) {
+                    core.ajaxPost("/bin/cpm/assets/assets.copy.json" + path, {
                         path: parentPath
                     }, {}, _.bind(function () {
                         this.resetView();
                     }, this));
                 }
-            },
-
-            add: function (event) {
-                if (event) {
-                    event.preventDefault();
-                }
-                var path = this.getSelectedPath();
-                var type = this.getSelectedType();
-                assets.openAssetConfigCreateDialog(path, type, _.bind(function () {
-                    this.resetView();
-                }, this));
                 return false;
             },
 
-            remove: function (event) {
-                if (event) {
-                    event.preventDefault();
-                }
-                var path = this.getSelectedPath();
-                var type = this.getSelectedType();
-                assets.openAssetConfigDeleteDialog(path, type, _.bind(function () {
-                    this.resetView();
-                }, this));
-                return false;
+            getClipboardPath: function () {
+                var now = new Date().getTime();
+                var clipboard = core.console.getProfile().get('nodes', 'clipboard');
+                return clipboard && clipboard.path && clipboard.path !== this.getSelectedPath() &&
+                clipboard.time && clipboard.time + 12000000 > now // 20 min
+                    ? clipboard.path : undefined;
             }
         });
 

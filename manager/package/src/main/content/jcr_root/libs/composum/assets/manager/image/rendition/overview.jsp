@@ -14,7 +14,7 @@
                 </div>
             </div>
             <div class="overlay-foreground">
-                <sling:include resourceType="composum/assets/manager/config/properties"/>
+                <sling:include resourceType="composum/assets/commons/widget/config/properties"/>
             </div>
         </div>
     </div>

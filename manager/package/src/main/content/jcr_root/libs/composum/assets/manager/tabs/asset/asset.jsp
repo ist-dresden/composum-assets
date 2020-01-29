@@ -19,6 +19,9 @@
                 <a class="view fa fa-eye btn btn-default" href="#renditions" data-group="view"
                    title="${cpn:i18n(slingRequest,'Renditions View')}"><cpn:text
                         value="Renditions" tagName="span" class="label" i18n="true"/></a>
+                <a class="config fa fa-sliders btn btn-default" href="#config" data-group="config"
+                   title="${cpn:i18n(slingRequest,'Assets Configuration')}"><cpn:text
+                        value="small" tagName="span" class="label" i18n="true"/></a>
             </div>
             <div class="btn-group btn-group-sm" role="group">
                 <button class="transform fa fa-file-image-o btn btn-default"

@@ -453,11 +453,11 @@ public class AssetsServlet extends NodeTreeServlet {
                 jsonWriter.name("name").value(sibling.getName());
                 jsonWriter.name("path").value(sibling.getPath());
 
-                List<String> categories = Arrays.asList(values.get(ConfigHandle.CATEGORIES, new String[0]));
-                jsonWriter.name("isDefault").value(categories.contains(ConfigHandle.DEFAULT));
+                List<String> categorySet = Arrays.asList(values.get(ConfigHandle.CATEGORY, new String[0]));
+                jsonWriter.name("isDefault").value(categorySet.contains(ConfigHandle.DEFAULT));
 
-                jsonWriter.name(ConfigHandle.CATEGORIES).beginArray();
-                for (String category : categories) {
+                jsonWriter.name(ConfigHandle.CATEGORY).beginArray();
+                for (String category : categorySet) {
                     if (!ConfigHandle.DEFAULT.equals(category)) {
                         jsonWriter.value(category);
                     }

@@ -108,12 +108,12 @@ public abstract class AssetHandle<Config extends ConfigHandle> extends AbstractS
             }
             ConfigHandle childConfig = getChildConfig(childCfgTargetPath);
             if (childConfig != null) {
-                List<String> categories = childConfig.getCategories();
-                if (categories.contains(key)) { return child; }
+                List<String> categorySet = childConfig.getCategory();
+                if (categorySet.contains(key)) { return child; }
             }
-            String[] categories = child.adaptTo(ValueMap.class)
-                    .get(ConfigHandle.CATEGORIES, new String[0]);
-            if (Arrays.asList(categories).contains(key)) { return child; }
+            String[] categorySet = child.adaptTo(ValueMap.class)
+                    .get(ConfigHandle.CATEGORY, new String[0]);
+            if (Arrays.asList(categorySet).contains(key)) { return child; }
             if (child.getName().equals(key)) {
                 byName = child;
             }

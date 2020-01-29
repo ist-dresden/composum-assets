@@ -98,7 +98,7 @@ public class DefaultAssetsService implements AssetsService {
 
     public static final List<String> COPY_KEYS = Arrays.asList(
 
-            ConfigHandle.CATEGORIES,
+            ConfigHandle.CATEGORY,
             ConfigHandle.FILE_QUALITY,
 
             ConfigHandle.WIDTH,
@@ -303,17 +303,17 @@ public class DefaultAssetsService implements AssetsService {
             if (!sibling.getPath().equals(configPath)) {
                 ValueMap values = sibling.adaptTo(ModifiableValueMap.class);
                 if (values != null) {
-                    List<String> categories = new ArrayList<>();
+                    List<String> categorySet = new ArrayList<>();
                     boolean changed = false;
-                    for (String category : values.get(ConfigHandle.CATEGORIES, new String[0])) {
+                    for (String category : values.get(ConfigHandle.CATEGORY, new String[0])) {
                         if (!ConfigHandle.DEFAULT.equals(category)) {
-                            categories.add(category);
+                            categorySet.add(category);
                         } else {
                             changed = true;
                         }
                     }
                     if (changed) {
-                        values.put(ConfigHandle.CATEGORIES, categories.toArray());
+                        values.put(ConfigHandle.CATEGORY, categorySet.toArray());
                     }
                 } else {
                     throw new PersistenceException("configuration not modifiable: '" + sibling.getPath() + "'");
@@ -322,10 +322,10 @@ public class DefaultAssetsService implements AssetsService {
         }
         ValueMap values = configResource.adaptTo(ModifiableValueMap.class);
         if (values != null) {
-            List<String> categories = new ArrayList<>(Arrays.asList(values.get(ConfigHandle.CATEGORIES, new String[0])));
-            if (!categories.contains(ConfigHandle.DEFAULT)) {
-                categories.add(ConfigHandle.DEFAULT);
-                values.put(ConfigHandle.CATEGORIES, categories.toArray());
+            List<String> categorySet = new ArrayList<>(Arrays.asList(values.get(ConfigHandle.CATEGORY, new String[0])));
+            if (!categorySet.contains(ConfigHandle.DEFAULT)) {
+                categorySet.add(ConfigHandle.DEFAULT);
+                values.put(ConfigHandle.CATEGORY, categorySet.toArray());
             }
         } else {
             throw new PersistenceException("configuration not modifiable: '" + configResource.getPath() + "'");

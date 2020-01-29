@@ -139,9 +139,17 @@
             border-left: $assets-config-tab-border;
             background-color: $assets-config-tab-bg;
 
+            &_header, &_space {
+                min-height: 0;
+                background-color: #ddd;
+            }
+
+            &_header {
+                padding: 4px 10px;
+            }
+
             &_space {
                 flex-grow: 1;
-                min-height: 0;
                 padding: 0;
                 border-bottom: none;
             }
@@ -191,7 +199,13 @@
                         .btn {
                             height: $assets-config-btn-size;
                             width: $assets-config-btn-size;
-                            padding: 5px 7px;
+                            padding: 4px 7px;
+                            font-size: 14px;
+
+                            &.fa-plus, &.fa-minus {
+                                padding-top: 5px;
+                                font-size: 13px;
+                            }
                         }
                     }
                 }
@@ -206,9 +220,42 @@
     }
 
     .composum-assets-widget-config-form {
+        position: relative;
+
+        &_header {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            display: flex;
+
+            .checkbox-inline {
+                margin-top: 5px;
+            }
+
+            .actions {
+                margin-left: 10px;
+
+                .btn {
+                    height: 28px;
+                    width: 29px;
+                    padding: 4px 7px;
+                    font-size: 14px;
+
+                    .label {
+                        display: none;
+                    }
+                }
+            }
+        }
 
         &_form {
             margin: 0;
+
+            .form-control.readonly {
+                cursor: not-allowed;
+                background-color: #eeeeee;
+                opacity: 1;
+            }
         }
 
         &_content {

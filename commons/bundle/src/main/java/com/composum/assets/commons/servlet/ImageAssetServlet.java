@@ -97,10 +97,10 @@ public class ImageAssetServlet extends SlingSafeMethodsServlet {
 
                 // render configuration preview of the requested example image
                 AssetConfig assetConfig = new AssetConfig(AssetConfigUtil.configCascade(ResourceHandle.use(assetConfigRes)));
-                VariationConfig variationConfig = assetConfig.getVariation(selectors[0]);
+                VariationConfig variationConfig = assetConfig.findVariation(selectors[0]);
                 RenditionConfig renditionConfig;
                 if (variationConfig != null
-                        && (renditionConfig = variationConfig.getRendition(selectors[1])) != null) {
+                        && (renditionConfig = variationConfig.findRendition(selectors[1])) != null) {
                     assetPreview(context, assetConfig, selectors, renditionConfig);
                     return;
                 }
