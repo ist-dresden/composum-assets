@@ -83,7 +83,7 @@
                 left: 0;
                 right: 0;
                 bottom: 0;
-                padding: 10px 15px 9px;
+                padding: 10px 10px 9px 10px;
                 border-bottom: 1px solid $assets-dark-preview-bg;
                 background-color: $assets-light-preview-bg;
 
@@ -120,18 +120,21 @@
         }
 
         &_form-panel {
-            flex-grow: 1;
+            flex-grow: 4;
+            width: 80%;
         }
 
         &_form-tabs {
+            flex-grow: 1;
+            width: 20%;
+            min-width: $assets-config-tabs-width;
             display: flex;
             flex-direction: column;
         }
 
         &_tab {
             display: block;
-            min-width: $assets-config-tabs-width;
-            max-width: $assets-config-tabs-width;
+            width: 100%;
             min-height: $assets-config-tabs-height;
             padding: 10px;
             border-top: $assets-config-tab-gap;
@@ -218,21 +221,23 @@
             }
         }
     }
+}
 
-    .composum-assets-widget-config-form {
-        position: relative;
+.composum-assets-widget-config-form {
 
-        &_header {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            display: flex;
+    &_header {
+        position: absolute;
+        top: 11px;
+        right: 10px;
+        display: flex;
 
-            .checkbox-inline {
-                margin-top: 5px;
-            }
+        .checkbox-inline {
+            margin-top: 5px;
+        }
 
-            .actions {
+        .composum-assets-widget-config-form {
+
+            &_actions {
                 margin-left: 10px;
 
                 .btn {
@@ -247,23 +252,79 @@
                 }
             }
         }
+    }
 
-        &_form {
-            margin: 0;
+    &_form {
+        margin: 0;
 
-            .form-control.readonly {
-                cursor: not-allowed;
-                background-color: #eeeeee;
-                opacity: 1;
+        .form-control.readonly {
+            cursor: not-allowed;
+            min-height: 34px;
+            background-color: #eeeeee;
+            opacity: 1;
+        }
+
+        .sublabel {
+            font-weight: normal;
+        }
+
+        .form-group {
+
+            &:last-child {
+                margin-bottom: 0;
             }
         }
 
-        &_content {
-            padding-top: 5px;
+        .row {
+            margin-bottom: 15px;
+
+            &.headline, &:last-child {
+                margin-bottom: 0;
+            }
         }
 
-        &_tab-panel {
-            padding: 10px 15px;
+        .composum-assets-widget-config-form {
+
+            &_watermark {
+
+                &_style {
+
+                    .checkbox-set {
+                        min-height: 34px;
+                    }
+
+                    .widget {
+                        display: inline-block;
+                        width: auto;
+                        height: auto;
+                        margin-right: 5px;
+                        padding: 0;
+                    }
+                }
+            }
+        }
+    }
+
+    &_content {
+        position: relative;
+        padding-top: 5px;
+    }
+
+    .composum-commons-form-tab {
+
+        &-nav {
+            padding-left: 10px;
+
+            .has-error {
+
+                a {
+                    color: $bootstrap-color-danger;
+                }
+            }
+        }
+
+        &-panel {
+            padding: 10px 10px;
         }
     }
 }

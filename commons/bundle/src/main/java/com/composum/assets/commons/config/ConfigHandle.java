@@ -8,16 +8,19 @@ package com.composum.assets.commons.config;
 import com.composum.sling.core.InheritedValues;
 import com.composum.sling.core.ResourceHandle;
 import com.composum.sling.core.util.PropertyUtil;
+import com.composum.sling.core.util.ResourceUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.SyntheticResource;
 import org.apache.sling.api.resource.ValueMap;
+import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -69,11 +72,13 @@ public abstract class ConfigHandle {
     protected List<ResourceHandle> resourceCascade;
 
     private transient Boolean defaultConfig;
+    private transient Boolean originalConfig;
     private transient List<String> categorySet;
     private transient List<String> nonDefaultCategory;
 
     private transient ValueMap inheritedMap;
     private transient ValueMap propertyMap;
+    private transient ValueMap values;
 
     public ConfigHandle(List<ResourceHandle> resourceCascade) {
         this.resourceCascade = new ArrayList<>();
@@ -87,16 +92,19 @@ public abstract class ConfigHandle {
     public abstract RenditionConfig getOriginal();
 
     public ResourceHandle getResource() {
-        for (ResourceHandle resource : resourceCascade) {
-            if (!resource.isSynthetic()) {
-                return resource;
-            }
-        }
-        return resourceCascade.get(0);
+        return resourceCascade.size() > 0 ? resourceCascade.get(0) : null;
     }
 
     public String getName() {
         return getResource().getName();
+    }
+
+    public String getTitle() {
+        return getValues().get(ResourceUtil.JCR_TITLE, String.class);
+    }
+
+    public String getDescription() {
+        return getValues().get(ResourceUtil.JCR_DESCRIPTION, String.class);
     }
 
     public String getPath() {
@@ -127,14 +135,15 @@ public abstract class ConfigHandle {
     }
 
     public <T> T getProperty(String name, Class<T> type) {
-        T value = null;
-        for (ResourceHandle resource : resourceCascade) {
-            value = resource.getProperty(name, type);
-            if (value != null) {
-                break;
-            }
+        return getValues().get(name, type);
+    }
+
+    public ValueMap getValues() {
+        if (values == null) {
+            Resource resource = getResource();
+            values = resource != null ? resource.getValueMap() : new ValueMapDecorator(Collections.emptyMap());
         }
-        return value;
+        return values;
     }
 
     // generic property access via generic Map for direct use in templates
@@ -225,6 +234,13 @@ public abstract class ConfigHandle {
         return defaultConfig;
     }
 
+    public boolean isOriginalConfig() {
+        if (originalConfig == null) {
+            originalConfig = getCategory().contains(ConfigHandle.ORIGINAL);
+        }
+        return originalConfig;
+    }
+
     public List<String> getCategory() {
         if (categorySet == null) {
             categorySet = Arrays.asList(getResource().getProperty(CATEGORY, new String[0]));
@@ -248,13 +264,16 @@ public abstract class ConfigHandle {
         return StringUtils.join(getCategory(), ",");
     }
 
-    public Map<String, List<ResourceHandle>> getChildren(String type) {
+    public Map<String, List<ResourceHandle>> getChildren(String type, boolean cumulated) {
         Map<String, List<ResourceHandle>> result = new LinkedHashMap<>();
         for (ResourceHandle resource : resourceCascade) {
             for (ResourceHandle child : resource.getChildrenByType(type)) {
                 String name = child.getName();
                 List<ResourceHandle> cascade = result.computeIfAbsent(name, k -> new ArrayList<>());
                 cascade.add(child);
+            }
+            if (!cumulated) {
+                break; // use the deepest resource (topmost in the cascade) only
             }
         }
         return result;

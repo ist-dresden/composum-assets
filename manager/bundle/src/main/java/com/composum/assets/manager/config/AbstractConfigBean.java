@@ -49,7 +49,7 @@ public abstract class AbstractConfigBean extends AbstractSlingBean implements Co
     }
 
     public List<VariationConfig> getVariationList() {
-        return ((AssetConfig) config).getVariationList();
+        return ((AssetConfig) config).getVariationList(true);
     }
 
     public void toJson(JsonWriter writer) throws IOException {

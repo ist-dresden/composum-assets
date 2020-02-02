@@ -53,7 +53,7 @@ public class AssetsFolder extends PagesFrameModel {
         if (variations == null) {
             AssetConfig config = getAssetConfig();
             if (config != null) {
-                variations = config.getVariationList();
+                variations = config.getVariationList(true);
             } else {
                 variations = new ArrayList<>();
             }

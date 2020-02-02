@@ -3,56 +3,34 @@
 <%@taglib prefix="cpn" uri="http://sling.composum.com/cpnl/1.0" %>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <sling:defineObjects/>
-<div id="create-asset-config-dialog" class="dialog modal fade" role="dialog" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content form-panel default">
-            <cpn:form classes="widget-form" action="/bin/cpm/assets/assets.createConfig.json" method="POST">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                            aria-hidden="true">&times;</span></button>
-                    <cpn:text tagName="h4" tagClass="modal-title asset" value="Create Configuration"
-                              i18n="true"/>
-                </div>
-                <div class="modal-body">
-                    <div class="messages">
-                        <div class="alert"></div>
+<cpn:component var="model" type="com.composum.assets.commons.widget.ConfigModel" scope="request">
+    <div class="composum-assets-dialogs-config-create dialog modal fade" role="dialog" aria-hidden="true">
+        <div class="composum-assets-dialogs-config modal-dialog">
+            <div class="modal-content form-panel default">
+                <cpn:form action="/bin/cpm/assets/config.create.json${model.path}" method="POST"
+                          class="composum-assets-dialogs-config_form widget-form">
+                    <div class="composum-assets-dialogs-config_header modal-header">
+                        <button type="button" class="modal-dialog_close fa fa-close" data-dismiss="modal"
+                                title="${cpn:i18n(slingRequest,'Close')}"
+                                aria-label="${cpn:i18n(slingRequest,'Close')}"></button>
+                        <sling:call script="header.jsp"/>
                     </div>
-                    <input name="_charset_" type="hidden" value="UTF-8"/>
-                    <input name="path" type="hidden" value="UTF-8"/>
-
-                    <div class="row">
-                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                            <div class="form-group">
-                                <cpn:text tagName="label" tagClass="control-label" value="Configuration Path"
-                                          i18n="true"/>
-                                <input class="config-path widget text-field-widget form-control" type="text"
-                                       disabled="true"/>
+                    <div class="composum-assets-dialogs-config_body modal-body">
+                        <div class="composum-assets-dialogs-config_messages messages">
+                            <div class="panel panel-warning hidden">
+                                <div class="panel-heading"></div>
+                                <div class="panel-body hidden"></div>
                             </div>
                         </div>
+                        <input name="_charset_" type="hidden" value="UTF-8"/>
+                        <sling:call script="content.jsp"/>
                     </div>
-                    <div class="row">
-                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
-                            <div class="form-group">
-                                <cpn:text tagName="label" tagClass="control-label" value="Context" i18n="true"/>
-                                <input class="config-context widget text-field-widget form-control" type="text"
-                                       disabled="true"/>
-                            </div>
-                        </div>
-                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
-                            <div class="form-group ">
-                                <cpn:text tagName="label" tagClass="control-label" value="Name" i18n="true"/>
-                                <input class="config-name widget text-field-widget form-control" type="text"
-                                       disabled="true"/>
-                            </div>
-                        </div>
+                    <div class="composum-assets-dialogs-config_footer modal-footer buttons">
+                        <button type="button" class="btn btn-default cancel" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary create">Create</button>
                     </div>
-                </div>
-
-                <div class="modal-footer buttons">
-                    <button type="button" class="btn btn-default cancel" data-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary create">Create</button>
-                </div>
-            </cpn:form>
+                </cpn:form>
+            </div>
         </div>
     </div>
-</div>
+</cpn:component>

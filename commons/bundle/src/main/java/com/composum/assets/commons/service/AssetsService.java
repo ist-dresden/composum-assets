@@ -60,19 +60,18 @@ public interface AssetsService extends SlingBeanFactory {
     void deleteAsset(@Nullable Resource assetResource)
             throws PersistenceException;
 
-    void setDefaultConfiguration(@Nonnull BeanContext context, @Nonnull Resource configResource, boolean commit)
-            throws PersistenceException;
-
+    @Nullable
     Resource getOrCreateConfiguration(@Nonnull BeanContext context, @Nonnull String path, boolean commit)
             throws PersistenceException;
 
-    Resource copyConfigNode(@Nonnull BeanContext context, @Nonnull Resource parent,
+    @Nullable
+    Resource copyConfigNode(@Nonnull BeanContext context, @Nonnull String holderPath,
                             @Nonnull Resource template, boolean commit)
             throws PersistenceException;
 
     @Nullable
     Resource createConfigNode(@Nonnull BeanContext context,
-                              @Nonnull Resource parent, @Nonnull String name, boolean commit)
+                              @Nonnull Resource parent, @Nullable String name, boolean commit)
             throws PersistenceException;
 
     void deleteConfigNode(@Nonnull BeanContext context, @Nullable Resource configNode, boolean commit)

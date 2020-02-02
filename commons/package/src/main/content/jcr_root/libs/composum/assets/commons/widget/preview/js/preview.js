@@ -45,12 +45,16 @@
             adjustImage: function (src) {
                 if (this.$image && this.$image.length > 0) {
                     if (this.$image.attr('src') !== src) {
-                        this.$el.parent().addClass('loading');
+                        if (src) {
+                            this.$el.parent().addClass('loading');
+                        }
                         this.$image.attr('src', src);
-                        this.$image.on('load.ConfigPreview', _.bind(function () {
-                            this.$image.off('load.ConfigPreview');
-                            this.$el.parent().removeClass('loading');
-                        }, this));
+                        if (src) {
+                            this.$image.on('load.ConfigPreview', _.bind(function () {
+                                this.$image.off('load.ConfigPreview');
+                                this.$el.parent().removeClass('loading');
+                            }, this));
+                        }
                     }
                 }
             },

@@ -42,18 +42,26 @@
                     create: '.detail-toolbar .create',
                     copy: '.detail-toolbar .copy',
                     paste: '.detail-toolbar .paste',
+                    delete: '.detail-toolbar .delete',
                     reload: '.detail-toolbar .reload'
                 },
                 class: {
                     checked: 'checked'
+                },
+                navigator: {
+                    base: 'composum-assets-widget-navigator',
+                    _goUp: '_go-up'
                 }
             },
             event: {
                 change: 'change'
             },
             uri: {
-                change: {
-                    default: '/bin/cpm/assets/assets.configDefault.json'
+                dialog: {
+                    config: '/libs/composum/assets/commons/dialogs/config',
+                    _create: '/create.html',
+                    _paste: '/paste.html',
+                    _delete: '/delete.html'
                 }
             }
         };
@@ -62,9 +70,11 @@
 
             initialize: function (options) {
                 var c = manager.const.config.edit.css.action;
+                var n = manager.const.config.edit.css.navigator;
                 manager.AbstractManagerTab.prototype.initialize.apply(this, [options]);
                 this.initContent();
-                this.$(c.create).click(_.bind(this.copy, this));
+                this.$('.' + n.base + n._goUp).click(_.bind(this.goUp, this));
+                this.$(c.create).click(_.bind(this.create, this));
                 this.$(c.copy).click(_.bind(this.copy, this));
                 var clipboardPath = this.getClipboardPath();
                 if (!clipboardPath) {
@@ -75,12 +85,15 @@
                     }, this));
                     this.$(c.paste).click(_.bind(this.paste, this));
                 }
+                this.$(c.delete).click(_.bind(this.delete, this));
                 this.$(c.reload).click(_.bind(this.refresh, this));
             },
 
             initContent: function () {
                 var c = assets.config.const.general.css;
-                this.config = core.getWidget(this.$el, '.' + c.base, assets.config.ConfigEditor);
+                this.config = core.getWidget(this.$el, '.' + c.base, assets.config.ConfigEditor, {
+                    holder: this
+                });
                 manager.AbstractManagerTab.prototype.initContent.apply(this, [this.$content]);
             },
 
@@ -92,14 +105,23 @@
                 if (event) {
                     event.preventDefault();
                 }
-                var parentPath = this.getSelectedPath();
-                if (parentPath) {
-                    core.ajaxPost("/bin/cpm/assets/assets.create.json" + clipboard.path, {
-                        path: parentPath
-                    }, {}, _.bind(function () {
-                        this.resetView();
+                var u = manager.const.config.edit.uri.dialog;
+                core.openFormDialog(u.config + u._create + this.getSelectedPath(),
+                    core.components.FormDialog, {}, undefined, _.bind(function () {
+                        this.refresh();
                     }, this));
+                return false;
+            },
+
+            delete: function (event, path) {
+                if (event) {
+                    event.preventDefault();
                 }
+                var u = manager.const.config.edit.uri.dialog;
+                core.openFormDialog(u.config + u._delete + this.getSelectedPath(),
+                    core.components.FormDialog, {}, undefined, _.bind(function () {
+                        this.refresh();
+                    }, this));
                 return false;
             },
 
@@ -121,7 +143,7 @@
                 var parentPath = this.getSelectedPath();
                 var path = this.getClipboardPath();
                 if (parentPath && path) {
-                    core.ajaxPost("/bin/cpm/assets/assets.copy.json" + path, {
+                    core.ajaxPost("/bin/cpm/assets/config.copy.json" + path, {
                         path: parentPath
                     }, {}, _.bind(function () {
                         this.resetView();

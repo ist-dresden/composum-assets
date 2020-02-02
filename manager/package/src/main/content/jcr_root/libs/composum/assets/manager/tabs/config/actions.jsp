@@ -18,6 +18,10 @@
                 value="Paste" tagName="span" class="label" i18n="true"/></button>
     </div>
     <div class="btn-group btn-group-sm" role="group">
+        <button class="delete fa fa-trash btn btn-default" title="${cpn:i18n(slingRequest,'Delete')}"><cpn:text
+                value="Delete" tagName="span" class="label" i18n="true"/></button>
+    </div>
+    <div class="btn-group btn-group-sm" role="group">
         <button class="reload fa fa-refresh btn btn-default" title="${cpn:i18n(slingRequest,'Reload')}"><cpn:text
                 value="Reload" tagName="span" class="label" i18n="true"/></button>
     </div>

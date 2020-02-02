@@ -1,5 +1,6 @@
 package com.composum.assets.commons.util;
 
+import com.composum.assets.commons.AssetsConstants;
 import com.composum.assets.commons.config.AssetConfig;
 import com.composum.assets.commons.config.ImageConfig;
 import com.composum.sling.core.ResourceHandle;
@@ -17,16 +18,28 @@ import static com.composum.assets.commons.config.ConfigHandle.EXTENSION;
 
 public class AssetConfigUtil {
 
-    public static boolean isConfigResource(@Nonnull final Resource configResource) {
-        return ResourceUtil.isResourceType(configResource, ImageConfig.NODE_TYPE)
-                || ResourceUtil.isResourceType(configResource, AssetConfig.NODE_TYPE);
-    }
-
-    public static boolean isConfigExtension(@Nonnull final Resource configResource) {
+    public static boolean isConfigExtension(@Nullable final Resource configResource) {
         return (ResourceUtil.isResourceType(configResource, ImageConfig.NODE_TYPE)
                 && configResource.getValueMap().get(EXTENSION, Boolean.TRUE)) ||
                 (ResourceUtil.isResourceType(configResource, AssetConfig.NODE_TYPE)
                         && configResource.getValueMap().get(EXTENSION, Boolean.FALSE));
+    }
+
+    public static boolean isAssetConfigResource(@Nullable final Resource configResource) {
+        return ResourceUtil.isResourceType(configResource, ImageConfig.NODE_TYPE)
+                || ResourceUtil.isResourceType(configResource, AssetConfig.NODE_TYPE);
+    }
+
+    public static boolean isVariationConfigResource(@Nullable final Resource resource) {
+        return ResourceUtil.isResourceType(resource, AssetsConstants.NODE_TYPE_VARIATION_CONFIG);
+    }
+
+    public static boolean isRenditionConfigResource(@Nullable final Resource resource) {
+        return ResourceUtil.isResourceType(resource, AssetsConstants.NODE_TYPE_RENDITION_CONFIG);
+    }
+
+    public static boolean isConfigResource(@Nullable final Resource resource) {
+        return isAssetConfigResource(resource) || isVariationConfigResource(resource) || isRenditionConfigResource(resource);
     }
 
     /**
@@ -43,7 +56,7 @@ public class AssetConfigUtil {
      * @return the configuration cascade of an image configuration resource
      */
     @Nonnull
-    public static List<ResourceHandle> imageConfigCascade(@Nonnull final Resource reference) {
+    public static List<ResourceHandle> imageConfigCascade(@Nullable final Resource reference) {
         List<ResourceHandle> cascade = new ArrayList<>();
         assetConfigCascade(cascade, reference, ImageConfig.NAME_PATTERN, ImageConfig.NODE_TYPE);
         return cascade;
@@ -53,7 +66,7 @@ public class AssetConfigUtil {
      * @return the configuration cascade of an asset configuration resource
      */
     @Nonnull
-    public static List<ResourceHandle> assetConfigCascade(@Nonnull final Resource reference) {
+    public static List<ResourceHandle> assetConfigCascade(@Nullable final Resource reference) {
         List<ResourceHandle> cascade = new ArrayList<>();
         assetConfigCascade(cascade, reference, AssetConfig.NAME_PATTERN, AssetConfig.NODE_TYPE);
         return cascade;

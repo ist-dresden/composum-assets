@@ -5,7 +5,7 @@
 <sling:defineObjects/>
 <cpn:component var="model" type="com.composum.assets.commons.widget.ConfigModel" scope="request">
     <label class="checkbox-inline">
-        <input class="composum-assets-commons-widget-config_check-default" type="checkbox"
+        <input class="composum-assets-widget-config-form_default" type="checkbox"
                <c:if test="${model.handle.defaultConfig}">checked</c:if>/>${cpn:i18n(slingRequest,'Default')}
     </label>
 </cpn:component>

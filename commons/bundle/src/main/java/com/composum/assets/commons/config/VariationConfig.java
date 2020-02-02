@@ -8,6 +8,7 @@ package com.composum.assets.commons.config;
 import com.composum.assets.commons.AssetsConstants;
 import com.composum.sling.core.ResourceHandle;
 import org.apache.sling.api.resource.Resource;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,7 +16,7 @@ import java.util.List;
 
 import static com.composum.assets.commons.AssetsConstants.VARIATION;
 
-public class VariationConfig extends ConfigHandle {
+public class VariationConfig extends ConfigHandle implements Comparable<VariationConfig> {
 
     public static final String NODE_TYPE = AssetsConstants.NODE_TYPE_VARIATION_CONFIG;
     public static final String RESOURCE_TYPE = AssetsConstants.RESOURCE_TYPE_VARIATION_CONFIG;
@@ -32,7 +33,7 @@ public class VariationConfig extends ConfigHandle {
     }
 
     @Override
-    public  String getConfigType(){
+    public String getConfigType() {
         return VARIATION;
     }
 
@@ -63,11 +64,16 @@ public class VariationConfig extends ConfigHandle {
         return renditionCascade != null && renditionCascade.size() > 0 ? new RenditionConfig(this, renditionCascade) : null;
     }
 
-    public List<RenditionConfig> getRenditionList() {
+    public List<RenditionConfig> getRenditionList(boolean cumulated) {
         List<RenditionConfig> result = new ArrayList<>();
-        for (List<ResourceHandle> renditionCascade : getChildren(RenditionConfig.NODE_TYPE).values()) {
+        for (List<ResourceHandle> renditionCascade : getChildren(RenditionConfig.NODE_TYPE, cumulated).values()) {
             result.add(new RenditionConfig(this, renditionCascade));
         }
         return result;
+    }
+
+    @Override
+    public int compareTo(@NotNull VariationConfig other) {
+        return getName().compareTo(other.getName());
     }
 }

@@ -47,7 +47,7 @@ public class ImageAssetBean extends AbstractImageBean<AssetConfig> {
     public List<VariationConfig> getVariationConfigList() {
         if (variationConfigList == null) {
             AssetConfig config = getConfig();
-            variationConfigList = config.getVariationList();
+            variationConfigList = config.getVariationList(true);
         }
         return variationConfigList;
     }

@@ -5,12 +5,12 @@
 <sling:defineObjects/>
 <cpn:component var="model" type="com.composum.assets.commons.widget.ConfigModel" scope="request">
     <label class="checkbox-inline">
-        <input name="extension" type="checkbox" disabled
+        <input name="extension" type="checkbox" class="composum-assets-widget-config-form_extension" disabled
                <c:if test="${model.handle.extension}">checked</c:if>/>${cpn:i18n(slingRequest,'Extension')}
     </label>
-    <div class="actions btn-group btn-group-sm" role="group">
-        <button class="edit fa fa-pencil btn btn-default"
-                title="${cpn:i18n(slingRequest,'Change Configuration')}"><cpn:text
+    <div class="composum-assets-widget-config-form_actions btn-group btn-group-sm" role="group">
+        <button class="composum-assets-widget-config-form_action-edit fa fa-pencil btn btn-default"
+                title="${cpn:i18n(slingRequest,'Change Configuration')}" type="button"><cpn:text
                 value="Edit" tagName="span" class="label" i18n="true"/></button>
     </div>
 </cpn:component>

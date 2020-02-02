@@ -35,8 +35,8 @@
              */
             initialize: function (options) {
                 var c = widgets.const.assetfield.css;
-                core.components.PathWidget.prototype.initialize.call(this, options);
                 this.$preview = this.$('.' + c.base + c._preview);
+                core.components.PathWidget.prototype.initialize.call(this, options);
                 this.$el.on('change', _.bind(this.adjustPreview, this));
             },
 
@@ -73,34 +73,40 @@
              * @extends Widget returns the asset validation (preview response) result
              */
             extValidate: function (value) {
-                return this.validAsset;
+                return this.validAsset === undefined || !!this.validAsset;
             },
 
             adjustPreview: function () {
-                var value = this.getValue();
-                if (value) {
-                    var u = widgets.const.assetfield.url.content;
-                    core.getHtml(u.base + u._preview + value,
-                        _.bind(function (content, result, xhr) {
-                            if (xhr.status === 200) {
-                                this.$preview.html(content);
-                                this.$preview.removeClass('empty-value');
-                                this.validAsset = true;
-                            } else {
+                if (this.$preview && this.$preview.length > 0) {
+                    this.validAsset = undefined;
+                    var value = this.getValue();
+                    if (value) {
+                        var u = widgets.const.assetfield.url.content;
+                        core.getHtml(u.base + u._preview + value,
+                            _.bind(function (content, result, xhr) {
+                                if (xhr.status === 200) {
+                                    this.$preview.html(content);
+                                    this.$preview.removeClass('empty-value');
+                                    this.validAsset = true;
+                                } else {
+                                    this.validAsset = false;
+                                    this.clearPreview();
+                                }
+                            }, this), _.bind(function () {
+                                this.validAsset = false;
                                 this.clearPreview();
-                            }
-                        }, this), _.bind(function () {
-                            this.clearPreview();
-                        }, this));
-                } else {
-                    this.clearPreview();
+                            }, this));
+                    } else {
+                        this.clearPreview();
+                    }
                 }
             },
 
             clearPreview: function () {
-                this.validAsset = false;
-                this.$preview.addClass('empty-value');
-                this.$preview.html('');
+                if (this.$preview && this.$preview.length > 0) {
+                    this.$preview.addClass('empty-value');
+                    this.$preview.html('');
+                }
             }
         });
 
