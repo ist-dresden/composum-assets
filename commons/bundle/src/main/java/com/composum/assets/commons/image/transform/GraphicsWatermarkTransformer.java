@@ -55,7 +55,7 @@ public class GraphicsWatermarkTransformer implements ImageTransformer {
 
             Float alpha = watermark.getAlpha();
             if (alpha != null) {
-                AlphaComposite alphaChannel = AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, alpha);
+                AlphaComposite alphaChannel = AlphaComposite.getInstance(AlphaComposite.SRC, alpha);
                 g2d.setComposite(alphaChannel);
             }
             Color color = watermark.getColor();

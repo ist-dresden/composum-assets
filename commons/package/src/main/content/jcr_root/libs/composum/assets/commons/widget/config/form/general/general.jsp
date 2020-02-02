@@ -4,11 +4,12 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <sling:defineObjects/>
 <cpn:component var="model" type="com.composum.assets.commons.widget.ConfigModel" scope="request">
-    <div class="row">
-        <div class="col col-xs-7">
+    <div class="row" style="align-items: flex-start;">
+        <div class="col col-xs-8">
             <div class="row">
                 <div class="col col-xs-12">
                     <div class="form-group">
+                        <input type="hidden" name="jcr:title@Delete" value="true"/>
                         <label class="control-label">${cpn:i18n(slingRequest,'Title')}</label>
                         <input name="jcr:title" value="${model.title}"
                                type="text" data-rules="blank"
@@ -19,18 +20,20 @@
             <div class="row">
                 <div class="col col-xs-6">
                     <div class="form-group">
+                        <input type="hidden" name="file_jpg_quality@Delete" value="true"/>
                         <label class="control-label">${cpn:i18n(slingRequest,'JPEG Quality')}</label>
-                        <input name="file_jpg_quality" value="${model.file.quality}"
+                        <input name="file_jpg_quality" value="${model.handle.property.file_jpg_quality}"
                                type="text" placeholder="${model.handle.inherited.file_jpg_quality}"
                                class="widget text-field-widget form-control"
-                               data-rules="blank" data-pattern="^(0\.[0-9]+|1\.0|[0-9]+)$"/>
+                               data-rules="blank" data-pattern="^[0-9]+(\.[0-9]+)?$"/>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col col-xs-5">
-            <div class="widget multi-form-widget form-group">
+        <div class="col col-xs-4">
+            <div class="composum-assets-widget-config-form_category widget multi-form-widget form-group">
                 <input type="hidden" name="category@Delete"/>
+                <input type="hidden" name="category@TypeHint" value="String[]"/>
                 <label class="control-label">${cpn:i18n(slingRequest,'Category')}</label>
                 <div class="multi-form-content">
                     <c:forEach items="${model.categorySet}" var="category">
@@ -57,10 +60,11 @@
     <div class="row">
         <div class="col col-xs-12">
             <div class="form-group">
+                <input type="hidden" name="description@Delete" value="true"/>
                 <label class="control-label">${cpn:i18n(slingRequest,'Description')}</label>
                 <div class="composum-widgets-richtext richtext-widget widget form-control"
                      data-rules="blank">
-                            <textarea name="jcr:description" style="height: 60px;"
+                            <textarea name="jcr:description" style="height: 120px;"
                                       class="composum-widgets-richtext_value rich-editor">${model.description}</textarea>
                 </div>
             </div>
@@ -69,10 +73,11 @@
     <div class="row">
         <div class="col col-xs-12">
             <div class="form-group">
+                <input type="hidden" name="example_image_path@Delete" value="true"/>
                 <label class="control-label">${cpn:i18n(slingRequest,'Example Image')}</label>
                 <div class="input-group widget assetfield-widget composum-assets-widget-assetfield"
                      data-rules="blank" data-root="${model.contentRoot}" data-filter="image">
-                    <input name="example_image_path" value="${model.example.path}"
+                    <input name="example_image_path" value="${model.handle.property.example_image_path}"
                            type="text" placeholder="${model.handle.inherited.example_image_path}"
                            class="composum-assets-widget-assetfield_input form-control path-input"/>
                     <span class="composum-assets-widget-assetfield_popup-button input-group-btn"><button

@@ -36,7 +36,7 @@ public class AssetConfig extends ConfigHandle {
     }
 
     @Override
-    public  String getConfigType(){
+    public String getConfigType() {
         return CHILD_NAME;
     }
 
@@ -70,9 +70,9 @@ public class AssetConfig extends ConfigHandle {
         return variationCascade != null && variationCascade.size() > 0 ? new VariationConfig(this, variationCascade) : null;
     }
 
-    public List<VariationConfig> getVariationList() {
+    public List<VariationConfig> getVariationList(boolean cumulated) {
         List<VariationConfig> result = new ArrayList<>();
-        for (List<ResourceHandle> variations : getChildren(VariationConfig.NODE_TYPE).values()) {
+        for (List<ResourceHandle> variations : getChildren(VariationConfig.NODE_TYPE, cumulated).values()) {
             result.add(new VariationConfig(this, variations));
         }
         return result;

@@ -1,13 +1,10 @@
 package com.composum.assets.commons.servlet;
 
-import com.composum.assets.commons.AssetsConfiguration;
-import com.composum.assets.commons.AssetsConstants;
 import com.composum.assets.commons.config.AssetConfig;
 import com.composum.assets.commons.config.ConfigHandle;
 import com.composum.assets.commons.config.RenditionConfig;
 import com.composum.assets.commons.config.VariationConfig;
 import com.composum.assets.commons.service.AssetsService;
-import com.composum.assets.commons.service.MetaPropertiesService;
 import com.composum.assets.commons.util.AssetConfigUtil;
 import com.composum.sling.core.BeanContext;
 import com.composum.sling.core.ResourceHandle;
@@ -16,10 +13,11 @@ import com.composum.sling.core.servlet.ServletOperation;
 import com.composum.sling.core.servlet.ServletOperationSet;
 import com.composum.sling.core.servlet.Status;
 import com.composum.sling.core.util.ResourceUtil;
-import com.composum.sling.core.util.ResponseUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
+import org.apache.sling.api.resource.ModifiableValueMap;
+import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.servlets.HttpConstants;
 import org.apache.sling.api.servlets.ServletResolverConstants;
@@ -34,17 +32,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.composum.assets.commons.AssetsConstants.PATH_ASSET_CONFIG;
+import static com.composum.assets.commons.AssetsConstants.PATH_IMAGE_CONFIG;
+import static com.composum.assets.commons.AssetsConstants.RENDITION;
+import static com.composum.assets.commons.AssetsConstants.VARIATION;
+import static com.composum.assets.commons.util.AssetConfigUtil.isAssetConfigResource;
+import static com.composum.assets.commons.util.AssetConfigUtil.isConfigResource;
+import static com.composum.assets.commons.util.AssetConfigUtil.isRenditionConfigResource;
+import static com.composum.assets.commons.util.AssetConfigUtil.isVariationConfigResource;
+
 /**
- * The servlet to provide changes of the Asset Managers UI.
+ * The servlet to provide changes of the Asset configuratioon resources.
  */
 @Component(service = Servlet.class,
         property = {
@@ -58,13 +65,7 @@ public class ConfigServlet extends AbstractServiceServlet {
     private static final Logger LOG = LoggerFactory.getLogger(ConfigServlet.class);
 
     @Reference
-    protected AssetsConfiguration assetsConfiguration;
-
-    @Reference
     protected AssetsService assetsService;
-
-    @Reference
-    protected MetaPropertiesService metaPropertiesService;
 
     protected BundleContext bundleContext;
 
@@ -79,7 +80,7 @@ public class ConfigServlet extends AbstractServiceServlet {
     //
 
     public enum Extension {
-        html, json
+        json
     }
 
     public enum Operation {
@@ -132,27 +133,9 @@ public class ConfigServlet extends AbstractServiceServlet {
     // operation implementations
     //
 
-    public static boolean isAssetConfigResource(@Nullable final Resource resource) {
-        return ResourceUtil.isResourceType(resource, AssetsConstants.NODE_TYPE_IMAGE_CONFIG) ||
-                ResourceUtil.isResourceType(resource, AssetsConstants.NODE_TYPE_ASSET_CONFIG);
-    }
-
-    public static boolean isVariationConfigResource(@Nullable final Resource resource) {
-        return ResourceUtil.isResourceType(resource, AssetsConstants.NODE_TYPE_VARIATION_CONFIG);
-    }
-
-    public static boolean isRenditionConfigResource(@Nullable final Resource resource) {
-        return ResourceUtil.isResourceType(resource, AssetsConstants.NODE_TYPE_RENDITION_CONFIG);
-    }
-
-    public static boolean isConfigResource(@Nullable final Resource resource) {
-        return isAssetConfigResource(resource) || isVariationConfigResource(resource) || isRenditionConfigResource(resource);
-    }
-
-    //
-    // Configuration data
-    //
-
+    /**
+     * answers with the set of available variations of the configuration requestd by the suffix
+     */
     public class GetVariationsOperation implements ServletOperation {
 
         @Override
@@ -165,17 +148,20 @@ public class ConfigServlet extends AbstractServiceServlet {
             if (isAssetConfigResource(resource)) {
                 config = new AssetConfig(AssetConfigUtil.assetConfigCascade(resource));
             } else if (isRenditionConfigResource(resource)) {
-                config = new AssetConfig(AssetConfigUtil.assetConfigCascade(
-                        Objects.requireNonNull(resource.getParent()).getParent()));
+                config = new AssetConfig(AssetConfigUtil.assetConfigCascade(resource.getParent(2)));
             } else if (isVariationConfigResource(resource)) {
                 config = new AssetConfig(AssetConfigUtil.assetConfigCascade(resource.getParent()));
             }
             if (config != null) {
+                String param = request.getParameter("cumulated");
+                boolean cumulated = param != null && (StringUtils.isBlank(param) || Boolean.parseBoolean(param));
                 Map<String, Object> configuration = status.data("configuration");
-                configuration.put("path", config.getPath());
                 Map<String, Object> variationSet = status.data("variations");
                 List<Map<String, Object>> variationList = status.list("variations");
-                for (VariationConfig variation : config.getVariationList()) {
+                configuration.put("path", config.getPath());
+                List<VariationConfig> list = config.getVariationList(cumulated);
+                Collections.sort(list);
+                for (VariationConfig variation : list) {
                     RenditionConfig original = variation.getOriginal();
                     Map<String, Object> variationData = new LinkedHashMap<String, Object>() {{
                         put("name", variation.getName());
@@ -199,6 +185,10 @@ public class ConfigServlet extends AbstractServiceServlet {
         }
     }
 
+    /**
+     * answers with the set of available renditions of the configuration requestd by the suffix and
+     * the 'variation' parameter
+     */
     public class GetRenditionsOperation implements ServletOperation {
 
         @Override
@@ -207,10 +197,11 @@ public class ConfigServlet extends AbstractServiceServlet {
                          final ResourceHandle resource)
                 throws IOException {
             Status status = new Status(request, response);
+            AssetConfig assetConfig = null;
             VariationConfig config = null;
             if (isAssetConfigResource(resource)) {
-                String name = request.getParameter(AssetsConstants.VARIATION);
-                AssetConfig assetConfig = new AssetConfig(AssetConfigUtil.assetConfigCascade(resource));
+                String name = request.getParameter(VARIATION);
+                assetConfig = new AssetConfig(AssetConfigUtil.assetConfigCascade(resource));
                 if (StringUtils.isNotBlank(name)) {
                     config = assetConfig.getVariation(name);
                 }
@@ -218,31 +209,36 @@ public class ConfigServlet extends AbstractServiceServlet {
                     config = assetConfig.findVariation(ConfigHandle.DEFAULT);
                 }
             } else if (isVariationConfigResource(resource)) {
-                config = new VariationConfig(new AssetConfig(AssetConfigUtil.assetConfigCascade(resource.getParent())), resource);
+                assetConfig = new AssetConfig(AssetConfigUtil.assetConfigCascade(resource.getParent()));
+                config = new VariationConfig(assetConfig, resource);
             } else if (isRenditionConfigResource(resource)) {
-                config = new VariationConfig(
-                        new AssetConfig(AssetConfigUtil.assetConfigCascade(
-                                Objects.requireNonNull(resource.getParent()).getParent())),
-                        resource.getParent());
+                assetConfig = new AssetConfig(AssetConfigUtil.assetConfigCascade(resource.getParent(2)));
+                config = new VariationConfig(assetConfig, resource.getParent());
             }
-            if (config != null) {
+            if (assetConfig != null) {
+                String param = request.getParameter("cumulated");
+                boolean cumulated = param != null && (StringUtils.isBlank(param) || Boolean.parseBoolean(param));
                 Map<String, Object> configuration = status.data("configuration");
-                configuration.put("path", config.getAssetConfig().getPath());
-                Map<String, Object> variation = status.data("variation");
-                variation.put("name", config.getName());
+                configuration.put("path", assetConfig.getPath());
                 Map<String, Object> renditionSet = status.data("renditions");
                 List<Map<String, Object>> renditionList = status.list("renditions");
-                for (RenditionConfig rendition : config.getRenditionList()) {
-                    Map<String, Object> renditionData = new LinkedHashMap<String, Object>() {{
-                        put("name", rendition.getName());
+                if (config != null) {
+                    Map<String, Object> variation = status.data("variation");
+                    variation.put("name", config.getName());
+                    List<RenditionConfig> list = config.getRenditionList(cumulated);
+                    Collections.sort(list);
+                    for (RenditionConfig rendition : list) {
+                        Map<String, Object> renditionData = new LinkedHashMap<String, Object>() {{
+                            put("name", rendition.getName());
+                            if (rendition.isDefaultConfig()) {
+                                put("default", true);
+                            }
+                        }};
+                        renditionList.add(renditionData);
+                        renditionSet.put(rendition.getName(), rendition.getName());
                         if (rendition.isDefaultConfig()) {
-                            put("default", true);
+                            variation.put("defaultRendition", rendition.getName());
                         }
-                    }};
-                    renditionList.add(renditionData);
-                    renditionSet.put(rendition.getName(), rendition.getName());
-                    if (rendition.isDefaultConfig()) {
-                        variation.put("defaultRendition", rendition.getName());
                     }
                 }
             } else {
@@ -256,55 +252,115 @@ public class ConfigServlet extends AbstractServiceServlet {
     // Configuration chnanges
     //
 
+    /**
+     * creates a new configuration resource as child of the resource referenced in the suffix
+     * the new nodes name is specified by the 'name' parameter
+     * the parent specified in the suffix can be a configuration node or a variation node within;
+     * a variation of a configuration as parent can also be specified by its name
+     * in the 'variation' parameter
+     * a new configuration node is created as child of the 'jcr:content' node of the specified parent
+     */
     public class ConfigCreateOperation implements ServletOperation {
 
         @Override
         public void doIt(@Nonnull final SlingHttpServletRequest request,
                          @Nonnull final SlingHttpServletResponse response,
-                         final ResourceHandle resource)
+                         ResourceHandle resource)
                 throws IOException {
             Status status = new Status(request, response);
 
             BeanContext context = new BeanContext.Servlet(getServletContext(), bundleContext, request, response);
-
             String name = request.getParameter(PARAM_NAME);
 
-            if (!isConfigResource(resource) || StringUtils.isNotBlank(name)) {
+            if (!isAssetConfigResource(resource) || StringUtils.isNotBlank(name)) {
+                String param;
 
-                Resource configResource = assetsService.createConfigNode(context, resource, name, true);
-                if (configResource == null) {
-                    status.error("can't create configuration: '{}:{}'", resource.getPath(), name);
+                if (StringUtils.isNotBlank(param = request.getParameter(VARIATION))) {
+                    if (AssetConfigUtil.isVariationConfigResource(resource) && !resource.getName().equals(param)) {
+                        resource = ResourceHandle.use(Objects.requireNonNull(resource.getParent()).getChild(param));
+                    } else if (AssetConfigUtil.isAssetConfigResource(resource)) {
+                        resource = ResourceHandle.use(resource.getChild(param));
+                    }
                 }
 
-            } else {
-                status.error("configuration exists always: '{}'", resource.getPath());
+                if (resource.isValid()) {
+                    try {
+                        Resource configResource = assetsService.createConfigNode(context, resource, name, false);
+
+                        ModifiableValueMap values;
+                        if (configResource != null && (values = configResource.adaptTo(ModifiableValueMap.class)) != null) {
+
+                            if (StringUtils.isNotBlank(param = request.getParameter(ResourceUtil.JCR_TITLE))) {
+                                values.put(ResourceUtil.JCR_TITLE, param);
+                            }
+                            if (StringUtils.isNotBlank(param = request.getParameter(ResourceUtil.JCR_DESCRIPTION))) {
+                                values.put(ResourceUtil.JCR_DESCRIPTION, param);
+                            }
+                            if ((param = request.getParameter(ConfigHandle.EXTENSION)) != null &&
+                                    Boolean.parseBoolean(param) || "on".equalsIgnoreCase(param)) {
+                                values.put(ConfigHandle.EXTENSION, true);
+                            }
+
+                            context.getResolver().commit();
+
+                        } else {
+                            status.error("can't determine parent: '{}:{}'", resource.getPath(), name);
+                        }
+
+                    } catch (PersistenceException ex) {
+                        LOG.error(ex.getMessage(), ex);
+                        status.error("server error: '{}'" + ex.getMessage());
+
+                    }
+                } else {
+                    status.error("configuration exists already: '{}'", resource.getPath());
+                }
             }
 
             status.sendJson();
         }
     }
 
+    /**
+     * copies the configuration resource specified in the suffix the the new holder specified in the 'path'
+     * parameter; the suffix can be a configuration resource or a holder of such a resource; the 'path' must
+     * be a potentially holder for a configuration
+     */
     public class ConfigCopyOperation implements ServletOperation {
 
         @Override
         public void doIt(@Nonnull final SlingHttpServletRequest request,
                          @Nonnull final SlingHttpServletResponse response,
-                         final ResourceHandle resource)
+                         ResourceHandle resource)
                 throws IOException {
             Status status = new Status(request, response);
 
             BeanContext context = new BeanContext.Servlet(getServletContext(), bundleContext, request, response);
 
             String path = request.getParameter(PARAM_PATH);
-            Resource parent;
 
-            if (StringUtils.isNotBlank(path) && (parent = context.getResolver().getResource(path)) != null) {
+            if (StringUtils.isNotBlank(path) && (context.getResolver().getResource(path)) != null) {
+
+                if (!isAssetConfigResource(resource)) {
+                    Resource config;
+                    if (isAssetConfigResource(config = resource.getChild(PATH_ASSET_CONFIG))) {
+                        resource = ResourceHandle.use(config);
+                    } else if (isAssetConfigResource(config = resource.getChild(PATH_IMAGE_CONFIG))) {
+                        resource = ResourceHandle.use(config);
+                    }
+                }
 
                 if (isAssetConfigResource(resource)) {
 
-                    Resource configResource = assetsService.copyConfigNode(context, parent, resource, true);
-                    if (configResource == null) {
-                        status.error("can't copy configuration: '{}'", resource.getPath());
+                    try {
+                        Resource configResource = assetsService.copyConfigNode(context, path, resource, true);
+                        if (configResource == null) {
+                            status.error("can't copy configuration: '{}'", resource.getPath());
+                        }
+
+                    } catch (PersistenceException ex) {
+                        LOG.error(ex.getMessage(), ex);
+                        status.error("server error: '{}'" + ex.getMessage());
                     }
 
                 } else {
@@ -318,23 +374,44 @@ public class ConfigServlet extends AbstractServiceServlet {
         }
     }
 
+    /**
+     * deletes a configuration resource or an element (variation or rendition) of a configuration
+     * the resource specified in the suffix is deleted; if this resource is a configuration node and
+     * a 'variation' / 'rendition' parameter is present the specified variation or rendition is deleted
+     */
     public class ConfigDeleteOperation implements ServletOperation {
 
         @Override
         public void doIt(@Nonnull final SlingHttpServletRequest request,
                          @Nonnull final SlingHttpServletResponse response,
-                         final ResourceHandle resource)
+                         ResourceHandle resource)
                 throws IOException {
             Status status = new Status(request, response);
 
-            BeanContext context = new BeanContext.Servlet(getServletContext(), bundleContext, request, response);
-            if (isConfigResource(resource)) {
+            if (isAssetConfigResource(resource)) {
+                String param;
 
-                assetsService.deleteConfigNode(context, resource, true);
-                ResponseUtil.writeEmptyObject(response);
+                if (StringUtils.isNotBlank(param = request.getParameter(VARIATION))) {
+                    resource = ResourceHandle.use(resource.getChild(param));
+                    if (StringUtils.isNotBlank(param = request.getParameter(RENDITION))) {
+                        resource = ResourceHandle.use(resource.getChild(param));
+                    }
+                }
+            }
+
+            if (isConfigResource(resource)) {
+                try {
+                    BeanContext context = new BeanContext.Servlet(getServletContext(), bundleContext, request, response);
+
+                    assetsService.deleteConfigNode(context, resource, true);
+
+                } catch (PersistenceException ex) {
+                    LOG.error(ex.getMessage(), ex);
+                    status.error("server error: '{}'" + ex.getMessage());
+                }
 
             } else {
-                status.error("configuration node not found or not the right type: '{}'",
+                status.error("configuration node not found or not of the right type: '{}'",
                         (resource != null ? resource.getPath() : "<null>"));
             }
 

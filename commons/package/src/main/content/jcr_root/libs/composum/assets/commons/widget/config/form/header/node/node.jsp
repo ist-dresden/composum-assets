@@ -5,7 +5,9 @@
 <sling:defineObjects/>
 <cpn:component var="model" type="com.composum.assets.commons.widget.ConfigModel" scope="request">
     <label class="checkbox-inline">
-        <input name="extension" type="checkbox"
+        <input type="hidden" name="extension@TypeHint" value="Boolean"/>
+        <input type="hidden" name="extension@Delete" value="true"/>
+        <input name="extension" type="checkbox" class="composum-assets-widget-config-form_extension"
                <c:if test="${model.handle.extension}">checked</c:if>/>${cpn:i18n(slingRequest,'Extension')}
     </label>
 </cpn:component>

@@ -9,6 +9,7 @@ import com.composum.assets.commons.config.VariationConfig;
 import com.composum.assets.commons.util.AssetConfigUtil;
 import com.composum.sling.core.BeanContext;
 import com.composum.sling.core.filter.ResourceFilter;
+import com.composum.sling.core.util.I18N;
 import com.composum.sling.core.util.ResourceUtil;
 import org.apache.jackrabbit.JcrConstants;
 import org.apache.sling.api.resource.Resource;
@@ -18,6 +19,7 @@ import org.apache.sling.api.wrappers.ValueMapDecorator;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
 
 import static com.composum.assets.commons.config.ConfigHandle.CATEGORY;
 import static com.composum.assets.commons.config.ConfigHandle.DEFAULT;
@@ -45,6 +47,7 @@ public class ConfigModel extends ConfigView {
 
     protected Scope scope;
     protected String configType;
+    protected String actionUrl;
     protected boolean valid = true;
 
     private transient List<VariationConfig> variations;
@@ -151,16 +154,21 @@ public class ConfigModel extends ConfigView {
                 }
                 values = INHERITED_ONLY;
                 break;
+            case node:
+                actionUrl = config.getPath();
+                break;
             case variation:
                 if (variation != null) {
                     handle = variation;
                     values = variation.getResource().getValueMap();
+                    actionUrl = variation.getPath();
                 }
                 break;
             case rendition:
                 if (rendition != null) {
                     handle = rendition;
                     values = rendition.getResource().getValueMap();
+                    actionUrl = rendition.getPath();
                 }
                 break;
         }
@@ -191,6 +199,29 @@ public class ConfigModel extends ConfigView {
         return configType != null ? configType : handle != null ? handle.getConfigType() : "";
     }
 
+    public String getConfigLabel() {
+        switch (scope) {
+            case variation:
+                return " - " + I18N.get(getRequest(), "Variation") + ": "
+                        + variation.getName();
+            case rendition:
+                return " - " + I18N.get(getRequest(), "Rendition") + ": "
+                        + rendition.getVariation().getName() + " / " + rendition.getName();
+            default:
+                return "";
+        }
+    }
+
+    public String getCurrentPath() {
+        String path = getPath();
+        Matcher matcher = HOLDER_PATH.matcher(path);
+        return matcher.matches() ? matcher.group(1) : path;
+    }
+
+    public String getActionUrl() {
+        return actionUrl;
+    }
+
     public Scope getScope() {
         return scope;
     }
@@ -200,6 +231,16 @@ public class ConfigModel extends ConfigView {
             contentRoot = context.getService(AssetsConfiguration.class).getContentRoot();
         }
         return contentRoot;
+    }
+
+    public boolean getHasBase() {
+        return base != null;
+    }
+
+    public String getBaseHolder() {
+        String path = getBasePath();
+        Matcher matcher = HOLDER_PATH.matcher(path);
+        return matcher.matches() ? matcher.group(1) : path;
     }
 
     public String getBasePath() {
@@ -233,7 +274,8 @@ public class ConfigModel extends ConfigView {
     public List<VariationConfig> getVariations() {
         if (variations == null) {
             if (handle != null) {
-                variations = handle.getAssetConfig().getVariationList();
+                variations = handle.getAssetConfig().getVariationList(false);
+                Collections.sort(variations);
             } else {
                 variations = Collections.emptyList();
             }
@@ -248,7 +290,8 @@ public class ConfigModel extends ConfigView {
     public List<RenditionConfig> getRenditions() {
         if (renditions == null) {
             if (variation != null) {
-                renditions = variation.getRenditionList();
+                renditions = variation.getRenditionList(false);
+                Collections.sort(renditions);
             } else {
                 renditions = Collections.emptyList();
             }

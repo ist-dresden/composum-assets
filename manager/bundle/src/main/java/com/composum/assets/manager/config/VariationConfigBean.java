@@ -45,6 +45,6 @@ public class VariationConfigBean extends AbstractConfigBean {
     }
 
     public List<RenditionConfig> getRenditionList() {
-        return config.getRenditionList();
+        return config.getRenditionList(true);
     }
 }

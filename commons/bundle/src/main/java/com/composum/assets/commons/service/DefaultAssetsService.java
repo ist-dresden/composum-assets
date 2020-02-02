@@ -7,7 +7,7 @@ package com.composum.assets.commons.service;
 
 import com.composum.assets.commons.AssetsConstants;
 import com.composum.assets.commons.config.AssetConfig;
-import com.composum.assets.commons.config.ConfigHandle;
+import com.composum.assets.commons.config.ImageConfig;
 import com.composum.assets.commons.handle.AssetRendition;
 import com.composum.assets.commons.handle.AssetVariation;
 import com.composum.assets.commons.handle.ImageAsset;
@@ -28,7 +28,6 @@ import org.apache.sling.api.resource.ModifiableValueMap;
 import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
-import org.apache.sling.api.resource.ValueMap;
 import org.apache.tika.mime.MimeType;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -39,14 +38,18 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.Workspace;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.composum.assets.commons.AssetsConstants.ASSET_CONFIG;
+import static com.composum.assets.commons.AssetsConstants.IMAGE_CONFIG;
+import static com.composum.assets.commons.AssetsConstants.NODE_TYPE_ASSET;
+import static com.composum.assets.commons.AssetsConstants.NODE_TYPE_ASSET_CONFIG;
+import static com.composum.assets.commons.AssetsConstants.NODE_TYPE_IMAGE_CONFIG;
 import static com.composum.assets.commons.handle.AssetHandle.IMAGE_RESOURCE_TYPE;
 import static com.composum.assets.commons.service.AssetsSearchPlugin.SELECTOR_ASSET;
 
@@ -61,7 +64,14 @@ public class DefaultAssetsService implements AssetsService {
 
     public static final Map<String, Object> FOLDER_PROPERTIES;
     public static final Map<String, Object> CONTENT_PROPERTIES;
-    public static final Map<String, Object> ASSET_CONFIG_PROPERTIES;
+    public static final Map<String, Object> ASSET_CONFIG_PROPERTIES = new HashMap<String, Object>() {{
+        put(ResourceUtil.PROP_PRIMARY_TYPE, AssetsConstants.NODE_TYPE_ASSET_CONFIG);
+        put(ResourceUtil.PROP_RESOURCE_TYPE, AssetsConstants.RESOURCE_TYPE_CONFIG);
+    }};
+    public static final Map<String, Object> IMAGE_CONFIG_PROPERTIES = new HashMap<String, Object>() {{
+        put(ResourceUtil.PROP_PRIMARY_TYPE, AssetsConstants.NODE_TYPE_IMAGE_CONFIG);
+        put(ResourceUtil.PROP_RESOURCE_TYPE, AssetsConstants.RESOURCE_TYPE_CONFIG);
+    }};
     public static final Map<String, Object> VARIATION_CONFIG_PROPERTIES;
     public static final Map<String, Object> RENDITION_CONFIG_PROPERTIES;
     public static final Map<String, Map<String, Object>> CONFIG_PROPERTIES;
@@ -78,9 +88,6 @@ public class DefaultAssetsService implements AssetsService {
     }
 
     static {
-        ASSET_CONFIG_PROPERTIES = new HashMap<>();
-        ASSET_CONFIG_PROPERTIES.put(ResourceUtil.PROP_PRIMARY_TYPE, AssetsConstants.NODE_TYPE_ASSET_CONFIG);
-        ASSET_CONFIG_PROPERTIES.put(ResourceUtil.PROP_RESOURCE_TYPE, AssetsConstants.RESOURCE_TYPE_CONFIG);
         VARIATION_CONFIG_PROPERTIES = new HashMap<>();
         VARIATION_CONFIG_PROPERTIES.put(ResourceUtil.PROP_PRIMARY_TYPE, AssetsConstants.NODE_TYPE_VARIATION_CONFIG);
         VARIATION_CONFIG_PROPERTIES.put(ResourceUtil.PROP_RESOURCE_TYPE, AssetsConstants.RESOURCE_TYPE_VARIATION_CONFIG);
@@ -96,41 +103,13 @@ public class DefaultAssetsService implements AssetsService {
         CONFIG_CHILD_TYPE.put(AssetsConstants.NODE_TYPE_VARIATION_CONFIG, AssetsConstants.NODE_TYPE_RENDITION_CONFIG);
     }
 
-    public static final List<String> COPY_KEYS = Arrays.asList(
-
-            ConfigHandle.CATEGORY,
-            ConfigHandle.FILE_QUALITY,
-
-            ConfigHandle.WIDTH,
-            ConfigHandle.HEIGHT,
-            ConfigHandle.ASPECT_RATIO,
-
-            ConfigHandle.CROP_VERTICAL,
-            ConfigHandle.CROP_HORIZONTAL,
-            ConfigHandle.CROP_SCALE,
-
-            ConfigHandle.WATERMARK_TEXT,
-            ConfigHandle.WATERMARK_FONT_FAMILY,
-            ConfigHandle.WATERMARK_FONT_BOLD,
-            ConfigHandle.WATERMARK_FONT_ITALIC,
-            ConfigHandle.WATERMARK_FONT_SIZE,
-            ConfigHandle.WATERMARK_POS_VERTICAL,
-            ConfigHandle.WATERMARK_POS_HORIZONTAL,
-            ConfigHandle.WATERMARK_COLOR,
-            ConfigHandle.WATERMARK_ALPHA,
-
-            ConfigHandle.EXAMPLE_IMAGE_PATH,
-
-            ConfigHandle.TRANSFORMATION_BLUR_FACTOR
-    );
-
     public static final Map<String, Object> IMAGE_PROPERTIES;
     public static final Map<String, Object> IMAGE_CONTENT_PROPERTIES;
     public static final Map<String, Object> IMAGE_META_PROPERTIES;
 
     static {
         IMAGE_PROPERTIES = new HashMap<>();
-        IMAGE_PROPERTIES.put(ResourceUtil.PROP_PRIMARY_TYPE, AssetsConstants.NODE_TYPE_ASSET);
+        IMAGE_PROPERTIES.put(ResourceUtil.PROP_PRIMARY_TYPE, NODE_TYPE_ASSET);
         IMAGE_PROPERTIES.put(ResourceUtil.PROP_RESOURCE_TYPE, IMAGE_RESOURCE_TYPE);
         IMAGE_CONTENT_PROPERTIES = new HashMap<>();
         IMAGE_CONTENT_PROPERTIES.put(ResourceUtil.PROP_PRIMARY_TYPE, AssetsConstants.NODE_TYPE_ASSET_CONTENT);
@@ -175,7 +154,7 @@ public class DefaultAssetsService implements AssetsService {
         ResourceResolver resolver = context.getResolver();
         String pathAndName = assetOrParentPath + (StringUtils.isNotBlank(name) ? ("/" + name) : "");
         Resource assetResource = resolver.getResource(pathAndName);
-        if (!ResourceUtil.isNodeType(assetResource, AssetsConstants.NODE_TYPE_ASSET)) {
+        if (!ResourceUtil.isNodeType(assetResource, NODE_TYPE_ASSET)) {
             if (StringUtils.isNotBlank(name)) {
                 return createImageAsset(context, assetOrParentPath, name, variation, imageData);
             } else {
@@ -209,7 +188,7 @@ public class DefaultAssetsService implements AssetsService {
     @Override
     public void transformToImageAsset(@Nonnull final BeanContext context, @Nonnull final Resource imageResource)
             throws PersistenceException, RepositoryException {
-        if (!ResourceUtil.isNodeType(imageResource, AssetsConstants.NODE_TYPE_ASSET)) {
+        if (!ResourceUtil.isNodeType(imageResource, NODE_TYPE_ASSET)) {
             ResourceResolver resolver = context.getResolver();
             Resource parent = Objects.requireNonNull(imageResource.getParent());
             String assetPath = imageResource.getPath();
@@ -293,72 +272,39 @@ public class DefaultAssetsService implements AssetsService {
     }
 
     @Override
-    public void setDefaultConfiguration(@Nonnull final BeanContext context,
-                                        @Nonnull final Resource configResource, boolean commit)
-            throws PersistenceException {
-        String configPath = configResource.getPath();
-        Resource folder = configResource.getParent();
-        List<Resource> configList = ResourceUtil.getChildrenByType(folder, AssetsConstants.ASSET_CONFIG_TYPE_SET);
-        for (Resource sibling : configList) {
-            if (!sibling.getPath().equals(configPath)) {
-                ValueMap values = sibling.adaptTo(ModifiableValueMap.class);
-                if (values != null) {
-                    List<String> categorySet = new ArrayList<>();
-                    boolean changed = false;
-                    for (String category : values.get(ConfigHandle.CATEGORY, new String[0])) {
-                        if (!ConfigHandle.DEFAULT.equals(category)) {
-                            categorySet.add(category);
-                        } else {
-                            changed = true;
-                        }
-                    }
-                    if (changed) {
-                        values.put(ConfigHandle.CATEGORY, categorySet.toArray());
-                    }
-                } else {
-                    throw new PersistenceException("configuration not modifiable: '" + sibling.getPath() + "'");
-                }
-            }
-        }
-        ValueMap values = configResource.adaptTo(ModifiableValueMap.class);
-        if (values != null) {
-            List<String> categorySet = new ArrayList<>(Arrays.asList(values.get(ConfigHandle.CATEGORY, new String[0])));
-            if (!categorySet.contains(ConfigHandle.DEFAULT)) {
-                categorySet.add(ConfigHandle.DEFAULT);
-                values.put(ConfigHandle.CATEGORY, categorySet.toArray());
-            }
-        } else {
-            throw new PersistenceException("configuration not modifiable: '" + configResource.getPath() + "'");
-        }
-        if (commit) {
-            ResourceResolver resolver = context.getResolver();
-            resolver.commit();
-        }
-    }
-
-    @Override
+    @Nullable
     public Resource getOrCreateConfiguration(@Nonnull final BeanContext context,
                                              @Nonnull final String path, boolean commit)
             throws PersistenceException {
         Resource config = null;
         ResourceResolver resolver = context.getResolver();
-        Resource folder = resolver.getResource(path);
-        if (folder != null) {
-            Resource content = folder.getChild(JcrConstants.JCR_CONTENT);
+        Resource holder = resolver.getResource(path);
+        if (holder != null) {
+            String configName = AssetConfig.CHILD_NAME;
+            String configType = AssetsConstants.NODE_TYPE_ASSET_CONFIG;
+            Map<String, Object> configProps = ASSET_CONFIG_PROPERTIES;
+            if (ResourceUtil.isResourceType(holder, NODE_TYPE_ASSET)) {
+                configType = AssetsConstants.NODE_TYPE_IMAGE_CONFIG;
+                configName = ImageConfig.CHILD_NAME;
+                configProps = IMAGE_CONFIG_PROPERTIES;
+            }
+            Resource content = holder.getChild(JcrConstants.JCR_CONTENT);
             if (content == null) {
-                LOG.info("folder.createContent: " + path);
-                content = resolver.create(folder, JcrConstants.JCR_CONTENT, CONTENT_PROPERTIES);
+                LOG.info("createContent: " + path);
+                content = resolver.create(holder, JcrConstants.JCR_CONTENT, CONTENT_PROPERTIES);
             } else {
-                List<Resource> configList = ResourceUtil.getChildrenByType(content, AssetsConstants.NODE_TYPE_ASSET_CONFIG);
+                List<Resource> configList = ResourceUtil.getChildrenByType(content, configType);
                 if (configList.size() > 0) {
                     config = configList.get(0);
                 }
             }
             if (config == null) {
-                LOG.info("folder.createConfig: " + path);
-                config = resolver.create(content, AssetConfig.CHILD_NAME, ASSET_CONFIG_PROPERTIES);
+                LOG.info("createConfig: " + path);
+                config = resolver.create(content, configName, configProps);
                 if (commit) {
                     resolver.commit();
+                } else {
+                    resolver.refresh();
                 }
             }
         }
@@ -366,36 +312,55 @@ public class DefaultAssetsService implements AssetsService {
     }
 
     @Override
-    public Resource copyConfigNode(@Nonnull final BeanContext context, @Nonnull final Resource parent,
+    @Nullable
+    public Resource copyConfigNode(@Nonnull final BeanContext context, @Nonnull final String holderPath,
                                    @Nonnull final Resource template, boolean commit)
             throws PersistenceException {
-        String name = template.getName();
-        Resource configNode = createConfigNode(context, parent, name, false);
-        if (configNode != null) {
-            ResourceResolver resolver = context.getResolver();
-            ModifiableValueMap values = configNode.adaptTo(ModifiableValueMap.class);
-            if (values != null) {
-                ValueMap templateValues = template.getValueMap();
-                for (Map.Entry<String, Object> entry : templateValues.entrySet()) {
-                    String key = entry.getKey();
-                    if (COPY_KEYS.contains(key)) {
-                        values.put(key, entry.getValue());
-                    }
-                }
-            } else {
-                throw new PersistenceException("configuration not modifiable: '" + configNode.getPath() + "'");
+        Resource config = null;
+        ResourceResolver resolver = context.getResolver();
+        Resource holder = resolver.getResource(holderPath);
+        if (holder != null) {
+            String name = ASSET_CONFIG;
+            String type = NODE_TYPE_ASSET_CONFIG;
+            if (ResourceUtil.isResourceType(holder, NODE_TYPE_ASSET)) {
+                name = IMAGE_CONFIG;
+                type = NODE_TYPE_IMAGE_CONFIG;
             }
+            Resource content = holder.getChild(JcrConstants.JCR_CONTENT);
+            if (content == null) {
+                LOG.info("createContent: '{}'", holderPath);
+                content = resolver.create(holder, JcrConstants.JCR_CONTENT, CONTENT_PROPERTIES);
+            }
+            String path = content.getPath() + "/" + name;
+            Resource toReplace = content.getChild(name);
+            if (toReplace != null) {
+                resolver.delete(toReplace);
+            }
+            resolver.refresh();
+            LOG.info("copy template '{}': '{}' ({})", template.getPath(), path, type);
+            try {
+                Workspace workspace = Objects.requireNonNull(resolver.adaptTo(Session.class)).getWorkspace();
+                workspace.copy(template.getPath(), path);
+            } catch (RepositoryException ex) {
+                throw new PersistenceException(ex.getMessage(), ex);
+            }
+            resolver.refresh();
+            config = resolver.getResource(path);
+            ModifiableValueMap values = Objects.requireNonNull(config.adaptTo(ModifiableValueMap.class));
+            values.put(JcrConstants.JCR_PRIMARYTYPE, type);
             if (commit) {
                 resolver.commit();
+            } else {
+                resolver.refresh();
             }
         }
-        return configNode;
+        return config;
     }
 
     @Override
     @Nullable
     public Resource createConfigNode(@Nonnull final BeanContext context,
-                                     @Nonnull Resource parent, @Nonnull final String name, boolean commit)
+                                     @Nonnull Resource parent, @Nullable final String name, boolean commit)
             throws PersistenceException {
         Resource configNode = null;
         String parentType = ResourceUtil.getPrimaryType(parent);
@@ -403,10 +368,12 @@ public class DefaultAssetsService implements AssetsService {
         if (childType == null) {
             if (AssetsConstants.NODE_TYPE_RENDITION_CONFIG.equals(parentType)) {
                 // if the parent is a rendition config create a sibling
-                parent = Objects.requireNonNull(parent.getParent());
-                configNode = parent.getChild(name);
-                parentType = ResourceUtil.getPrimaryType(parent);
-                childType = CONFIG_CHILD_TYPE.get(parentType);
+                if (StringUtils.isNotBlank(name)) {
+                    parent = Objects.requireNonNull(parent.getParent());
+                    configNode = parent.getChild(name);
+                    parentType = ResourceUtil.getPrimaryType(parent);
+                    childType = CONFIG_CHILD_TYPE.get(parentType);
+                }
             } else {
                 // otherwise we assume that the parent is a folder
                 // which should be transformed into a configuration node
@@ -417,10 +384,12 @@ public class DefaultAssetsService implements AssetsService {
             configNode = parent.getChild(name);
             if (configNode == null && StringUtils.isNotBlank(childType)) {
                 ResourceResolver resolver = context.getResolver();
-                LOG.info("folder.createConfigNode: " + parent.getPath() + ":" + name);
+                LOG.info("createConfigNode: " + parent.getPath() + ":" + name);
                 configNode = resolver.create(parent, name, CONFIG_PROPERTIES.get(childType));
                 if (commit) {
                     resolver.commit();
+                } else {
+                    resolver.refresh();
                 }
             }
         }
@@ -435,13 +404,15 @@ public class DefaultAssetsService implements AssetsService {
             String configPath = configNode.getPath();
             String configType = ResourceUtil.getPrimaryType(configNode);
             if (AssetsConstants.NODE_TYPE_ASSET_CONFIG.equals(configType)) {
-                LOG.info("folder.deleteConfig: " + configPath);
+                LOG.info("deleteConfig: " + configPath);
             } else {
                 LOG.info("assetConfig.delete: " + configPath);
             }
             resolver.delete(configNode);
             if (commit) {
                 resolver.commit();
+            } else {
+                resolver.refresh();
             }
         }
     }

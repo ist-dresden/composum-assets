@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
 
 import static com.composum.assets.commons.AssetsConstants.PATH_ASSET_CONFIG;
 import static com.composum.assets.commons.AssetsConstants.PATH_IMAGE_CONFIG;
+import static com.composum.assets.commons.config.ConfigHandle.EXTENSION;
 import static com.composum.assets.commons.util.AssetConfigUtil.isConfigExtension;
 
 /**
@@ -96,9 +97,9 @@ public class ConfigView extends AbstractServletBean {
             if (config == null) {
                 // if resource itself is not a configuration - check for a resource with a configuration child
                 Resource configChild;
-                if (AssetConfigUtil.isConfigResource(configChild = resource.getChild(PATH_ASSET_CONFIG))) {
+                if (AssetConfigUtil.isAssetConfigResource(configChild = resource.getChild(PATH_ASSET_CONFIG))) {
                     config = configChild;
-                } else if (AssetConfigUtil.isConfigResource(configChild = resource.getChild(PATH_IMAGE_CONFIG))) {
+                } else if (AssetConfigUtil.isAssetConfigResource(configChild = resource.getChild(PATH_IMAGE_CONFIG))) {
                     config = configChild;
                 }
             }
@@ -169,16 +170,16 @@ public class ConfigView extends AbstractServletBean {
      * @return the configuration found or 'null'
      */
     public Resource getConfigResource(Resource resource, List<String> keys) {
-        if (AssetConfigUtil.isConfigResource(resource)) {
+        if (AssetConfigUtil.isAssetConfigResource(resource)) {
             return resource;
         }
         Resource parent = resource.getParent();
-        if (AssetConfigUtil.isConfigResource(parent)) {
+        if (AssetConfigUtil.isAssetConfigResource(parent)) {
             keys.add(resource.getName());
             return parent;
         } else if (parent != null) {
             Resource pparent = parent.getParent();
-            if (AssetConfigUtil.isConfigResource(pparent)) {
+            if (AssetConfigUtil.isAssetConfigResource(pparent)) {
                 keys.add(parent.getName());
                 keys.add(resource.getName());
                 return pparent;
@@ -191,14 +192,14 @@ public class ConfigView extends AbstractServletBean {
      * determines the configuration resource which builds the base configuration of the given resource
      */
     public Resource findBaseConfig(Resource resource) {
-        if (AssetConfigUtil.isConfigResource(resource)) {
+        if (AssetConfigUtil.isAssetConfigResource(resource)) {
             resource = isConfigExtension(resource) ? getConfigHolder(resource) : null;
         }
         while (resource != null && (resource = resource.getParent()) != null) {
             Resource configChild;
-            if (AssetConfigUtil.isConfigResource(configChild = resource.getChild(PATH_ASSET_CONFIG))) {
+            if (AssetConfigUtil.isAssetConfigResource(configChild = resource.getChild(PATH_ASSET_CONFIG))) {
                 return configChild;
-            } else if (AssetConfigUtil.isConfigResource(configChild = resource.getChild(PATH_IMAGE_CONFIG))) {
+            } else if (AssetConfigUtil.isAssetConfigResource(configChild = resource.getChild(PATH_IMAGE_CONFIG))) {
                 return configChild;
             }
         }
@@ -215,7 +216,7 @@ public class ConfigView extends AbstractServletBean {
     }
 
     public String getHolderPath() {
-        String path = getPath();
+        String path = handle != null ? handle.getPath() : config != null ? config.getPath() : getResource().getPath();
         Matcher matcher = HOLDER_PATH.matcher(path);
         return matcher.matches() ? matcher.group(1) : path;
     }
@@ -247,6 +248,10 @@ public class ConfigView extends AbstractServletBean {
 
     public String getConfigPath() {
         return config != null ? config.getPath() : "";
+    }
+
+    public boolean isExtension() {
+        return getValues().get(EXTENSION, AssetConfigUtil.isConfigExtension(getResource()));
     }
 
     public String getTitle() {

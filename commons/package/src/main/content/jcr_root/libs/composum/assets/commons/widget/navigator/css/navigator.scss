@@ -59,6 +59,17 @@ $assets-navigation-selection-width: 4px;
 
 .composum-assets-widget-navigator {
 
+    &_go-up {
+        padding-top: 7px;
+        padding-left: 3px;
+
+        .fa-stack-1x {
+            top: 0;
+            left: auto;
+            right: -3px;
+        }
+    }
+
     &_asset-link {
         position: relative;
         display: block;
@@ -355,17 +366,6 @@ $assets-navigation-selection-width: 4px;
     &-browse {
 
         .composum-assets-widget-navigator {
-
-            &_go-up {
-                padding-top: 7px;
-                padding-left: 3px;
-
-                .fa-stack-1x {
-                    top: 2px;
-                    left: auto;
-                    right: -3px;
-                }
-            }
 
             &_drill-down {
                 padding-top: 2px;
