@@ -43,7 +43,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static com.composum.assets.commons.handle.AssetHandle.IMAGE_RESOURCE_TYPE;
 import static com.composum.assets.commons.servlet.AdaptiveImageServlet.parseSelectors;
 
 /**
@@ -145,7 +144,7 @@ public class ImageAssetServlet extends SlingSafeMethodsServlet {
         Resource original = null;
         ImageAsset imageAsset;
         AssetVariation variation = null;
-        if (resource.isResourceType(IMAGE_RESOURCE_TYPE)) {
+        if (resource.isResourceType(ImageAsset.RESOURCE_TYPE)) {
             // use the asset behaviour if the resource is an image asset
             imageAsset = new ImageAsset(context, resource);
             variation = imageAsset.getVariation(selectors[0]);

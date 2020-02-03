@@ -29,8 +29,6 @@ public abstract class AssetHandle<Config extends ConfigHandle> extends AbstractS
 
     private static final Logger LOG = LoggerFactory.getLogger(AssetHandle.class);
 
-    public static final String IMAGE_RESOURCE_TYPE = "composum/assets/image";
-
     public static final String VALID = "valid";
 
     protected AssetHandle() {

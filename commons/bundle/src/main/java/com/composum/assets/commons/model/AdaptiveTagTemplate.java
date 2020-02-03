@@ -38,14 +38,18 @@ public class AdaptiveTagTemplate {
     public static final String KEY_ALT = "alt";
     public static final String KEY_TITLE = "title";
 
-    public static final Pattern RENDITION_PATTERN = Pattern.compile("\\$\\{([^.}]*)\\.?([^.}]*)\\}");
+    public static final Pattern RENDITION_PATTERN = Pattern.compile("\\$\\{([^.}]*)\\.?([^.}]*)}");
 
     protected String code = "";
 
     public AdaptiveTagTemplate(Resource resource) {
         try {
             try (InputStream inputStream = TemplateUtil.getTemplate(resource)) {
-                code = IOUtils.toString(inputStream, TEMPLATE_ENCODING);
+                if (inputStream != null) {
+                    code = IOUtils.toString(inputStream, TEMPLATE_ENCODING);
+                } else {
+                    LOG.error("can't load template content");
+                }
             } catch (IOException ioex) {
                 LOG.error(ioex.getMessage(), ioex);
             }

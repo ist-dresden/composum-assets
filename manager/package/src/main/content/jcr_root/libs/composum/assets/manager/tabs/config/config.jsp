@@ -2,8 +2,8 @@
 <%@taglib prefix="sling" uri="http://sling.apache.org/taglibs/sling/1.2" %>
 <%@taglib prefix="cpn" uri="http://sling.composum.com/cpnl/1.0" %>
 <sling:defineObjects/>
-<cpn:component var="model" type="com.composum.assets.commons.widget.ResourceModel">
-    <div class="config-detail" data-path="${model.path}">
+<cpn:component var="model" type="com.composum.assets.commons.widget.ConfigModel">
+    <div class="config-detail" data-path="${model.path}" data-config="${model.configPath}">
         <div class="special-toolbar btn-toolbar">
             <div class="btn-group btn-group-sm" role="group">
                 <button type="button"

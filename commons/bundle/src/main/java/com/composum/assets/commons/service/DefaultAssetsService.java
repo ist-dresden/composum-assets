@@ -50,8 +50,10 @@ import static com.composum.assets.commons.AssetsConstants.IMAGE_CONFIG;
 import static com.composum.assets.commons.AssetsConstants.NODE_TYPE_ASSET;
 import static com.composum.assets.commons.AssetsConstants.NODE_TYPE_ASSET_CONFIG;
 import static com.composum.assets.commons.AssetsConstants.NODE_TYPE_IMAGE_CONFIG;
-import static com.composum.assets.commons.handle.AssetHandle.IMAGE_RESOURCE_TYPE;
 import static com.composum.assets.commons.service.AssetsSearchPlugin.SELECTOR_ASSET;
+import static javax.jcr.nodetype.NodeType.MIX_CREATED;
+import static javax.jcr.nodetype.NodeType.MIX_LAST_MODIFIED;
+import static javax.jcr.nodetype.NodeType.MIX_VERSIONABLE;
 
 @Component(
         service = AssetsService.class
@@ -62,8 +64,14 @@ public class DefaultAssetsService implements AssetsService {
 
     public static final String PATH_SEP = "/";
 
-    public static final Map<String, Object> FOLDER_PROPERTIES;
-    public static final Map<String, Object> CONTENT_PROPERTIES;
+    public static final Map<String, Object> FOLDER_PROPERTIES = new HashMap<String, Object>() {{
+        put(ResourceUtil.PROP_PRIMARY_TYPE, ResourceUtil.TYPE_SLING_FOLDER);
+    }};
+    public static final Map<String, Object> CONTENT_PROPERTIES = new HashMap<String, Object>() {{
+        put(ResourceUtil.PROP_PRIMARY_TYPE, JcrConstants.NT_UNSTRUCTURED);
+        put(ResourceUtil.PROP_MIXINTYPES, new String[]{MIX_VERSIONABLE, MIX_CREATED, MIX_LAST_MODIFIED});
+    }};
+
     public static final Map<String, Object> ASSET_CONFIG_PROPERTIES = new HashMap<String, Object>() {{
         put(ResourceUtil.PROP_PRIMARY_TYPE, AssetsConstants.NODE_TYPE_ASSET_CONFIG);
         put(ResourceUtil.PROP_RESOURCE_TYPE, AssetsConstants.RESOURCE_TYPE_CONFIG);
@@ -72,60 +80,42 @@ public class DefaultAssetsService implements AssetsService {
         put(ResourceUtil.PROP_PRIMARY_TYPE, AssetsConstants.NODE_TYPE_IMAGE_CONFIG);
         put(ResourceUtil.PROP_RESOURCE_TYPE, AssetsConstants.RESOURCE_TYPE_CONFIG);
     }};
-    public static final Map<String, Object> VARIATION_CONFIG_PROPERTIES;
-    public static final Map<String, Object> RENDITION_CONFIG_PROPERTIES;
-    public static final Map<String, Map<String, Object>> CONFIG_PROPERTIES;
-    public static final Map<String, String> CONFIG_CHILD_TYPE;
+    public static final Map<String, Object> VARIATION_CONFIG_PROPERTIES = new HashMap<String, Object>() {{
+        put(ResourceUtil.PROP_PRIMARY_TYPE, AssetsConstants.NODE_TYPE_VARIATION_CONFIG);
+        put(ResourceUtil.PROP_RESOURCE_TYPE, AssetsConstants.RESOURCE_TYPE_VARIATION_CONFIG);
+    }};
+    public static final Map<String, Object> RENDITION_CONFIG_PROPERTIES = new HashMap<String, Object>() {{
+        put(ResourceUtil.PROP_PRIMARY_TYPE, AssetsConstants.NODE_TYPE_RENDITION_CONFIG);
+        put(ResourceUtil.PROP_RESOURCE_TYPE, AssetsConstants.RESOURCE_TYPE_RENDITION_CONFIG);
+    }};
 
-    static {
-        FOLDER_PROPERTIES = new HashMap<>();
-        FOLDER_PROPERTIES.put(ResourceUtil.PROP_PRIMARY_TYPE, ResourceUtil.TYPE_SLING_FOLDER);
-    }
+    public static final Map<String, Map<String, Object>> CONFIG_PROPERTIES = new HashMap<String, Map<String, Object>>() {{
+        put(AssetsConstants.NODE_TYPE_VARIATION_CONFIG, VARIATION_CONFIG_PROPERTIES);
+        put(AssetsConstants.NODE_TYPE_RENDITION_CONFIG, RENDITION_CONFIG_PROPERTIES);
+    }};
+    public static final Map<String, String> CONFIG_CHILD_TYPE = new HashMap<String, String>() {{
+        put(AssetsConstants.NODE_TYPE_ASSET_CONFIG, AssetsConstants.NODE_TYPE_VARIATION_CONFIG);
+        put(AssetsConstants.NODE_TYPE_VARIATION_CONFIG, AssetsConstants.NODE_TYPE_RENDITION_CONFIG);
+    }};
 
-    static {
-        CONTENT_PROPERTIES = new HashMap<>();
-        CONTENT_PROPERTIES.put(ResourceUtil.PROP_PRIMARY_TYPE, JcrConstants.NT_UNSTRUCTURED);
-    }
+    public static final Map<String, Object> IMAGE_PROPERTIES = new HashMap<String, Object>() {{
+        put(ResourceUtil.PROP_PRIMARY_TYPE, NODE_TYPE_ASSET);
+        put(ResourceUtil.PROP_RESOURCE_TYPE, ImageAsset.RESOURCE_TYPE);
+    }};
+    public static final Map<String, Object> IMAGE_CONTENT_PROPERTIES = new HashMap<String, Object>() {{
+        put(ResourceUtil.PROP_PRIMARY_TYPE, AssetsConstants.NODE_TYPE_ASSET_CONTENT);
+    }};
+    public static final Map<String, Object> IMAGE_META_PROPERTIES = new HashMap<String, Object>() {{
+        put(ResourceUtil.PROP_PRIMARY_TYPE, StagingConstants.TYPE_METADATA);
+        put(ResourceUtil.PROP_RESOURCE_TYPE, AssetsConstants.RESOURCE_TYPE_META);
+    }};
 
-    static {
-        VARIATION_CONFIG_PROPERTIES = new HashMap<>();
-        VARIATION_CONFIG_PROPERTIES.put(ResourceUtil.PROP_PRIMARY_TYPE, AssetsConstants.NODE_TYPE_VARIATION_CONFIG);
-        VARIATION_CONFIG_PROPERTIES.put(ResourceUtil.PROP_RESOURCE_TYPE, AssetsConstants.RESOURCE_TYPE_VARIATION_CONFIG);
-        RENDITION_CONFIG_PROPERTIES = new HashMap<>();
-        RENDITION_CONFIG_PROPERTIES.put(ResourceUtil.PROP_PRIMARY_TYPE, AssetsConstants.NODE_TYPE_RENDITION_CONFIG);
-        RENDITION_CONFIG_PROPERTIES.put(ResourceUtil.PROP_RESOURCE_TYPE, AssetsConstants.RESOURCE_TYPE_RENDITION_CONFIG);
-        CONFIG_PROPERTIES = new HashMap<>();
-        CONFIG_PROPERTIES.put(AssetsConstants.NODE_TYPE_ASSET_CONFIG, ASSET_CONFIG_PROPERTIES);
-        CONFIG_PROPERTIES.put(AssetsConstants.NODE_TYPE_VARIATION_CONFIG, VARIATION_CONFIG_PROPERTIES);
-        CONFIG_PROPERTIES.put(AssetsConstants.NODE_TYPE_RENDITION_CONFIG, RENDITION_CONFIG_PROPERTIES);
-        CONFIG_CHILD_TYPE = new HashMap<>();
-        CONFIG_CHILD_TYPE.put(AssetsConstants.NODE_TYPE_ASSET_CONFIG, AssetsConstants.NODE_TYPE_VARIATION_CONFIG);
-        CONFIG_CHILD_TYPE.put(AssetsConstants.NODE_TYPE_VARIATION_CONFIG, AssetsConstants.NODE_TYPE_RENDITION_CONFIG);
-    }
-
-    public static final Map<String, Object> IMAGE_PROPERTIES;
-    public static final Map<String, Object> IMAGE_CONTENT_PROPERTIES;
-    public static final Map<String, Object> IMAGE_META_PROPERTIES;
-
-    static {
-        IMAGE_PROPERTIES = new HashMap<>();
-        IMAGE_PROPERTIES.put(ResourceUtil.PROP_PRIMARY_TYPE, NODE_TYPE_ASSET);
-        IMAGE_PROPERTIES.put(ResourceUtil.PROP_RESOURCE_TYPE, IMAGE_RESOURCE_TYPE);
-        IMAGE_CONTENT_PROPERTIES = new HashMap<>();
-        IMAGE_CONTENT_PROPERTIES.put(ResourceUtil.PROP_PRIMARY_TYPE, AssetsConstants.NODE_TYPE_ASSET_CONTENT);
-        IMAGE_META_PROPERTIES = new HashMap<>();
-        IMAGE_META_PROPERTIES.put(ResourceUtil.PROP_PRIMARY_TYPE, StagingConstants.TYPE_METADATA);
-    }
-
-    public static final Map<String, Object> IMAGE_FILE_PROPERTIES;
-    public static final Map<String, Object> IMAGE_FILE_CONTENT_PROPERTIES;
-
-    static {
-        IMAGE_FILE_PROPERTIES = new HashMap<>();
-        IMAGE_FILE_PROPERTIES.put(ResourceUtil.PROP_PRIMARY_TYPE, ResourceUtil.TYPE_FILE);
-        IMAGE_FILE_CONTENT_PROPERTIES = new HashMap<>();
-        IMAGE_FILE_CONTENT_PROPERTIES.put(ResourceUtil.PROP_PRIMARY_TYPE, ResourceUtil.TYPE_RESOURCE);
-    }
+    public static final Map<String, Object> IMAGE_FILE_PROPERTIES = new HashMap<String, Object>() {{
+        put(ResourceUtil.PROP_PRIMARY_TYPE, ResourceUtil.TYPE_FILE);
+    }};
+    public static final Map<String, Object> IMAGE_FILE_CONTENT_PROPERTIES = new HashMap<String, Object>() {{
+        put(ResourceUtil.PROP_PRIMARY_TYPE, ResourceUtil.TYPE_RESOURCE);
+    }};
 
     @Reference
     protected AdaptiveImageService adaptiveImageService;
@@ -330,6 +320,7 @@ public class DefaultAssetsService implements AssetsService {
             if (content == null) {
                 LOG.info("createContent: '{}'", holderPath);
                 content = resolver.create(holder, JcrConstants.JCR_CONTENT, CONTENT_PROPERTIES);
+                resolver.commit(); // necessary for usage by the workspace
             }
             String path = content.getPath() + "/" + name;
             Resource toReplace = content.getChild(name);
@@ -403,12 +394,22 @@ public class DefaultAssetsService implements AssetsService {
             ResourceResolver resolver = context.getResolver();
             String configPath = configNode.getPath();
             String configType = ResourceUtil.getPrimaryType(configNode);
+            Resource content = null;
             if (AssetsConstants.NODE_TYPE_ASSET_CONFIG.equals(configType)) {
-                LOG.info("deleteConfig: " + configPath);
+                LOG.info("delete assetConfig: " + configPath);
+                content = configNode.getParent();
+            } else if (AssetsConstants.NODE_TYPE_IMAGE_CONFIG.equals(configType)) {
+                LOG.info("delete imageConfig: " + configPath);
             } else {
-                LOG.info("assetConfig.delete: " + configPath);
+                LOG.info("config.deleteAspect: " + configPath);
             }
             resolver.delete(configNode);
+            if (content != null) { // asset config removed from a folder...
+                if (!content.getChildren().iterator().hasNext()) {
+                    // remove 'jcr:content' from asset configuration folder if content has no children
+                    resolver.delete(content);
+                }
+            }
             if (commit) {
                 resolver.commit();
             } else {

@@ -71,9 +71,13 @@ public class AssetsConstants {
      * resource types
      */
 
-    public static final String MANAGER_RESOURCE_BASE = "composum/assets/manager/image";
-    public static final String RESOURCE_TYPE_VARIATION = MANAGER_RESOURCE_BASE + "/variation";
-    public static final String RESOURCE_TYPE_RENDITION = MANAGER_RESOURCE_BASE + "/rendition";
+    public static final String RESOURCE_TYPE_ASSET = "composum/assets/asset";
+    public static final String RESOURCE_TYPE_META = RESOURCE_TYPE_ASSET + "/meta";
+    public static final String RESOURCE_TYPE_VARIATION = RESOURCE_TYPE_ASSET + "/variation";
+    public static final String RESOURCE_TYPE_RENDITION = RESOURCE_TYPE_ASSET + "/rendition";
+
+    public static final String RESOURCE_TYPE_IMAGE = "composum/assets/image";
+    public static final String RESOURCE_TYPE_VIDEO = "composum/assets/video";
 
     public static final String RESOURCE_TYPE_CONFIG = "composum/assets/config";
     public static final String RESOURCE_TYPE_VARIATION_CONFIG = RESOURCE_TYPE_CONFIG + "/variation";

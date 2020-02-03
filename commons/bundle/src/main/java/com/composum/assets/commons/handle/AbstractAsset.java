@@ -40,6 +40,7 @@ public abstract class AbstractAsset extends AssetHandle<AssetConfig> {
         VARIATION_PROPERTIES.put(ResourceUtil.PROP_RESOURCE_TYPE, AssetsConstants.RESOURCE_TYPE_VARIATION);
     }
 
+    private transient AssetMetaData metaData;
     private transient AssetConfig assetConfig;
     private transient String transientsPath;
 
@@ -74,6 +75,17 @@ public abstract class AbstractAsset extends AssetHandle<AssetConfig> {
     public AssetRendition retrieveOriginal(AssetVariation context) {
         AssetVariation variation = getVariation(ConfigHandle.ORIGINAL, ConfigHandle.DEFAULT);
         return variation != null && !variation.equals(context) ? variation.getOriginal() : null;
+    }
+
+    /**
+     * returns the meta data of the referenced asset
+     */
+    public AssetMetaData getMetaData() {
+        if (metaData == null) {
+            Resource metaResource = resource.getChild(AssetsConstants.PATH_META);
+            metaData = new AssetMetaData(context, ResourceHandle.use(metaResource));
+        }
+        return metaData;
     }
 
     /**

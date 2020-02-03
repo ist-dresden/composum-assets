@@ -42,10 +42,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+
+import static com.composum.assets.commons.service.DefaultAssetsService.IMAGE_META_PROPERTIES;
 
 @Component(
         service = MetaPropertiesService.class,
@@ -61,13 +62,6 @@ public class AssetMetaPropertiesService implements MetaPropertiesService {
     private static final Logger LOG = LoggerFactory.getLogger(AssetMetaPropertiesService.class);
 
     protected StringFilter imageMetaDataFilter;
-
-    public static final Map<String, Object> CRUD_META_PROPERTIES;
-
-    static {
-        CRUD_META_PROPERTIES = new HashMap<>();
-        CRUD_META_PROPERTIES.put(ResourceUtil.PROP_PRIMARY_TYPE, StagingConstants.TYPE_METADATA);
-    }
 
     @Reference
     protected AssetsConfiguration assetsConfiguration;
@@ -94,7 +88,7 @@ public class AssetMetaPropertiesService implements MetaPropertiesService {
             Resource metaResource = contentResource.getChild(AssetsConstants.NODE_META);
             if (metaResource == null) {
                 ResourceResolver resolver = contentResource.getResourceResolver();
-                metaResource = resolver.create(contentResource, AssetsConstants.NODE_META, CRUD_META_PROPERTIES);
+                metaResource = resolver.create(contentResource, AssetsConstants.NODE_META, IMAGE_META_PROPERTIES);
             }
             ModifiableValueMap values = metaResource.adaptTo(ModifiableValueMap.class);
             if (values != null) {

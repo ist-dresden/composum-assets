@@ -102,16 +102,22 @@
 
                     <filters>
                         <filter>
+                            <root>/libs/composum/assets/asset</root>
+                        </filter>
+                        <filter>
                             <root>/libs/composum/assets/commons</root>
                         </filter>
                         <filter>
                             <root>/libs/composum/assets/config</root>
                         </filter>
                         <filter>
-                            <root>/libs/composum/assets/i18n</root>
+                            <root>/libs/composum/assets/image</root>
                         </filter>
                         <filter>
-                            <root>/libs/composum/assets/image</root>
+                            <root>/libs/composum/assets/video</root>
+                        </filter>
+                        <filter>
+                            <root>/libs/composum/assets/i18n</root>
                         </filter>
                         <filter>
                             <root>/libs/composum/assets/install</root>

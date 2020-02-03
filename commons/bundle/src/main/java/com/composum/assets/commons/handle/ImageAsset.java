@@ -5,6 +5,7 @@
  */
 package com.composum.assets.commons.handle;
 
+import com.composum.assets.commons.AssetsConstants;
 import com.composum.assets.commons.config.AssetConfig;
 import com.composum.assets.commons.config.ImageConfig;
 import com.composum.assets.commons.config.RenditionConfig;
@@ -25,6 +26,10 @@ public class ImageAsset extends AbstractAsset {
 
     private static final Logger LOG = LoggerFactory.getLogger(ImageAsset.class);
 
+    public static final String RESOURCE_TYPE = AssetsConstants.RESOURCE_TYPE_IMAGE;
+
+    private transient String altText;
+
     public ImageAsset(BeanContext context, Resource resource) {
         super(context, resource);
     }
@@ -38,7 +43,7 @@ public class ImageAsset extends AbstractAsset {
 
     @Override
     public boolean isValid() {
-        return super.isValid() && resource.isResourceType(IMAGE_RESOURCE_TYPE);
+        return super.isValid() && resource.isResourceType(RESOURCE_TYPE);
     }
 
     @Override
@@ -54,6 +59,10 @@ public class ImageAsset extends AbstractAsset {
     @Override
     protected List<ResourceHandle> getConfigCascade() {
         return AssetConfigUtil.imageConfigCascade(resource);
+    }
+
+    public String getImageCSS() {
+        return ImageUtil.mimeTypeToCss(getMimeType());
     }
 
     /**
@@ -99,10 +108,5 @@ public class ImageAsset extends AbstractAsset {
             if (original != null) { uri = original.getImageUri(); }
         }
         return uri;
-    }
-
-
-    public String getImageCSS() {
-        return ImageUtil.mimeTypeToCss(getMimeType());
     }
 }

@@ -43,7 +43,8 @@
                     copy: '.detail-toolbar .copy',
                     paste: '.detail-toolbar .paste',
                     delete: '.detail-toolbar .delete',
-                    reload: '.detail-toolbar .reload'
+                    reload: '.detail-toolbar .reload',
+                    open: '.detail-toolbar .open'
                 },
                 class: {
                     checked: 'checked'
@@ -87,6 +88,7 @@
                 }
                 this.$(c.delete).click(_.bind(this.delete, this));
                 this.$(c.reload).click(_.bind(this.refresh, this));
+                this.$(c.open).click(_.bind(this.open, this));
             },
 
             initContent: function () {
@@ -99,6 +101,14 @@
 
             getSelectedPath: function () {
                 return this.selectedPath ? this.selectedPath : this.data.path;
+            },
+
+            open: function (event, path) {
+                if (event) {
+                    event.preventDefault();
+                }
+                window.open(this.$el.data('config') + '.page.html', '_blank');
+                return false;
             },
 
             create: function (event, path) {

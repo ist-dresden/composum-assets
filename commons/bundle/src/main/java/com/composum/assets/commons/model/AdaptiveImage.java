@@ -5,21 +5,20 @@
  */
 package com.composum.assets.commons.model;
 
-import com.composum.assets.commons.AssetsConstants;
 import com.composum.assets.commons.handle.AssetMetaData;
 import com.composum.assets.commons.handle.ImageAsset;
 import com.composum.assets.commons.util.ImageUtil;
 import com.composum.sling.core.AbstractSlingBean;
 import com.composum.sling.core.BeanContext;
 import com.composum.sling.core.InheritedValues;
-import com.composum.sling.core.ResourceHandle;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ResourceResolver;
 
 public class AdaptiveImage extends AbstractSlingBean implements AdaptiveImageComponent {
 
     public static final String DEFAULT_TEMPLATE = "picture";
-    public static final String DEFAULT_TEMPLATE_PATH = "/libs/composum/assets/commons/templates/components/picture.html";
+    public static final String DEFAULT_TEMPLATE_PATH = "composum/assets/commons/templates/image/picture.html";
 
     public static final String PROP_ASSET = "asset";
     public static final String PROP_TEMPLATE = "template";
@@ -30,7 +29,6 @@ public class AdaptiveImage extends AbstractSlingBean implements AdaptiveImageCom
     private transient String altText;
 
     private transient ImageAsset asset;
-    private transient AssetMetaData metaData;
 
     private transient AdaptiveTagTemplate template;
     private transient InheritedValues configuration;
@@ -44,11 +42,22 @@ public class AdaptiveImage extends AbstractSlingBean implements AdaptiveImageCom
 
     protected AdaptiveTagTemplate getTemplate() {
         if (template == null) {
+            ResourceResolver resolver = getResolver();
             String templatePath = getProperty(PROP_TEMPLATE, DEFAULT_TEMPLATE);
-            if (!templatePath.startsWith("/")) {
+            if (!templatePath.contains("/")) { // the 'path' is a key - ask configuration
                 templatePath = getConfiguration().get(SITE_TEMPLATES + templatePath, DEFAULT_TEMPLATE_PATH);
             }
-            template = new AdaptiveTagTemplate(getResolver().getResource(templatePath));
+            Resource templateRes = null;
+            if (!templatePath.startsWith("/")) { // relative path - use resolver search paths
+                for (String root : resolver.getSearchPath()) {
+                    if ((templateRes = resolver.getResource(root + templatePath)) != null) {
+                        break;
+                    }
+                }
+            } else {
+                templateRes = resolver.getResource(templatePath);
+            }
+            template = new AdaptiveTagTemplate(templateRes);
         }
         return template;
     }
@@ -58,6 +67,13 @@ public class AdaptiveImage extends AbstractSlingBean implements AdaptiveImageCom
      */
     public String getImageTag() {
         return getTemplate().buildTag(this);
+    }
+
+    /**
+     * Returns the URL of an original of this asset.
+     */
+    public String getImageUrl() {
+        return getAsset().getImageUrl();
     }
 
     /**
@@ -108,16 +124,12 @@ public class AdaptiveImage extends AbstractSlingBean implements AdaptiveImageCom
      * returns the meta data of the referenced asset
      */
     public AssetMetaData getMetaData() {
-        if (metaData == null) {
-            Resource metaResource = resource.getChild(AssetsConstants.PATH_META);
-            metaData = new AssetMetaData(context, ResourceHandle.use(metaResource));
-        }
-        return metaData;
+        return getAsset().getMetaData();
     }
 
     protected InheritedValues getConfiguration() {
         if (configuration == null) {
-            configuration = new InheritedValues(getResource(), InheritedValues.Type.contentBased) ;
+            configuration = new InheritedValues(getResource(), InheritedValues.Type.contentBased);
         }
         return configuration;
     }

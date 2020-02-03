@@ -8,6 +8,6 @@
         <div class="config-toolbar detail-toolbar">
             <%-- sling:call script="../../folder/config/actions.jsp"/ --%>
         </div>
-        <sling:include path="${asset.path}" replaceSelectors="renditions" resourceType="composum/assets/manager/image"/>
+        <sling:include path="${asset.path}" replaceSelectors="renditions" resourceType="composum/assets/image"/>
     </div>
 </cpn:component>
