@@ -7,7 +7,8 @@
     <div class="detail-panel asset" data-path="${asset.path}">
         <div class="detail-tabs action-bar btn-toolbar" role="toolbar">
             <div class="btn-group btn-group-sm" role="group">
-                <button type="button" class="go-up fa fa-folder-o text-muted btn btn-default"
+                <button type="button"
+                        class="composum-assets-widget-navigator_go-up go-up fa fa-folder-o text-muted btn btn-default"
                         title="${cpn:i18n(slingRequest,'Open containing Folder')}"><i
                         class="fa fa-chevron-up fa-stack-1x"></i><cpn:text
                         value="Folder" tagName="span" class="label" i18n="true"/></button>

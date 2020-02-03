@@ -17,7 +17,7 @@
         <div id="${assetBean.config.path}" class="panel-collapse collapse in">
             <div class="panel-body">
                 <div class="panel-group" id="${assetBean.config.path}">
-                    <c:forEach items="${assetBean.config.renditionList}" var="rendition">
+                    <c:forEach items="${assetBean.renditionConfigs}" var="rendition">
                         <sling:include resource="${rendition.resource}" resourceType="composum/assets/manager/image/rendition"/>
                     </c:forEach>
                 </div>

@@ -6,6 +6,7 @@
 package com.composum.assets.commons;
 
 import com.composum.sling.core.BeanContext;
+import com.composum.sling.core.ResourceHandle;
 import com.composum.sling.core.filter.ResourceFilter;
 import com.composum.sling.core.filter.StringFilter;
 import com.composum.sling.core.mapping.jcr.ResourceFilterMapping;
@@ -99,6 +100,7 @@ public class AssetsConfigImpl implements AssetsConfiguration {
     private ResourceFilter anyNodeFilter;
 
     private ResourceFilter imageAssetFileFilter;
+    private ResourceFilter imageAssetOriginalFilter;
     private ResourceFilter imageSimpleFileFilter;
     private ResourceFilter imageFileFilter;
     private ResourceFilter videoFileFilter;
@@ -135,6 +137,12 @@ public class AssetsConfigImpl implements AssetsConfiguration {
     @Override
     public ResourceFilter getImageAssetFileFilter() {
         return imageAssetFileFilter;
+    }
+
+    @Nonnull
+    @Override
+    public ResourceFilter getImageAssetOriginalFilter() {
+        return imageAssetOriginalFilter;
     }
 
     @Nonnull
@@ -301,6 +309,8 @@ public class AssetsConfigImpl implements AssetsConfiguration {
                 ResourceFilterMapping.fromString(config.imageNodeFilterRule()),
                 assetContentFilter);
         imageAssetFileFilter = ResourceFilterMapping.fromString(config.assetNodeFilterRule());
+        imageAssetOriginalFilter = new ResourceFilter.FilterSet(ResourceFilter.FilterSet.Rule.and,
+                ResourceFilterMapping.fromString(config.imageNodeFilterRule()), new ImageRenditionFileFilter());
         imageFileFilter = new ResourceFilter.FilterSet(ResourceFilter.FilterSet.Rule.or,
                 imageSimpleFileFilter, imageAssetFileFilter);
         videoFileFilter = ResourceFilterMapping.fromString(config.videoNodeFilterRule());
@@ -382,6 +392,25 @@ public class AssetsConfigImpl implements AssetsConfiguration {
         @Override
         public void toString(@Nonnull StringBuilder builder) {
             builder.append("AssetContent()");
+        }
+    }
+
+    protected class ImageRenditionFileFilter implements ResourceFilter {
+
+        @Override
+        public boolean accept(@Nullable Resource resource) {
+            ResourceHandle handle = ResourceHandle.use(resource);
+            return getImageAssetFileFilter().accept(handle.getParent(3));
+        }
+
+        @Override
+        public boolean isRestriction() {
+            return true;
+        }
+
+        @Override
+        public void toString(@Nonnull StringBuilder builder) {
+            builder.append("ImageAssetOriginal()");
         }
     }
 }

@@ -1,0 +1,19 @@
+@charset "UTF-8";
+
+@import "../../css/mixins";
+
+.composum-assets-manager-image {
+
+    &_content {
+
+        .image-original {
+
+            .composum-assets-widget-preview {
+
+                &_lightbox {
+                    position: static;
+                }
+            }
+        }
+    }
+}

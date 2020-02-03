@@ -4,6 +4,8 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <sling:defineObjects/>
 <cpn:component id="imageAssetBean" type="com.composum.assets.manager.image.ImageAssetBean" scope="request">
-    <h2 class="page title">Image Asset - Renditions</h2>
-    <sling:include replaceSelectors="embedded"/>
+    <div class="composum-assets-manager-image_content">
+        <h2 class="page title">Image Asset - Renditions</h2>
+        <sling:include replaceSelectors="embedded"/>
+    </div>
 </cpn:component>

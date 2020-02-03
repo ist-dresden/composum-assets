@@ -1,6 +1,7 @@
 package com.composum.assets.manager.image;
 
 import com.composum.assets.commons.config.ConfigHandle;
+import com.composum.assets.commons.config.RenditionConfig;
 import com.composum.assets.commons.config.VariationConfig;
 import com.composum.assets.commons.handle.AssetRendition;
 import com.composum.assets.commons.handle.AssetVariation;
@@ -9,6 +10,7 @@ import com.composum.sling.core.ResourceHandle;
 import org.apache.sling.api.resource.Resource;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 
 public class ImageVariationBean extends AbstractImageBean<VariationConfig> {
 
@@ -42,6 +44,10 @@ public class ImageVariationBean extends AbstractImageBean<VariationConfig> {
         return config;
     }
 
+    public List<RenditionConfig> getRenditionConfigs() {
+        return config.getRenditionList(true);
+    }
+
     @Nonnull
     @Override
     public String getName() {
@@ -67,7 +73,7 @@ public class ImageVariationBean extends AbstractImageBean<VariationConfig> {
         return original;
     }
 
-    public String getOriginalUrl() {
+    public String getOriginalUri() {
         return original != null ? original.getPath() + "/" + asset.getName() : "";
     }
 }

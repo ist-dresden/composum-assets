@@ -71,6 +71,8 @@ public abstract class Thumbnail extends AbstractServletBean implements Comparabl
                 return new Thumbnail.Asset(context, resource);
             } else if (config.getImageSimpleFileFilter().accept(resource)) {
                 return new Thumbnail.Image(context, resource);
+            } else if (config.getImageAssetOriginalFilter().accept(resource)) {
+                return new Thumbnail.Image(context, resource);
             } else if (config.getVideoFileFilter().accept(resource)) {
                 return new Thumbnail.Video(context, resource);
             } else if (config.getAudioFileFilter().accept(resource)) {

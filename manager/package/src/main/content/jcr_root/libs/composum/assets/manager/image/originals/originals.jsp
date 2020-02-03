@@ -4,10 +4,13 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <sling:defineObjects/>
 <cpn:component id="imageAssetBean" type="com.composum.assets.manager.image.ImageAssetBean" scope="request">
-    <h2 class="page title">Image Asset - Originals</h2>
-    <div class="composum-assets-manager-image_content panel-group" id="${imageAssetBean.config.assetConfig.path}">
-        <c:forEach items="${imageAssetBean.variationList}" var="variation">
-            <sling:include resource="${variation.resource}" replaceSelectors="original" resourceType="composum/assets/manager/image/variation"/>
-        </c:forEach>
+    <div class="composum-assets-manager-image_content">
+        <h2 class="page title">Image Asset - Originals</h2>
+        <div class="composum-assets-manager-image_originals panel-group" id="${imageAssetBean.config.assetConfig.path}">
+            <c:forEach items="${imageAssetBean.variationList}" var="variation">
+                <sling:include resource="${variation.resource}" replaceSelectors="original"
+                               resourceType="composum/assets/manager/image/variation"/>
+            </c:forEach>
+        </div>
     </div>
 </cpn:component>

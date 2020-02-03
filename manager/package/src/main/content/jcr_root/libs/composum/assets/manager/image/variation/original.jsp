@@ -8,24 +8,18 @@
         <div class="panel-heading">
             <h2 class="panel-title">
                 <a data-toggle="collapse" data-parent="#${variation.path}"
-                   data-child="#${variation.path}">
-                        ${variation.name}
+                   data-child="#${variation.path}">${variation.name}
                     <em>${variation.config.categoryString}</em>
                 </a>
             </h2>
         </div>
         <div id="${variation.path}" class="panel-collapse collapse ${variation.hasOriginal?'in':''}">
             <div class="panel-body">
-                <c:if test="${variation.hasOriginal}">
-                    <div class="panel-group image-original" id="${variation.path}">
-                        <div class="image-frame ${variation.original.imageCSS}">
-                            <div class="image-background"
-                                 style="background-image:url(${cpn:unmappedUrl(slingRequest,'/libs/composum/nodes/commons/images/image-background.png')})">
-                                <img src="${variation.originalUrl}"/>
-                            </div>
-                        </div>
-                    </div>
-                </c:if>
+                <cpn:div test="${variation.hasOriginal}"
+                         class="panel-group image-original" id="${variation.path}">
+                    <sling:include path="${variation.originalUri}" replaceSelectors="lightbox"
+                                   resourceType="composum/assets/commons/widget/preview"/>
+                </cpn:div>
             </div>
         </div>
     </div>

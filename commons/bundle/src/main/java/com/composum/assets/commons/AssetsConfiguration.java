@@ -125,6 +125,9 @@ public interface AssetsConfiguration {
     ResourceFilter getImageAssetFileFilter();
 
     @Nonnull
+    ResourceFilter getImageAssetOriginalFilter();
+
+    @Nonnull
     ResourceFilter getImageSimpleFileFilter();
 
     @Nonnull

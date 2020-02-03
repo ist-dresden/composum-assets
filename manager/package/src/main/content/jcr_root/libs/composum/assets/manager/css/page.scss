@@ -63,14 +63,14 @@ body, table, p, li, a, span, button, input {
     .variation.config {
 
         .panel-title {
-            color: #888;
+            color: #808080;
         }
     }
 
     .rendition.config {
 
         .panel-title {
-            color: #aaa;
+            color: #909090;
         }
     }
 
@@ -98,16 +98,17 @@ body, table, p, li, a, span, button, input {
             width: auto;
             min-width: 250px;
             top: 10px;
-            right: 10px;
+            right: 0;
         }
     }
+
     .key.value {
         width: 100%;
 
         th, td {
             padding: 1px 4px;
             vertical-align: top;
-            background-color: rgba(220, 220, 220, 0.6);
+            background-color: rgba(220, 220, 220, 0.7);
         }
     }
 }
@@ -119,11 +120,57 @@ body, table, p, li, a, span, button, input {
 
         &_content {
             position: absolute;
-            top: 95px;
+            top: 62px;
             left: 0;
             right: 0;
             bottom: 40px;
             overflow: auto;
+
+            .panel, .panel-body, .panel-heading {
+                border: none !important;
+                border-radius: 0;
+            }
+
+            .panel {
+                -webkit-box-shadow: none;
+                box-shadow: none;
+            }
+
+            .panel-body {
+                background-color: $assets-light-preview-bg;
+            }
+
+            .rendition {
+
+                .panel-body {
+                    padding: 10px 0;
+                }
+            }
+        }
+    }
+
+    .assets-preview-mode-dark & {
+
+        .composum-assets-manager-image {
+
+            &_content {
+
+                &, & .panel-body {
+                    background-color: $assets-dark-preview-bg;
+                }
+
+                .panel-heading {
+                    background-image: -webkit-linear-gradient(top, $assets-dark-input-border 0%, $assets-dark-input-bg 100%);
+                    background-image: -o-linear-gradient(top, $assets-dark-input-border 0%, $assets-dark-input-bg 100%);
+                    background-image: -webkit-gradient(linear, left top, left bottom, from($assets-dark-input-border), to($assets-dark-input-bg));
+                    background-image: linear-gradient(to bottom, $assets-dark-input-border 0%, $assets-dark-input-bg 100%);
+                    background-color: $assets-dark-input-border;
+
+                    .panel-title {
+                        color: $assets-dark-input-fg;
+                    }
+                }
+            }
         }
     }
 

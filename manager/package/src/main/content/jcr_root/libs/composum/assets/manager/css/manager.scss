@@ -111,6 +111,27 @@
                         height: auto;
                     }
                 }
+
+                .asset-original {
+
+                    .accordion-item {
+
+                        .panel-body {
+                            border: none;
+                            padding: 0 !important;
+                        }
+                    }
+                }
+
+                .image-original {
+
+                    .composum-assets-widget-preview {
+
+                        &_lightbox {
+                            position: static;
+                        }
+                    }
+                }
             }
         }
     }
