@@ -450,6 +450,8 @@
             reload: function () {
                 if (this.data.holder && _.isFunction(this.data.holder.refresh)) {
                     this.data.holder.refresh();
+                } else {
+                    window.location.reload();
                 }
             },
 

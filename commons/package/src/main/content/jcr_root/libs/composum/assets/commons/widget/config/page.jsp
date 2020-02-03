@@ -4,11 +4,11 @@
 <sling:defineObjects/>
 <html class="composum-assets-widget_page" data-context-path="${slingRequest.contextPath}">
 <head>
-    <cpn:clientlib type="css" category="composum.assets.widgets"/>
+    <cpn:clientlib type="css" category="composum.assets.configuration"/>
 </head>
-<body class="composum-assets-widget_page-body">
+<body class="composum-assets-widget_page-body assets-preview-mode-dark">
 <sling:include replaceSelectors=""/>
-<cpn:clientlib type="js" category="composum.assets.widgets"/>
+<cpn:clientlib type="js" category="composum.assets.configuration"/>
 <script>
     $(document).ready(function () {
         window.core.getWidget(document, '.composum-assets-widget-config', window.composum.assets.config.ConfigEditor);

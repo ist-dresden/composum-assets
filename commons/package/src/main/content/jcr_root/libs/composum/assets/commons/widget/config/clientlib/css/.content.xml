@@ -2,7 +2,7 @@
 <jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0"
         jcr:primaryType="sling:OrderedFolder"
         depends="[fonts/awesome/4.7.0/css/font-awesome.css,
-                  category:composum.components.widgets]"
+                  category:composum.assets.widgets]"
         embed="[composum/assets/commons/dialogs/asset/config/css/config.css,
                 composum/assets/commons/dialogs/folder/config/css/config.css,
                 composum/assets/commons/widget/config/css/config.css]"/>
