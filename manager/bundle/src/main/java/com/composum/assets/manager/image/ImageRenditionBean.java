@@ -1,25 +1,28 @@
 package com.composum.assets.manager.image;
 
-import com.composum.assets.commons.AssetsConstants;
 import com.composum.assets.commons.config.AssetConfig;
 import com.composum.assets.commons.config.RenditionConfig;
-import com.composum.assets.commons.handle.ImageAsset;
 import com.composum.assets.commons.config.VariationConfig;
-import com.composum.assets.manager.config.RenditionConfigBean;
+import com.composum.assets.commons.handle.AssetRendition;
+import com.composum.assets.commons.handle.AssetVariation;
+import com.composum.assets.commons.handle.ImageAsset;
 import com.composum.sling.core.BeanContext;
-import com.composum.sling.core.filter.StringFilter;
+import com.composum.sling.core.ResourceHandle;
+import com.composum.sling.core.request.DomIdentifiers;
 import com.composum.sling.core.util.LinkUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.resource.Resource;
 
-import java.util.List;
+import javax.annotation.Nonnull;
+import java.util.Objects;
 
 public class ImageRenditionBean extends AbstractImageBean<RenditionConfig> {
 
     protected RenditionConfig config;
+    protected AssetVariation variation;
+    protected AssetRendition rendition;
 
     private transient String imageUrl;
-    private transient List<RenditionConfigBean.RenditionValue> values;
+    private transient String imageUri;
 
     public ImageRenditionBean(BeanContext context, Resource resource) {
         super(context, resource);
@@ -36,9 +39,12 @@ public class ImageRenditionBean extends AbstractImageBean<RenditionConfig> {
     @Override
     public void initialize(BeanContext context, Resource resource) {
         super.initialize(context, resource);
+        String variationName = Objects.requireNonNull(resource.getParent()).getName();
         AssetConfig assetConfig = asset.getConfig();
-        VariationConfig variationConfig = assetConfig.findVariation(resource.getParent().getName());
+        VariationConfig variationConfig = assetConfig.findVariation(variationName);
         config = variationConfig.findRendition(resource.getName());
+        variation = asset.getVariation(variationName);
+        rendition = variation != null ? variation.getRendition(resource.getName()) : null;
     }
 
     @Override
@@ -46,30 +52,43 @@ public class ImageRenditionBean extends AbstractImageBean<RenditionConfig> {
         return config;
     }
 
-    public String getTabCssClass() {
-        return StringUtils.isNotBlank(getRequest().getSelectors(
-                new StringFilter.WhiteList(AssetsConstants.VARIATION, AssetsConstants.RENDITION)))
-                ? "in" : "";
+    @Override
+    public String getDomId() {
+        return DomIdentifiers.getInstance(context).getElementId(getConfig().getResource());
+    }
+
+    @Nonnull
+    @Override
+    public String getName() {
+        return rendition != null ? rendition.getName() : config.getName();
+    }
+
+    @Nonnull
+    @Override
+    public String getPath() {
+        return rendition != null ? rendition.getPath() : config.getPath();
+    }
+
+    @Override
+    public ResourceHandle getResource() {
+        return ResourceHandle.use(rendition != null ? rendition.getResource() : config.getResource());
     }
 
     public String getImageUri() {
-        String uri = "";
-        ImageAsset image = getAsset();
-        if (image != null) {
-            uri = image.getImageUri(config.getVariation().getName(), config.getName());
+        if (imageUri == null) {
+            imageUri = "";
+            ImageAsset image = getAsset();
+            if (image != null) {
+                imageUri = image.getImageUri(config.getVariation().getName(), config.getName());
+            }
         }
-        return uri;
+        return imageUri;
     }
 
     public String getImageUrl() {
-        String url = getImageUri();
-        return LinkUtil.getUrl(getRequest(), url);
-    }
-
-    public List<RenditionConfigBean.RenditionValue> getValues() {
-        if (values == null) {
-            values = RenditionConfigBean.getValues(config);
+        if (imageUrl == null) {
+            imageUrl = LinkUtil.getUrl(getRequest(), getImageUri());
         }
-        return values;
+        return imageUrl;
     }
 }

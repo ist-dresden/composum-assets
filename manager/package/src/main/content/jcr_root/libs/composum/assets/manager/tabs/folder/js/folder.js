@@ -2,12 +2,9 @@
  *
  *
  */
-'use strict';
-(function (window) {
-
-    window.composum = window.composum || {};
-    window.composum.assets = window.composum.assets || {};
-    window.composum.assets.manager = window.composum.assets.manager || {};
+(function () {
+    'use strict';
+    core.namespace('composum.assets.manager');
 
     (function (manager, assets, core) {
 
@@ -17,11 +14,9 @@
                 this.$content = this.$('.folder-content');
                 manager.AbstractManagerTab.prototype.initialize.apply(this, [options]);
                 this.initContent();
-                // FIXME this.$detailActions.find('.config').click(_.bind(this.createConfig, this));
                 this.$('.detail-toolbar .create-folder').click(_.bind(assets.treeActions.createFolder, assets.treeActions));
                 this.$('.detail-toolbar .create-asset').click(_.bind(assets.treeActions.createAsset, assets.treeActions));
                 this.$('.detail-toolbar .meta').click(_.bind(this.refreshMetaData, this));
-                this.$('.detail-toolbar .reload').click(_.bind(this.refresh, this));
                 this.$('.detail-toolbar .delete').click(_.bind(assets.treeActions.deleteNode, assets.treeActions));
                 $(document).off('path:selected.Browser').on('path:selected.Browser', _.bind(this.onSelected, this));
                 $(document).off('filter:changed.AssetsManagerBrowse')
@@ -89,6 +84,6 @@
             }
         });
 
-    })(window.composum.assets.manager, window.composum.assets, window.core);
+    })(composum.assets.manager, composum.assets, core);
 
-})(window);
+})();

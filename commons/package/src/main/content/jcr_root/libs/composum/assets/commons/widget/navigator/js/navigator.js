@@ -2,13 +2,11 @@
  *
  *
  */
-(function (window) {
+(function () {
     'use strict';
-    window.composum = window.composum || {};
-    window.composum.assets = window.composum.assets || {};
-    window.composum.assets.navigator = window.composum.assets.navigator || {};
+    core.namespace('composum.assets.navigator');
 
-    (function (navigator, assets, widgets, core) {
+    (function (navigator, assets, components) {
 
         navigator.const = _.extend(navigator.const || {}, {
             css: {
@@ -153,7 +151,7 @@
             initContent: function (element) {
                 var c = navigator.const.css;
                 var $element = element ? $(element) : this.$el;
-                window.widgets.setUp($element[0]);
+                widgets.setUp($element[0]);
                 $element.find('.' + c.base + c._type).click(_.bind(this.changeViewType, this));
                 $element.find('.' + c.base + c._link).click(_.bind(this.select, this));
                 this.valueChanged(true);
@@ -293,7 +291,7 @@
                     this.$el.addClass('root-open');
                 }
                 $element.find('.' + c.base + c._toggle).click(_.bind(this.toggleRootInput, this));
-                this.rootPath = core.getWidget(this.$el, '.' + c.base + c._root, core.components.PathWidget);
+                this.rootPath = core.getWidget(this.$el, '.' + c.base + c._root, components.PathWidget);
                 if (this.data.rootPath) {
                     this.rootPath.setRootPath(this.data.rootPath);
                 }
@@ -404,7 +402,7 @@
 
         widgets.register('.widget.' + navigator.const.search.css.base, navigator.SearchWidget);
 
-        navigator.Tree = core.components.Tree.extend({
+        navigator.Tree = components.Tree.extend({
 
             nodeIdPrefix: 'AN_',
 
@@ -416,7 +414,7 @@
             },
 
             /**
-             * @override core.components.Tree
+             * @override components.Tree
              */
             dataUrlForPath: function (path) {
                 var url = new core.SlingUrl('/bin/cpm/assets/assets.tree.json' + path);
@@ -427,7 +425,7 @@
             },
 
             refreshNodeState: function ($node, node) {
-                var result = core.components.Tree.prototype.refreshNodeState.apply(this, [$node, node]);
+                var result = components.Tree.prototype.refreshNodeState.apply(this, [$node, node]);
                 if (node.original.contentType === 'assetconfig') {
                     $node.removeClass('intermediate').addClass('assetconfig');
                 }
@@ -677,6 +675,6 @@
 
         widgets.register('.widget.' + navigator.const.css.base, navigator.NavigatorWidget);
 
-    })(window.composum.assets.navigator, window.composum.assets, window.widgets, window.core);
+    })(composum.assets.navigator, composum.assets, core.components);
 
-})(window);
+})();

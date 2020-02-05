@@ -3,7 +3,7 @@
 <%@taglib prefix="cpn" uri="http://sling.composum.com/cpnl/1.0" %>
 <sling:defineObjects/>
 <cpn:component var="model" type="com.composum.assets.commons.widget.ConfigModel">
-    <div class="config-detail" data-path="${model.path}" data-config="${model.configPath}">
+    <div class="config-detail" data-path="${model.path}" data-open="${model.configPath}.page.html">
         <div class="special-toolbar btn-toolbar">
             <div class="btn-group btn-group-sm" role="group">
                 <button type="button"

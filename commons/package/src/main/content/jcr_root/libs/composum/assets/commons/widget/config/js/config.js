@@ -1,13 +1,11 @@
 /**
  * the 'config' widget behaviour impelementation
  */
-(function (window) {
+(function () {
     'use strict';
-    window.composum = window.composum || {};
-    window.composum.assets = window.composum.assets || {};
-    window.composum.assets.config = window.composum.assets.config || {};
+    core.namespace('composum.assets.config');
 
-    (function (config, assets, core) {
+    (function (config, assets, components) {
 
         config.const = _.extend(config.const || {}, {
             general: {
@@ -70,11 +68,11 @@
             }
         });
 
-        config.FormWidget = core.components.FormWidget.extend({
+        config.FormWidget = components.FormWidget.extend({
 
             initialize: function (options) {
                 var c = config.const.form.css;
-                core.components.FormWidget.prototype.initialize.call(this, options);
+                components.FormWidget.prototype.initialize.call(this, options);
                 this.data = {
                     holder: options.holder,
                     scope: options.scope,
@@ -91,9 +89,9 @@
                 if (this.data.valid) {
                     var f = config.const.form.css.field;
                     this.fields = {
-                        extension: core.getWidget(this.$el, '.' + c.base + f._extension, core.components.CheckboxWidget),
-                        isDefault: core.getWidget(this.$el, '.' + c.base + f._default, core.components.CheckboxWidget),
-                        category: core.getWidget(this.$el, '.' + c.base + f._category, core.components.MultiFormWidget)
+                        extension: core.getWidget(this.$el, '.' + c.base + f._extension, components.CheckboxWidget),
+                        isDefault: core.getWidget(this.$el, '.' + c.base + f._default, components.CheckboxWidget),
+                        category: core.getWidget(this.$el, '.' + c.base + f._category, components.MultiFormWidget)
                     };
                     if (this.fields.isDefault) {
                         this.fields.isDefault.changed('ConfigForm', _.bind(this.defaultChanged, this));
@@ -139,14 +137,14 @@
             validate: function (alertMethod) {
                 var valid = false;
                 if (this.data.valid) {
-                    valid = core.components.FormWidget.prototype.validate.call(this, alertMethod);
+                    valid = components.FormWidget.prototype.validate.call(this, alertMethod);
                 }
                 return valid;
             },
 
             doFormSubmit: function (alertMethod, onSuccess, onError) {
                 if (this.data.valid) {
-                    core.components.FormWidget.prototype.doFormSubmit.call(this, alertMethod, onSuccess, onError);
+                    components.FormWidget.prototype.doFormSubmit.call(this, alertMethod, onSuccess, onError);
                 }
             }
         });
@@ -172,8 +170,8 @@
                     this.$tabs.find('.' + c.base + c._tab + c.tabs._valid).addClass('disabled');
                 }
                 if (this.editor.data.base || this.editor.data.valid) {
-                    this.variationSelect = core.getWidget(this.$el, '.' + c.base + c._select + c._variation, core.components.SelectWidget);
-                    this.renditionSelect = core.getWidget(this.$el, '.' + c.base + c._select + c._rendition, core.components.SelectWidget);
+                    this.variationSelect = core.getWidget(this.$el, '.' + c.base + c._select + c._variation, components.SelectWidget);
+                    this.renditionSelect = core.getWidget(this.$el, '.' + c.base + c._select + c._rendition, components.SelectWidget);
                     this.loadVariations();
                     this.variationSelect.changed('ConfigForm', _.bind(this.selectVariation, this));
                     this.renditionSelect.changed('ConfigForm', _.bind(this.selectRendition, this));
@@ -304,7 +302,7 @@
                 }
                 var u = config.const.dialog.url;
                 core.openFormDialog(u.base + u._delete + core.encodePath(this.editor.data.config),
-                    core.components.FormDialog, {}, undefined, _.bind(function () {
+                    components.FormDialog, {}, undefined, _.bind(function () {
                         this.editor.reload();
                     }, this));
                 return false;
@@ -316,7 +314,7 @@
                 }
                 var u = config.const.dialog.url;
                 core.openFormDialog(u.base + u._create + u._variation + core.encodePath(this.editor.data.config),
-                    core.components.FormDialog, {}, undefined, _.bind(function () {
+                    components.FormDialog, {}, undefined, _.bind(function () {
                         this.editor.reload();
                     }, this));
                 return false;
@@ -329,7 +327,7 @@
                 var u = config.const.dialog.url;
                 core.openFormDialog(u.base + u._remove + u._variation + core.encodePath(this.editor.data.config)
                     + '?variation=' + encodeURIComponent(this.data.variation),
-                    core.components.FormDialog, {}, undefined, _.bind(function () {
+                    components.FormDialog, {}, undefined, _.bind(function () {
                         this.editor.reload();
                     }, this));
                 return false;
@@ -472,6 +470,6 @@
             }
         });
 
-    })(window.composum.assets.config, window.composum.assets, window.core);
+    })(composum.assets.config, composum.assets, core.components);
 
-})(window);
+})();

@@ -2,23 +2,21 @@
  *
  *
  */
-(function (window) {
+(function () {
     'use strict';
+    core.namespace('composum.assets.dialogs');
 
-    window.composum = window.composum|| {};
-    window.composum.assets = window.composum.assets || {};
+    (function (dialogs, assets, core) {
 
-    (function (assets, core) {
-
-        assets.getAssetUploadDialog = function () {
+        dialogs.getAssetUploadDialog = function () {
             return core.getView('#asset-upload-dialog', assets.AssetUploadDialog);
         };
 
-        assets.getCreateFolderDialog = function () {
+        dialogs.getCreateFolderDialog = function () {
             return core.getView('#create-folder-dialog', assets.CreateFolderDialog);
         };
 
-        assets.AssetUploadDialog = core.components.Dialog.extend({
+        dialogs.AssetUploadDialog = core.components.Dialog.extend({
 
             initialize: function (options) {
                 core.components.Dialog.prototype.initialize.apply(this, [options]);
@@ -78,7 +76,7 @@
             }
         });
 
-        assets.CreateFolderDialog = core.components.Dialog.extend({
+        dialogs.CreateFolderDialog = core.components.Dialog.extend({
 
             initialize: function (options) {
                 core.components.Dialog.prototype.initialize.apply(this, [options]);
@@ -116,6 +114,6 @@
             }
         });
 
-    })(window.composum.assets, window.core);
+    })(composum.assets.dialogs, composum.assets, core);
 
-})(window);
+})();

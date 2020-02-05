@@ -2,12 +2,9 @@
  *
  *
  */
-(function (window) {
+(function () {
     'use strict';
-
-    window.composum = window.composum || {};
-    window.composum.assets = window.composum.assets || {};
-    window.composum.assets.manager = window.composum.assets.manager || {};
+    core.namespace('composum.assets.manager');
 
     (function (manager, assets, core) {
 
@@ -237,10 +234,10 @@
             tabType: manager.FolderTab
         }, {
             selector: '> .asset-original',
-            tabType: manager.AssetTab
+            tabType: manager.AssetOriginalsTab
         }, {
             selector: '> .asset-renditions',
-            tabType: manager.AssetConfigTab
+            tabType: manager.AssetRenditionsTab
         }, {
             selector: '> .image-detail',
             tabType: manager.ImageTab
@@ -324,6 +321,6 @@
 
         assets.queryView = core.getView('#assets-query', assets.QueryView);
 
-    })(window.composum.assets.manager, window.composum.assets, window.core);
+    })(composum.assets.manager, composum.assets, core);
 
-})(window);
+})();

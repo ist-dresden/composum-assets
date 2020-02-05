@@ -2,12 +2,9 @@
  *
  *
  */
-'use strict';
-(function (window) {
-
-    window.composum = window.composum|| {};
-    window.composum.assets = window.composum.assets || {};
-    window.composum.assets.manager = window.composum.assets.manager || {};
+(function () {
+    'use strict';
+    core.namespace('composum.assets.manager');
 
     (function (manager, assets, core) {
 
@@ -28,6 +25,6 @@
             }
         });
 
-    })(window.composum.assets.manager, window.composum.assets, window.core);
+    })(composum.assets.manager, composum.assets, core);
 
-})(window);
+})();

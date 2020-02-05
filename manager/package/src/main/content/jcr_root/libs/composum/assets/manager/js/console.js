@@ -2,12 +2,9 @@
  *
  *
  */
-(function (window) {
+(function () {
     'use strict';
-
-    window.composum = window.composum || {};
-    window.composum.assets = window.composum.assets || {};
-    window.composum.assets.manager = window.composum.assets.manager || {};
+    core.namespace('composum.assets.manager');
 
     (function (manager, assets, core) {
 
@@ -20,6 +17,9 @@
                 };
                 this.$detailPanel = this.$el.closest('.detail-panel');
                 this.$detailActions = this.$detailPanel.find('.action-bar');
+                this.$detailActions.find('.go-up').click(_.bind(this.goUp, this));
+                this.$('.detail-toolbar .reload').click(_.bind(this.refresh, this));
+                this.$('.detail-toolbar .open').click(_.bind(this.open, this));
             },
 
             initContent: function (element) {
@@ -50,9 +50,20 @@
                 }
                 assets.detailView.reload();
                 return false;
+            },
+
+            open: function (event) {
+                if (event) {
+                    event.preventDefault();
+                }
+                var openUrl = this.$el.data('open');
+                if (openUrl) {
+                    window.open(openUrl, '_blank');
+                }
+                return false;
             }
         });
 
-    })(window.composum.assets.manager, window.composum.assets, window.core);
+    })(composum.assets.manager, composum.assets, core);
 
-})(window);
+})();

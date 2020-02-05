@@ -2,14 +2,11 @@
  *
  *
  */
-(function (window) {
+(function () {
     'use strict';
+    core.namespace('composum.assets.pages');
 
-    window.composum = window.composum || {};
-    window.composum.assets = window.composum.assets || {};
-    window.composum.assets.pages = window.composum.assets.pages || {};
-
-    (function (pages, assets, core) {
+    (function (pages, assets) {
 
         pages.const = {
 
@@ -61,35 +58,35 @@
         pages.AssetUploadDialog = assets.AssetUploadDialog.extend({
 
             triggerEvents: function (result, defaultEvents) {
-                window.composum.pages.actions.dialog.triggerEvents(this, result, defaultEvents);
+                composum.pages.actions.dialog.triggerEvents(this, result, defaultEvents);
             },
 
             getDefaultSuccessEvents: function () {
-                return window.composum.pages.const.event.content.changed;
+                return composum.pages.const.event.content.changed;
             }
         });
 
         pages.AssetCreateDialog = pages.AssetUploadDialog.extend({
 
             getDefaultSuccessEvents: function () {
-                return window.composum.pages.const.event.content.inserted;
+                return composum.pages.const.event.content.inserted;
             }
         });
 
         pages.AssetDeleteDialog = assets.AssetDeleteDialog.extend({
 
             triggerEvents: function (result, defaultEvents) {
-                window.composum.pages.actions.dialog.triggerEvents(this, result, defaultEvents);
+                composum.pages.actions.dialog.triggerEvents(this, result, defaultEvents);
             },
 
             getDefaultSuccessEvents: function () {
-                return window.composum.pages.const.event.content.deleted;
+                return composum.pages.const.event.content.deleted;
             }
         });
 
         pages.openAssetCreateDialog = function (name, path, type, setupDialog) {
             var u = pages.const.uri.dialog;
-            window.composum.pages.dialogHandler.openEditDialog(u.commons + u.asset._create,
+            composum.pages.dialogHandler.openEditDialog(u.commons + u.asset._create,
                 pages.AssetCreateDialog, name, path, type, undefined/*context*/, function (dialog) {
                     dialog.setPath(path);
                 });
@@ -97,7 +94,7 @@
 
         pages.openAssetUploadDialog = function (name, path, type, setupDialog) {
             var u = pages.const.uri.dialog;
-            window.composum.pages.dialogHandler.openEditDialog(u.commons + u.asset._upload,
+            composum.pages.dialogHandler.openEditDialog(u.commons + u.asset._upload,
                 pages.AssetUploadDialog, name, path, type, undefined/*context*/, function (dialog) {
                     dialog.setPath(path);
                 });
@@ -105,7 +102,7 @@
 
         pages.openAssetDeleteDialog = function (name, path, type, setupDialog) {
             var u = pages.const.uri.dialog;
-            window.composum.pages.dialogHandler.openEditDialog(u.commons + u.asset._delete,
+            composum.pages.dialogHandler.openEditDialog(u.commons + u.asset._delete,
                 pages.AssetDeleteDialog, name, path, type, undefined/*context*/, function (dialog) {
                     dialog.setPath(path);
                 });
@@ -113,16 +110,16 @@
 
         pages.openAssetConfigDialog = function (name, path, type, setupDialog) {
             var u = pages.const.uri.dialog;
-            window.composum.pages.dialogHandler.openEditDialog(u.commons + u.asset._config,
+            composum.pages.dialogHandler.openEditDialog(u.commons + u.asset._config,
                 assets.AssetConfigDialog, name, path, type, undefined/*context*/, setupDialog);
         };
 
         pages.openAssetsConfigurationDialog = function (name, path, type, setupDialog) {
             var u = pages.const.uri.dialog;
-            window.composum.pages.dialogHandler.openEditDialog(u.commons + u.folder._config,
+            composum.pages.dialogHandler.openEditDialog(u.commons + u.folder._config,
                 assets.AssetsConfigurationDialog, name, path, type, undefined/*context*/, setupDialog);
         };
 
-    })(window.composum.assets.pages, window.composum.assets, window.core);
+    })(composum.assets.pages, composum.assets);
 
-})(window);
+})();

@@ -3,9 +3,9 @@
         jcr:primaryType="sling:OrderedFolder"
         depends="[category:composum.nodes.console.default]"
         embed="[category:composum.assets.widgets,
-                category:composum.assets.components,
                 composum/assets/manager/tabs/folder/css/folder.css,
                 composum/assets/manager/tabs/config/css/config.css,
                 composum/assets/manager/css/page.css,
                 composum/assets/manager/css/dialogs.css,
+                composum/assets/manager/css/breadcrumbs.css,
                 composum/assets/manager/css/manager.css]"/>

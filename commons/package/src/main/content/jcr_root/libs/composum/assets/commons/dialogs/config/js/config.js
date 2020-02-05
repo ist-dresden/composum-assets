@@ -2,13 +2,11 @@
  *
  *
  */
-(function (window) {
+(function () {
     'use strict';
-    window.composum = window.composum || {};
-    window.composum.assets = window.composum.assets || {};
-    window.composum.assets.config = window.composum.assets.config || {};
+    core.namespace('composum.assets.config');
 
-    (function (config, assets, core) {
+    (function (config, assets, components) {
 
         config.const = _.extend(config.const || {}, {
             dialog: {
@@ -35,20 +33,20 @@
             }
         });
 
-        config.ChangeDialog = core.components.FormDialog.extend({
+        config.ChangeDialog = components.FormDialog.extend({
 
             initialize: function (options) {
-                core.components.FormDialog.prototype.initialize.call(this, _.extend({
+                components.FormDialog.prototype.initialize.call(this, _.extend({
                     formType: config.FormWidget
                 }, options));
             }
         });
 
-        config.RenditionDialog = core.components.FormDialog.extend({
+        config.RenditionDialog = components.FormDialog.extend({
 
             initialize: function (options) {
                 var c = config.const.dialog.css;
-                core.components.FormDialog.prototype.initialize.call(this, options);
+                components.FormDialog.prototype.initialize.call(this, options);
                 this.data = {
                     config: options.config,
                     reload: options.reload
@@ -59,8 +57,8 @@
 
             initContent: function (event, variation) {
                 var c = config.const.dialog.css;
-                window.widgets.setUp(this.$content);
-                this.variationSelect = core.getWidget(this.$el, '.' + c.base + c._variation, core.components.SelectWidget);
+                widgets.setUp(this.$content);
+                this.variationSelect = core.getWidget(this.$el, '.' + c.base + c._variation, components.SelectWidget);
                 this.variationSelect.changed('ConfigDialog', _.bind(this.onVariationSelect, this));
             },
 
@@ -94,6 +92,6 @@
             }
         });
 
-    })(window.composum.assets.config, window.composum.assets, window.core);
+    })(composum.assets.config, composum.assets, core.components);
 
-})(window);
+})();

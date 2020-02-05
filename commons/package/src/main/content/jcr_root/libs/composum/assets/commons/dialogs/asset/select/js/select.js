@@ -2,13 +2,11 @@
  *
  *
  */
-(function (window) {
+(function () {
     'use strict';
-    window.composum = window.composum || {};
-    window.composum.assets = window.composum.assets || {};
-    window.composum.assets.dialogs = window.composum.assets.dialogs || {};
+    core.namespace('composum.assets.dialogs');
 
-    (function (dialogs, assets, core) {
+    (function (dialogs, assets, components) {
 
         dialogs.const = _.extend(dialogs.const || {}, {
             select: {
@@ -20,11 +18,11 @@
             }
         });
 
-        dialogs.AssetSelectDialog = core.components.AbstractPathSelectDialog.extend({
+        dialogs.AssetSelectDialog = components.AbstractPathSelectDialog.extend({
 
             initialize: function (options) {
                 var c = dialogs.const.select.css;
-                core.components.AbstractPathSelectDialog.prototype.initialize.call(this,
+                components.AbstractPathSelectDialog.prototype.initialize.call(this,
                     _.extend(options, {
                         // init input field as an asset field instead of a path field
                         inputSelector: '.' + c.assetfield, inputType: assets.widgets.AssetFieldWidget
@@ -46,7 +44,7 @@
              * @extends core.components.AbstractPathSelectDialog
              */
             setFilter: function (filter) {
-                core.components.AbstractPathSelectDialog.prototype.setFilter.call(this, filter);
+                components.AbstractPathSelectDialog.prototype.setFilter.call(this, filter);
                 this.navigator.setFilter(filter);
                 if (filter) {
                     this.navigator.disableFilterWidget();
@@ -73,6 +71,6 @@
             }
         });
 
-    })(window.composum.assets.dialogs, window.composum.assets, window.core);
+    })(composum.assets.dialogs, composum.assets, core.components);
 
-})(window);
+})();

@@ -1,13 +1,11 @@
 /**
  * the 'assetfield' widget behaviour impelementation
  */
-(function (window) {
+(function () {
     'use strict';
-    window.composum = window.composum || {};
-    window.composum.assets = window.composum.assets || {};
-    window.composum.assets.widgets = window.composum.assets.widgets || {};
+    core.namespace('composum.assets.widgets');
 
-    (function (widgets, assets, core) {
+    (function (widgets, assets, components) {
 
         widgets.const = _.extend(widgets.const || {}, {
             assetfield: {
@@ -28,21 +26,21 @@
             }
         });
 
-        widgets.AssetFieldWidget = core.components.PathWidget.extend({
+        widgets.AssetFieldWidget = components.PathWidget.extend({
 
             /**
-             * @extends core.components.PathWidget
+             * @extends components.PathWidget
              */
             initialize: function (options) {
                 var c = widgets.const.assetfield.css;
                 this.$preview = this.$('.' + c.base + c._preview);
-                core.components.PathWidget.prototype.initialize.call(this, options);
+                components.PathWidget.prototype.initialize.call(this, options);
                 this.$el.on('change', _.bind(this.adjustPreview, this));
             },
 
             /**
              * the callback for the '.select' button opens the asset select dialog with the asset navigator
-             * @override core.components.PathWidget
+             * @override components.PathWidget
              */
             selectPath: function (event) {
                 if (!this.isDisabled()) {
@@ -60,10 +58,10 @@
 
             /**
              * adjusts the preview image according to the value if change is not triggered
-             * @extends core.components.PathWidget
+             * @extends components.PathWidget
              */
             setValue: function (value, triggerChange) {
-                core.components.PathWidget.prototype.setValue.call(this, value, triggerChange);
+                components.PathWidget.prototype.setValue.call(this, value, triggerChange);
                 if (!triggerChange) { // otherwise the preview is adjuted during change handling
                     this.adjustPreview();
                 }
@@ -112,6 +110,6 @@
 
         window.widgets.register('.widget.assetfield-widget', widgets.AssetFieldWidget);
 
-    })(window.composum.assets.widgets, window.composum.assets, window.core);
+    })(composum.assets.widgets, composum.assets, core.components);
 
-})(window);
+})();

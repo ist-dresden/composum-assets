@@ -10,70 +10,6 @@ body, table, p, li, a, span, button, input {
 .assets.page.view,
 .detail-panel {
 
-    .panel-collapse {
-        .collapse {
-
-            img {
-                display: none;
-            }
-        }
-
-        .collapsing,
-        .collapse.in {
-
-            img {
-                display: block;
-            }
-        }
-    }
-
-    .panel-heading {
-        padding: 3px 3px;
-    }
-
-    .page.title,
-    .panel-title {
-        position: relative;
-        line-height: 21px;
-        font-size: $font-size-large;
-        font-weight: bold;
-
-        a {
-            display: inline-block;
-            padding: 0 8px;
-            line-height: 21px;
-        }
-
-        em {
-            position: absolute;
-            top: 1px;
-            right: 9px;
-            line-height: 21px;
-            font-size: $font-size-small;
-            font-weight: normal;
-        }
-    }
-
-    .page.title {
-        margin-top: 7px;
-        margin-left: 11px;
-        color: #aaa;
-    }
-
-    .variation.config {
-
-        .panel-title {
-            color: #808080;
-        }
-    }
-
-    .rendition.config {
-
-        .panel-title {
-            color: #909090;
-        }
-    }
-
     .image.view {
 
         .image-background {
@@ -113,107 +49,188 @@ body, table, p, li, a, span, button, input {
     }
 }
 
-.assets.page.view,
-.detail-panel {
+.composum-assets-manager-image {
 
-    .composum-assets-manager-image {
+    &_page {
 
-        &_content {
-            position: absolute;
-            top: 62px;
-            left: 0;
-            right: 0;
-            bottom: 40px;
-            overflow: auto;
-
-            .panel, .panel-body, .panel-heading {
-                border: none !important;
-                border-radius: 0;
-            }
-
-            .panel {
-                -webkit-box-shadow: none;
-                box-shadow: none;
-            }
-
-            .panel-body {
-                background-color: $assets-light-preview-bg;
-            }
-
-            .rendition {
-
-                .panel-body {
-                    padding: 10px 0;
-                }
-            }
+        &.assets-preview-mode-dark {
+            background-color: $assets-dark-preview-bg;
         }
-    }
-
-    .assets-preview-mode-dark & {
 
         .composum-assets-manager-image {
 
             &_content {
+                position: static;
+            }
+        }
+    }
 
-                &, & .panel-body {
-                    background-color: $assets-dark-preview-bg;
+    &_content {
+        position: absolute;
+        top: 62px;
+        left: 0;
+        right: 0;
+        bottom: 40px;
+        overflow: auto;
+
+        .panel, .panel-body, .panel-heading {
+            border: none !important;
+            border-radius: 0;
+        }
+
+        .panel-heading {
+            padding: 0;
+        }
+
+        .panel {
+            -webkit-box-shadow: none;
+            box-shadow: none;
+        }
+
+        .panel-body {
+            background-color: $assets-light-preview-bg;
+        }
+
+        .panel-collapse {
+            .collapse {
+
+                img {
+                    display: none;
+                }
+            }
+
+            .collapsing,
+            .collapse.in {
+
+                img {
+                    display: block;
+                }
+            }
+        }
+
+        .composum-assets-manager-image {
+
+            &_originals, &_renditions {
+
+                .panel-group {
+                    margin-bottom: 0;
+                }
+            }
+
+            &_original, &_variation, &_rendition {
+
+                .panel-heading a {
+                    display: inline-block;
+                    width: 100%;
+                }
+            }
+
+            &_original, &_variation {
+
+                .composum-assets-manager-image_panel-title a {
+                    color: #808080;
+                }
+            }
+
+            &_original {
+
+                .panel-body {
+                    padding: 0;
+                }
+            }
+
+            &_variation {
+
+                .panel-body {
+                    padding: 10px;
+                }
+            }
+
+            &_rendition {
+
+                .panel-body {
+                    padding: 10px 0;
                 }
 
-                .panel-heading {
-                    background-image: -webkit-linear-gradient(top, $assets-dark-input-border 0%, $assets-dark-input-bg 100%);
-                    background-image: -o-linear-gradient(top, $assets-dark-input-border 0%, $assets-dark-input-bg 100%);
-                    background-image: -webkit-gradient(linear, left top, left bottom, from($assets-dark-input-border), to($assets-dark-input-bg));
-                    background-image: linear-gradient(to bottom, $assets-dark-input-border 0%, $assets-dark-input-bg 100%);
-                    background-color: $assets-dark-input-border;
+                .composum-assets-manager-image_panel-title a {
+                    color: #909090;
+                }
+            }
+        }
 
-                    .panel-title {
-                        color: $assets-dark-input-fg;
+        .assets-preview-mode-dark & {
+
+            &, & .panel-body {
+                background-color: $assets-dark-preview-bg;
+            }
+
+            .panel-heading {
+                background-image: -webkit-linear-gradient(top, $assets-dark-input-border 0%, $assets-dark-input-bg 100%);
+                background-image: -o-linear-gradient(top, $assets-dark-input-border 0%, $assets-dark-input-bg 100%);
+                background-image: -webkit-gradient(linear, left top, left bottom, from($assets-dark-input-border), to($assets-dark-input-bg));
+                background-image: linear-gradient(to bottom, $assets-dark-input-border 0%, $assets-dark-input-bg 100%);
+                background-color: $assets-dark-input-border;
+            }
+
+            .composum-assets-manager-image {
+
+                &_original, &_variation {
+
+                    .composum-assets-manager-image_panel-title a {
+                        color: #f0f0f0;
+                    }
+                }
+
+                &_rendition {
+
+                    .composum-assets-manager-image_panel-title a {
+                        color: #e0e0e0;
                     }
                 }
             }
         }
-    }
 
-    .panel-body {
-        padding: 10px;
-    }
+        .composum-assets-widget-preview_rendition {
+            background: url('/libs/composum/nodes/commons/images/image-background.png');
 
-    .panel-group {
-        margin-bottom: 0;
-    }
-
-    &.image {
-
-        .image-view {
-            position: absolute;
-            top: $console-details-content-top;
-            left: 0;
-            right: 0;
-            bottom: 46px;
-            overflow: auto;
+            .assets-preview-mode-dark & {
+                background: url('/libs/composum/nodes/commons/images/image-background-dk.png');
+            }
         }
     }
 
-    .image-original,
-    .image-view {
+    &_page-title, &_panel-title {
+        position: relative;
+        line-height: 21px;
+        font-size: $font-size-large;
+        font-weight: bold;
 
-        .image-frame {
-            display: table;
-            margin: auto;
-            border: 1px solid #ccc;
-            padding: 5px;
+        a, a:hover, a:visited, a:focus {
+            text-decoration: none;
+        }
+    }
 
-            .image-background {
-                display: inline-block;
-            }
+    &_page-title {
+        margin-top: 7px;
+        margin-left: 11px;
+        color: #aaa;
+    }
 
-            img {
-                width: 100%;
-            }
+    &_panel-title {
+        margin: 0;
 
-            &.svg img {
-                min-width: 100px;
-            }
+        a {
+            padding: 3px 11px;
+            line-height: 21px;
+        }
+
+        em {
+            position: absolute;
+            top: 3px;
+            right: 12px;
+            line-height: 21px;
+            font-size: $font-size-small;
+            font-weight: normal;
         }
     }
 }

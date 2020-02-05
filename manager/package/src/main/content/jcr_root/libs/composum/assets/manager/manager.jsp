@@ -11,7 +11,6 @@
     </head>
     <body id="assets" class="console left-open top-open assets-preview-mode-dark">
     <div id="ui">
-        <sling:include resourceType="composum/assets/manager/dialogs"/>
         <sling:include resourceType="composum/nodes/console/components/navbar"/>
         <div id="content-wrapper">
             <div id="split-view-horizontal-split" class="split-pane horizontal-split fixed-left">

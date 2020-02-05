@@ -2,23 +2,31 @@
  *
  *
  */
-(function (window) {
+(function () {
     'use strict';
+    core.namespace('composum.assets.dialogs');
 
-    window.composum = window.composum || {};
-    window.composum.assets = window.composum.assets || {};
+    (function (dialogs, assets, components) {
 
-    (function (assets, core) {
-
-        assets.const = _.extend(assets.const || {}, {
-            commons: {
+        dialogs.const = _.extend(dialogs.const || {}, {
+            asset: {
                 css: {
-                    dialog: {
-                        base: 'assets-dialog-form',
-                        _path: '_path',
-                        _name: '_name',
-                        _file: '_file'
-                    }
+                    base: 'assets-dialog-form',
+                    _path: '_path',
+                    _name: '_name',
+                    _file: '_file'
+                },
+                url: {
+                    base: '/libs/composum/assets/commons/dialogs/asset',
+                    _create: '/create.html',
+                    _delete: '/delete.html',
+                    _upload: '/upload.html'
+                }
+            },
+            folder: {
+                url: {
+                    base: '/libs/composum/assets/commons/dialogs/folder',
+                    _create: '/create.html'
                 }
             }
         });
@@ -26,7 +34,7 @@
         /**
          * the dialog to upload asset originals
          */
-        assets.AssetsFormDialog = core.components.FormDialog.extend({
+        dialogs.AssetsFormDialog = components.FormDialog.extend({
 
             /**
              * the submit handler called after a successful validation
@@ -45,11 +53,11 @@
         /**
          * the dialog to upload asset originals
          */
-        assets.AssetUploadDialog = assets.AssetsFormDialog.extend({
+        dialogs.AssetUploadDialog = dialogs.AssetsFormDialog.extend({
 
             initView: function () {
-                var c = assets.const.commons.css.dialog;
-                assets.AssetsFormDialog.prototype.initView.apply(this);
+                var c = dialogs.const.asset.css;
+                dialogs.AssetsFormDialog.prototype.initView.apply(this);
                 this.$path = this.$('.' + c.base + c._path + ' input');
                 this.$name = this.$('.' + c.base + c._name + ' input');
                 this.$file = this.$('.' + c.base + c._file + ' input');
@@ -63,16 +71,16 @@
         /**
          * the dialog to create a new asset
          */
-        assets.AssetCreateDialog = assets.AssetUploadDialog.extend({});
+        dialogs.AssetCreateDialog = dialogs.AssetUploadDialog.extend({});
 
         /**
          * the dialog to delete an asset
          */
-        assets.AssetDeleteDialog = assets.AssetsFormDialog.extend({
+        dialogs.AssetDeleteDialog = dialogs.AssetsFormDialog.extend({
 
             initView: function () {
-                var c = assets.const.commons.css.dialog;
-                assets.AssetsFormDialog.prototype.initView.apply(this);
+                var c = dialogs.const.asset.css;
+                dialogs.AssetsFormDialog.prototype.initView.apply(this);
                 this.$path = this.$('.' + c.base + c._path + ' input');
             },
 
@@ -84,23 +92,23 @@
         /**
          * the dialog to manage an assets configuration
          */
-        assets.AssetConfigDialog = assets.AssetsFormDialog.extend({
+        dialogs.AssetConfigDialog = dialogs.AssetsFormDialog.extend({
 
             initView: function () {
-                assets.AssetsFormDialog.prototype.initView.apply(this);
+                dialogs.AssetsFormDialog.prototype.initView.apply(this);
             }
         });
 
         /**
          * the dialog to manage an assets configuration folder node
          */
-        assets.AssetsConfigurationDialog = assets.AssetsFormDialog.extend({
+        dialogs.AssetsConfigurationDialog = dialogs.AssetsFormDialog.extend({
 
             initView: function () {
-                assets.AssetsFormDialog.prototype.initView.apply(this);
+                dialogs.AssetsFormDialog.prototype.initView.apply(this);
             }
         });
 
-    })(window.composum.assets, window.core);
+    })(composum.assets.dialogs, composum.assets, core.components);
 
-})(window);
+})();

@@ -3,19 +3,22 @@
 <%@taglib prefix="cpn" uri="http://sling.composum.com/cpnl/1.0" %>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <sling:defineObjects/>
-<cpn:component id="assetBean" type="com.composum.assets.manager.image.ImageRenditionBean">
-<html data-context-path="${slingRequest.contextPath}">
-    <head>
-        <cpn:clientlib type="css" path="composum/assets/manager/clientlibs/page"/>
-    </head>
-    <body id="renditionConfig" class="rendition assets config page view">
-    <div id="ui">
-        <div id="content-wrapper">
-            <h2 class="page title">Image Asset Rendition</h2>
-            <sling:include replaceSelectors="embedded.rendition"/>
+<cpn:component var="model" type="com.composum.assets.manager.image.ImageRenditionBean">
+    <div class="composum-assets-manager-image_rendition rendition panel panel-default">
+        <div class="panel-heading" role="tab" id="tab-${model.domId}">
+            <h2 class="composum-assets-manager-image_panel-title">
+                <a data-toggle="collapse" href="#panel-${model.domId}" aria-controls="panel-${model.domId}">
+                        ${model.config.name}
+                    <em>${model.config.categoryString}</em>
+                </a>
+            </h2>
+        </div>
+        <div id="panel-${model.domId}" role="tabpanel" aria-labelledby="tab-${model.domId}"
+             data-key="${model.config.variation.name}/${model.config.name}"
+             class="composum-assets-manager-image_rendition-panel panel-collapse collapse">
+            <div class="panel-body">
+                <sling:call script="preview.jsp"/>
+            </div>
         </div>
     </div>
-    <cpn:clientlib type="js" path="composum/assets/manager/clientlibs/page"/>
-    </body>
-</html>
 </cpn:component>

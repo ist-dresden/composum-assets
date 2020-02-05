@@ -2,27 +2,49 @@
  *
  *
  */
-'use strict';
-(function (window) {
+(function () {
+    'use strict';
+    core.namespace('composum.assets.manager.page');
 
-    window.composum = window.composum|| {};
-    window.composum.assets = window.composum.assets || {};
+    (function (page, assets, core) {
 
-    (function (assets, core) {
+        page.const = _.extend(page.const || {}, {
+            originals: {
+                css: {
+                    base: 'composum-assets-manager-image',
+                    _original: '_original',
+                    _view: '_original-view'
+                }
+            },
+            renditions: {
+                css: {
+                    base: 'composum-assets-manager-image',
+                    _renditions: '_renditions'
+                }
+            }
+        });
 
-        /**
-         * the 'accordion-widget' (window.core.components.AccordionPanel)
-         * possible attributes:
-         */
-        assets.AssetPageView = Backbone.View.extend({
+        page.AssetOriginalsPageView = Backbone.View.extend({
 
             initialize: function (options) {
+                var c = page.const.originals.css;
+                var w = assets.widgets.const.preview.css;
+                this.$('.' + c.base + c._view).each(function () {
+                    core.getWidget(this, '.' + w.base + w._lightbox, assets.widgets.AssetPreviewWidget);
+                });
                 window.widgets.setUp();
             }
         });
 
-        assets.pageView = core.getView('body.assets.page.view', assets.AssetPageView);
+        page.AssetRenditionsPageView = Backbone.View.extend({
 
-    })(window.composum.assets, window.core);
+            initialize: function (options) {
+                var c = page.const.renditions.css;
+                core.getWidget(this.$el, '.' + c.base + c._renditions, assets.widgets.AssetRenditions);
+                window.widgets.setUp();
+            }
+        });
 
-})(window);
+    })(composum.assets.manager.page, composum.assets, core);
+
+})();

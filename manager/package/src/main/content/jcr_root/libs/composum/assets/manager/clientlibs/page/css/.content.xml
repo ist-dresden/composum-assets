@@ -3,6 +3,6 @@
         jcr:primaryType="sling:OrderedFolder"
         embed="[composum/nodes/commons/components/clientlibs/base,
                 composum/assets/manager/components/css/console.css,
-                category:composum.assets.components,
+                category:composum.assets.widgets,
                 composum/assets/manager/tabs/folder/folder.css,
                 composum/assets/manager/css/page.css]"/>

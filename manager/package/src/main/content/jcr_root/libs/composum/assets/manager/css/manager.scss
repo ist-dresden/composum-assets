@@ -112,23 +112,15 @@
                     }
                 }
 
-                .asset-original {
+                .composum-assets-manager-image {
 
-                    .accordion-item {
+                    &_original-view {
 
-                        .panel-body {
-                            border: none;
-                            padding: 0 !important;
-                        }
-                    }
-                }
+                        .composum-assets-widget-preview {
 
-                .image-original {
-
-                    .composum-assets-widget-preview {
-
-                        &_lightbox {
-                            position: static;
+                            &_lightbox {
+                                position: static;
+                            }
                         }
                     }
                 }

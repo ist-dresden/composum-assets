@@ -1,13 +1,11 @@
 /**
  * the 'assetfield' widget behaviour impelementation
  */
-(function (window) {
+(function () {
     'use strict';
-    window.composum = window.composum || {};
-    window.composum.assets = window.composum.assets || {};
-    window.composum.assets.widgets = window.composum.assets.widgets || {};
+    core.namespace('composum.assets.widgets');
 
-    (function (widgets, assets, core) {
+    (function (widgets, assets, components) {
 
         widgets.const = _.extend(widgets.const || {}, {
             assetfilter: {
@@ -22,14 +20,14 @@
         /**
          * the 'hybrid' filter key select widget which can be also a dropdown menu (<a ... data-value="key">...</a>)
          */
-        widgets.AssetFilterWidget = core.components.SelectWidget.extend({
+        widgets.AssetFilterWidget = components.SelectWidget.extend({
 
             /**
-             * @extends core.components.PathWidget
+             * @extends components.PathWidget
              */
             initialize: function (options) {
                 var c = widgets.const.assetfilter.css;
-                core.components.SelectWidget.prototype.initialize.call(this, options);
+                components.SelectWidget.prototype.initialize.call(this, options);
                 if (this.$el.is('.' + c.base + c._dropdown)) {
                     this.$menu = this.$('.' + c.base + c._menu);
                     this.$menu.find('a').click(_.bind(function (event) {
@@ -39,10 +37,10 @@
             },
 
             /**
-             * @extends core.components.SelectWidget
+             * @extends components.SelectWidget
              */
             setValue: function (value, triggerChange) {
-                core.components.SelectWidget.prototype.setValue.call(this, value, triggerChange);
+                components.SelectWidget.prototype.setValue.call(this, value, triggerChange);
                 if (this.$menu) {
                     this.$menu.find('li').removeClass('active');
                     this.$menu.find('a[data-value="' + value + '"]').parent().addClass('active');
@@ -52,6 +50,6 @@
 
         window.widgets.register('.' + widgets.const.assetfilter.css.base, widgets.AssetFilterWidget);
 
-    })(window.composum.assets.widgets, window.composum.assets, window.core);
+    })(composum.assets.widgets, composum.assets, core.components);
 
-})(window);
+})();

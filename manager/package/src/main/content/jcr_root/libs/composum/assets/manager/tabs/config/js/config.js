@@ -2,12 +2,9 @@
  *
  *
  */
-'use strict';
-(function (window) {
-
-    window.composum = window.composum || {};
-    window.composum.assets = window.composum.assets || {};
-    window.composum.assets.manager = window.composum.assets.manager || {};
+(function () {
+    'use strict';
+    core.namespace('composum.assets.manager');
 
     (function (manager, assets, core) {
 
@@ -71,10 +68,8 @@
 
             initialize: function (options) {
                 var c = manager.const.config.edit.css.action;
-                var n = manager.const.config.edit.css.navigator;
                 manager.AbstractManagerTab.prototype.initialize.apply(this, [options]);
                 this.initContent();
-                this.$('.' + n.base + n._goUp).click(_.bind(this.goUp, this));
                 this.$(c.create).click(_.bind(this.create, this));
                 this.$(c.copy).click(_.bind(this.copy, this));
                 var clipboardPath = this.getClipboardPath();
@@ -87,8 +82,6 @@
                     this.$(c.paste).click(_.bind(this.paste, this));
                 }
                 this.$(c.delete).click(_.bind(this.delete, this));
-                this.$(c.reload).click(_.bind(this.refresh, this));
-                this.$(c.open).click(_.bind(this.open, this));
             },
 
             initContent: function () {
@@ -101,14 +94,6 @@
 
             getSelectedPath: function () {
                 return this.selectedPath ? this.selectedPath : this.data.path;
-            },
-
-            open: function (event, path) {
-                if (event) {
-                    event.preventDefault();
-                }
-                window.open(this.$el.data('config') + '.page.html', '_blank');
-                return false;
             },
 
             create: function (event, path) {
@@ -171,6 +156,6 @@
             }
         });
 
-    })(window.composum.assets.manager, window.composum.assets, window.core);
+    })(composum.assets.manager, composum.assets, core);
 
-})(window);
+})();

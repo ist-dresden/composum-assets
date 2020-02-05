@@ -2,13 +2,11 @@
  *
  *
  */
-(function (window) {
+(function () {
     'use strict';
-    window.composum = window.composum || {};
-    window.composum.assets = window.composum.assets || {};
-    window.composum.assets.widgets = window.composum.assets.widgets || {};
+    core.namespace('composum.assets.widgets');
 
-    (function (widgets, assets, core) {
+    (function (widgets, assets) {
 
         widgets.const = _.extend(widgets.const || {}, {
             preview: {
@@ -90,6 +88,6 @@
 
         window.widgets.register('.widget.asset-preview-widget', widgets.AssetPreviewWidget);
 
-    })(window.composum.assets.widgets, window.composum.assets, window.core);
+    })(composum.assets.widgets, composum.assets);
 
-})(window);
+})();

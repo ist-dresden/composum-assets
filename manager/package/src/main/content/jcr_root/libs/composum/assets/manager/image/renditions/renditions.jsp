@@ -5,9 +5,9 @@
 <sling:defineObjects/><%-- the 'imageAssetBean' is used as request attribute... --%>
 <cpn:component var="imageAssetBean" type="com.composum.assets.manager.image.ImageAssetBean" scope="request">
     <div class="composum-assets-manager-image_content">
-        <div class="composum-assets-manager-image_originals panel-group" id="${imageAssetBean.domId}">
-            <c:forEach items="${imageAssetBean.variationList}" var="variation">
-                <sling:include resource="${variation.resource}" replaceSelectors="original"
+        <div class="composum-assets-manager-image_renditions panel-group" id="${imageAssetBean.domId}">
+            <c:forEach items="${imageAssetBean.variationConfigList}" var="variation">
+                <sling:include resource="${variation.resource}" replaceSelectors=""
                                resourceType="composum/assets/manager/image/variation"/>
             </c:forEach>
         </div>

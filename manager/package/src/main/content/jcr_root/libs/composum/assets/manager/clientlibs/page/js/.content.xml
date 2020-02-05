@@ -3,5 +3,5 @@
         jcr:primaryType="sling:OrderedFolder"
         embed="[composum/nodes/commons/components/clientlibs/base,
                 composum/nodes/commons/components/clientlibs/components,
-                category:composum.assets.components,
+                category:composum.assets.widgets,
                 composum/assets/manager/js/page.js]"/>

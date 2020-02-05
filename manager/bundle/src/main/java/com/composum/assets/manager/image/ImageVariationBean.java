@@ -7,9 +7,11 @@ import com.composum.assets.commons.handle.AssetRendition;
 import com.composum.assets.commons.handle.AssetVariation;
 import com.composum.sling.core.BeanContext;
 import com.composum.sling.core.ResourceHandle;
+import com.composum.sling.core.request.DomIdentifiers;
 import org.apache.sling.api.resource.Resource;
 
 import javax.annotation.Nonnull;
+import java.util.Collections;
 import java.util.List;
 
 public class ImageVariationBean extends AbstractImageBean<VariationConfig> {
@@ -40,12 +42,20 @@ public class ImageVariationBean extends AbstractImageBean<VariationConfig> {
         }
     }
 
+    @Override
+    public String getDomId() {
+        return DomIdentifiers.getInstance(context).getElementId(getConfig().getResource());
+    }
+
+    @Override
     public VariationConfig getConfig() {
         return config;
     }
 
-    public List<RenditionConfig> getRenditionConfigs() {
-        return config.getRenditionList(true);
+    public List<RenditionConfig> getRenditionConfigList() {
+        List<RenditionConfig> renditionConfigs = config.getRenditionList(true);
+        Collections.sort(renditionConfigs);
+        return renditionConfigs;
     }
 
     @Nonnull
