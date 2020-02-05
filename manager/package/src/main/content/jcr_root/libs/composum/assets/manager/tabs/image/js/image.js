@@ -4,7 +4,7 @@
  */
 (function () {
     'use strict';
-    core.namespace('composum.assets.manager');
+    CPM.namespace('assets.manager');
 
     (function (manager, assets, core) {
 

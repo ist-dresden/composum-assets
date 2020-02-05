@@ -4,7 +4,7 @@
  */
 (function () {
     'use strict';
-    core.namespace('composum.assets.navigator');
+    CPM.namespace('assets.navigator');
 
     (function (navigator, assets, components) {
 

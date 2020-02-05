@@ -4,7 +4,7 @@
  */
 (function () {
     'use strict';
-    core.namespace('composum.assets.dialogs');
+    CPM.namespace('assets.dialogs');
 
     (function (dialogs, assets, core) {
 

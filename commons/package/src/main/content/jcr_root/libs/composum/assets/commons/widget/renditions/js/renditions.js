@@ -4,7 +4,7 @@
  */
 (function () {
     'use strict';
-    core.namespace('composum.assets.widgets');
+    CPM.namespace('assets.widgets');
 
     (function (widgets, assets) {
 

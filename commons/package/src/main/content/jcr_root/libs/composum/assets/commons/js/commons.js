@@ -4,7 +4,7 @@
  */
 (function () {
     'use strict';
-    core.namespace('composum.assets.commons');
+    CPM.namespace('assets.commons');
 
     (function (commons, assets) {
 

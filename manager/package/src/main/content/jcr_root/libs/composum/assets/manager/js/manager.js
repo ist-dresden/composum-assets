@@ -4,7 +4,7 @@
  */
 (function () {
     'use strict';
-    core.namespace('composum.assets.manager');
+    CPM.namespace('assets.manager');
 
     (function (manager, assets, core) {
 
@@ -60,10 +60,10 @@
             return url.build();
         };
 
-        assets.Manager = core.components.SplitView.extend({
+        assets.Manager = CPM.console.components.SplitView.extend({
 
             initialize: function (options) {
-                core.components.SplitView.prototype.initialize.apply(this, [options]);
+                CPM.console.components.SplitView.prototype.initialize.apply(this, [options]);
                 $(document).on('path:select', _.bind(this.onPathSelect, this));
                 $(document).on('path:selected', _.bind(this.onPathSelected, this));
                 $(document).on('path:changed', _.bind(this.onPathChanged, this));
