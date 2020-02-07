@@ -53,15 +53,23 @@ public class AssetsConstants {
     public static final String _RENDITION = "Rendition";
     public static final String CONFIGURATION = "Configuration";
 
+    /** Node type for an configuration {@value #NODE_TYPE_ASSET} */
     public static final String NODE_TYPE_ASSET = CPA_PREFIX + "Asset";
+    /** Node type for an configuration {@value #NODE_TYPE_ASSET_CONTENT} */
     public static final String NODE_TYPE_ASSET_CONTENT = CPA_PREFIX + "AssetContent";
+    /** Node type for an configuration {@value #NODE_TYPE_ASSET_CONFIG} */
     public static final String NODE_TYPE_ASSET_CONFIG = NODE_TYPE_ASSET + CONFIGURATION;
+    /** Node type for an image asset {@value #NODE_TYPE_IMAGE_CONFIG}. */
     public static final String NODE_TYPE_IMAGE_CONFIG = CPA_PREFIX + "Image" + CONFIGURATION;
 
+    /** Node type for a variation {@value #NODE_TYPE_VARIATION}. */
     public static final String NODE_TYPE_VARIATION = CPA_PREFIX + _VARIATION;
+    /** Node type for a rendition {@value #NODE_TYPE_RENDITION}. */
     public static final String NODE_TYPE_RENDITION = CPA_PREFIX + _RENDITION;
 
+    /** Node type for an configuration for a variation {@value #NODE_TYPE_VARIATION_CONFIG}. */
     public static final String NODE_TYPE_VARIATION_CONFIG = NODE_TYPE_VARIATION + "Config";
+    /** Node type for an configuration for a variation {@value #NODE_TYPE_RENDITION_CONFIG}. */
     public static final String NODE_TYPE_RENDITION_CONFIG = NODE_TYPE_RENDITION + "Config";
 
     public static final List<String> ASSET_CONFIG_TYPE_SET = Arrays.asList(

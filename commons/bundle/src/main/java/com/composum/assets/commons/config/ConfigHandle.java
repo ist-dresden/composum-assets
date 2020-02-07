@@ -69,7 +69,7 @@ public abstract class ConfigHandle {
     public static final String EXAMPLE_IMAGE = EXAMPLE + "_image";
     public static final String EXAMPLE_IMAGE_PATH = EXAMPLE_IMAGE + "_path";
 
-    protected List<ResourceHandle> resourceCascade;
+    protected transient List<ResourceHandle> resourceCascade;
 
     private transient Boolean defaultConfig;
     private transient Boolean originalConfig;

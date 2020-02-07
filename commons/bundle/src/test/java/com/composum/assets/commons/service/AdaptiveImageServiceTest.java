@@ -11,7 +11,9 @@ import com.composum.assets.commons.image.transform.GraphicsCropTransformer;
 import com.composum.assets.commons.image.transform.GraphicsScaleTransformer;
 import com.composum.assets.commons.image.transform.GraphicsWatermarkTransformer;
 import com.composum.assets.commons.image.transform.ImgScalrTransformer;
+import com.composum.assets.commons.servlet.ConfigServlet;
 import com.composum.sling.core.BeanContext;
+import com.composum.sling.core.ResourceHandle;
 import com.composum.sling.core.concurrent.LazyCreationServiceImpl;
 import com.composum.sling.core.concurrent.SemaphoreSequencer;
 import com.composum.sling.core.util.ResourceUtil;
@@ -39,7 +41,9 @@ import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ResourceResolverFactory;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.apache.sling.testing.mock.sling.junit.SlingContext;
+import org.apache.sling.testing.mock.sling.servlet.MockSlingHttpServletResponse;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -52,6 +56,7 @@ import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.version.Version;
 import javax.jcr.version.VersionManager;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
@@ -312,6 +317,17 @@ public class AdaptiveImageServiceTest {
         ec.checkThat(stagedResource.adaptTo(Node.class).getProperty(StagingConstants.PROP_REPLICATED_VERSION).getString(),
                 is(version.getIdentifier()));
 
+    }
+
+    @Test
+    public void testSerializationConfigServlet() throws IOException {
+        ConfigServlet servlet = new ConfigServlet();
+        ConfigServlet.GetVariationsOperation operation = servlet.new GetVariationsOperation();
+        Resource resource = resolver.getResource("/test/assets/site-1/jcr:content/assetconfig");
+        MockSlingHttpServletResponse response = context.response();
+        operation.doIt(context.request(), response, ResourceHandle.use(resource));
+        System.out.println(response.getOutputAsString());
+        ec.checkThat(response.getOutputAsString(), is("{\"status\":200,\"success\":true,\"warning\":false,\"data\":{\"configuration\":{\"path\":\"/test/assets/site-1/jcr:content/assetconfig\",\"defaultVariation\":\"wide\"},\"variations\":{\"bar\":\"bar\",\"thumbnail\":\"thumbnail\",\"vertical\":\"vertical\",\"wide\":\"wide\"}},\"list\":{\"variations\":[{\"name\":\"bar\"},{\"name\":\"thumbnail\"},{\"name\":\"vertical\"},{\"name\":\"wide\",\"default\":true}]}}"));
     }
 
 }
