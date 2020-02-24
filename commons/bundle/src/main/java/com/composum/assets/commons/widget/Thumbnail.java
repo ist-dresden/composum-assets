@@ -10,6 +10,7 @@ import com.composum.sling.core.AbstractServletBean;
 import com.composum.sling.core.BeanContext;
 import com.composum.sling.core.bean.BeanFactory;
 import com.composum.sling.core.util.LinkUtil;
+import com.composum.sling.core.util.XSS;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.sling.api.SlingHttpServletRequest;
@@ -318,7 +319,7 @@ public abstract class Thumbnail extends AbstractServletBean implements Comparabl
             if (variationKey == null) {
                 SlingHttpServletRequest request = context.getRequest();
                 if (request != null) {
-                    variationKey = request.getParameter(AssetsConstants.VARIATION);
+                    variationKey = XSS.filter(request.getParameter(AssetsConstants.VARIATION));
                 }
                 if (StringUtils.isBlank(variationKey)) {
                     variationKey = THUMBNAIL;
@@ -331,7 +332,7 @@ public abstract class Thumbnail extends AbstractServletBean implements Comparabl
             if (renditionKey == null) {
                 SlingHttpServletRequest request = context.getRequest();
                 if (request != null) {
-                    renditionKey = request.getParameter(AssetsConstants.RENDITION);
+                    renditionKey = XSS.filter(request.getParameter(AssetsConstants.RENDITION));
                 }
                 if (StringUtils.isBlank(renditionKey)) {
                     renditionKey = THUMBNAIL.equals(getVariationKey()) ? "large" : ORIGINAL;

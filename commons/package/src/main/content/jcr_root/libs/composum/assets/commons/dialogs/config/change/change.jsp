@@ -32,8 +32,9 @@
                         </div>
                     </div>
                     <div class="composum-assets-dialogs-config_footer modal-footer buttons">
-                        <button type="button" class="btn btn-default cancel" data-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary create">Save</button>
+                        <button type="button" class="btn btn-default cancel"
+                                data-dismiss="modal">${cpn:i18n(slingRequest,'Cancel')}</button>
+                        <button type="submit" class="btn btn-primary create">${cpn:i18n(slingRequest,'Save')}</button>
                     </div>
                 </cpn:form>
             </div>

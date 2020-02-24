@@ -9,8 +9,8 @@
 </head>
 <body class="composum-assets-manager-image_page originals assets page view assets-preview-mode-dark">
 <h2 class="composum-assets-manager-image_page-title">Image Asset - Renditions -
-    <em>${slingRequest.requestPathInfo.suffix}</em></h2>
-<sling:include path="${slingRequest.requestPathInfo.suffix}"
+    <em>${cpn:text(slingRequest.requestPathInfo.suffix)}</em></h2>
+<sling:include path="${cpn:filter(slingRequest.requestPathInfo.suffix)}"
                resourceType="composum/assets/manager/image/renditions" replaceSelectors=""/>
 <cpn:clientlib type="js" category="composum.assets.manager.page"/>
 <script>core.getView('body', composum.assets.manager.page.AssetRenditionsPageView)</script>

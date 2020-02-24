@@ -3,6 +3,7 @@ package com.composum.assets.commons.widget;
 import com.composum.assets.commons.AssetsConfiguration;
 import com.composum.sling.core.AbstractServletBean;
 import com.composum.sling.core.BeanContext;
+import com.composum.sling.core.util.XSS;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.request.RequestPathInfo;
 import org.apache.sling.api.resource.Resource;
@@ -99,7 +100,7 @@ public class FieldModel extends AbstractServletBean {
                 }
             }
             if (StringUtils.isBlank(name)) {
-                String suffix = pathInfo.getSuffix();
+                String suffix = XSS.filter(pathInfo.getSuffix());
                 if (StringUtils.isNotBlank(suffix) && !"/".equals(suffix.trim())) {
                     name = suffix.replaceFirst("^\\.?/+", "");
                 }

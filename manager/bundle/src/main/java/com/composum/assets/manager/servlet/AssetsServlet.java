@@ -13,6 +13,7 @@ import com.composum.sling.core.servlet.ServletOperation;
 import com.composum.sling.core.servlet.ServletOperationSet;
 import com.composum.sling.core.util.ResourceUtil;
 import com.composum.sling.core.util.ResponseUtil;
+import com.composum.sling.core.util.XSS;
 import com.composum.sling.nodes.NodesConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
@@ -146,7 +147,7 @@ public class AssetsServlet extends NodeTreeServlet {
     public class GetOperation implements ServletOperation {
 
         protected String getSelectors(SlingHttpServletRequest request) {
-            return request.getParameter("selectors");
+            return XSS.filter(request.getParameter("selectors"));
         }
 
         @Override
@@ -155,7 +156,7 @@ public class AssetsServlet extends NodeTreeServlet {
                          ResourceHandle resource)
                 throws IOException, ServletException {
 
-            String type = request.getParameter("resourceType");
+            String type = XSS.filter(request.getParameter("resourceType"));
             RequestDispatcherOptions options = new RequestDispatcherOptions();
             options.setForceResourceType(type);
 
@@ -215,9 +216,9 @@ public class AssetsServlet extends NodeTreeServlet {
             InputStream imageStream;
             if (file != null && (imageStream = file.getInputStream()) != null) {
 
-                String path = request.getParameter(PARAM_PATH);
-                String name = request.getParameter(PARAM_NAME);
-                String variation = request.getParameter("variation");
+                String path = XSS.filter(request.getParameter(PARAM_PATH));
+                String name = XSS.filter(request.getParameter(PARAM_NAME));
+                String variation = XSS.filter(request.getParameter("variation"));
 
                 try (ResourceResolver resolver = resource.getResourceResolver()) {
 

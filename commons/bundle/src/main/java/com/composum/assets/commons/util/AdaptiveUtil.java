@@ -1,32 +1,23 @@
 package com.composum.assets.commons.util;
 
-import com.composum.assets.commons.config.AssetConfig;
-import com.composum.assets.commons.config.RenditionConfig;
-import com.composum.assets.commons.config.VariationConfig;
 import com.composum.assets.commons.handle.AssetRendition;
-import com.composum.assets.commons.handle.AssetVariation;
-import com.composum.assets.commons.handle.ImageAsset;
 import com.composum.sling.core.util.HttpUtil;
 import com.composum.sling.core.util.ResourceUtil;
-import org.apache.commons.codec.digest.DigestUtils;
+import com.composum.sling.core.util.XSS;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.request.RequestPathInfo;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
-import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.math.BigInteger;
 import java.util.Calendar;
-import java.util.Date;
 
 public class AdaptiveUtil {
 
@@ -74,7 +65,7 @@ public class AdaptiveUtil {
             RequestPathInfo pathInfo = request.getRequestPathInfo();
             String path = pathInfo.getResourcePath();
             String ext = pathInfo.getExtension();
-            String suffix = pathInfo.getSuffix();
+            String suffix = XSS.filter(pathInfo.getSuffix());
 
             if (StringUtils.isNotBlank(suffix) && path.endsWith(suffix)) {
                 path = path.substring(0, path.length() - suffix.length());

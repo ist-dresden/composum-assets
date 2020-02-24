@@ -71,6 +71,6 @@
             }
         });
 
-    })(composum.assets.dialogs, composum.assets, core.components);
+    })(CPM.assets.dialogs, CPM.assets, CPM.core.components);
 
 })();

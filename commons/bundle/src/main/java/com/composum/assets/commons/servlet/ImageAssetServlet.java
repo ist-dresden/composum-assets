@@ -20,6 +20,7 @@ import com.composum.sling.clientlibs.handle.FileHandle;
 import com.composum.sling.core.BeanContext;
 import com.composum.sling.core.ResourceHandle;
 import com.composum.sling.core.util.ResourceUtil;
+import com.composum.sling.core.util.XSS;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
@@ -87,7 +88,7 @@ public class ImageAssetServlet extends SlingSafeMethodsServlet {
                     resource);
             String[] selectors = parseSelectors(context.getRequest());
 
-            String configPath = request.getRequestPathInfo().getSuffix();
+            String configPath = XSS.filter(request.getRequestPathInfo().getSuffix());
             Resource assetConfigRes;
             // explicit config suffix for a config preview and variation and rendition selectors?...
             if (StringUtils.isNotBlank(configPath) && selectors.length > 1 &&

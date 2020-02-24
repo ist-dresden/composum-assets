@@ -15,6 +15,7 @@ import com.composum.assets.commons.util.AssetConfigUtil;
 import com.composum.sling.core.AbstractServletBean;
 import com.composum.sling.core.BeanContext;
 import com.composum.sling.core.util.ResourceUtil;
+import com.composum.sling.core.util.XSS;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jackrabbit.JcrConstants;
 import org.apache.sling.api.SlingHttpServletRequest;
@@ -85,7 +86,7 @@ public class ConfigView extends AbstractServletBean {
             RequestPathInfo pathInfo = request.getRequestPathInfo();
             config = getConfigResource(resource, selection); // check given resource...
             if (config == null) {
-                String suffix = pathInfo.getSuffix();
+                String suffix = XSS.filter(pathInfo.getSuffix());
                 if (StringUtils.isNotBlank(suffix)) { // use suffix as requestd resource...
                     Resource requested = resolver.getResource(suffix);
                     if (requested != null) {
@@ -104,7 +105,7 @@ public class ConfigView extends AbstractServletBean {
                 }
             }
             // determine the requested variation and rendition
-            String param = request.getParameter(AssetsConstants.VARIATION);
+            String param = XSS.filter(request.getParameter(AssetsConstants.VARIATION));
             if (StringUtils.isNotBlank(param)) {
                 if (selection.size() > 0) {
                     selection.set(0, param);
@@ -113,7 +114,7 @@ public class ConfigView extends AbstractServletBean {
                 }
             }
             if (selection.size() > 0) {
-                param = request.getParameter(AssetsConstants.RENDITION);
+                param = XSS.filter(request.getParameter(AssetsConstants.RENDITION));
                 if (StringUtils.isNotBlank(param)) {
                     if (selection.size() > 1) {
                         selection.set(1, param);

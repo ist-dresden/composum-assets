@@ -92,6 +92,6 @@
             }
         });
 
-    })(composum.assets.config, composum.assets, core.components);
+    })(CPM.assets.config, CPM.assets, CPM.core.components);
 
 })();

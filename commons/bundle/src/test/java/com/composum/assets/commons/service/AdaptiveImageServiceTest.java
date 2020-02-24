@@ -43,7 +43,6 @@ import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.apache.sling.testing.mock.sling.junit.SlingContext;
 import org.apache.sling.testing.mock.sling.servlet.MockSlingHttpServletResponse;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -119,6 +118,8 @@ public class AdaptiveImageServiceTest {
                 "/test/assets/site-1/images/image-2.png/square/original/image-2.png");
         ec.checkThat(IOUtils.toByteArray(file2.getValueMap().get("jcr:content/jcr:data", InputStream.class)).length,
                 is(155494));
+
+        new TestXSS();
 
         PlatformSearchService searchService = new PlatformSearchService();
         searchService.activate(AnnotationWithDefaults.of(PlatformSearchService.SearchServiceConfiguration.class));
@@ -219,7 +220,9 @@ public class AdaptiveImageServiceTest {
         ec.checkThat(changedlength, not(is(origlength)));
     }
 
-    /** Creates a new original for the variation bar. */
+    /**
+     * Creates a new original for the variation bar.
+     */
     @Test
     public void createOtherOriginal() throws Exception {
         int origlength;

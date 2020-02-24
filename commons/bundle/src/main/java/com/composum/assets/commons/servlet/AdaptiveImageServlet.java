@@ -20,6 +20,7 @@ import com.composum.sling.core.util.HttpUtil;
 import com.composum.sling.core.util.LinkUtil;
 import com.composum.sling.core.util.MimeTypeUtil;
 import com.composum.sling.core.util.ResourceUtil;
+import com.composum.sling.core.util.XSS;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jackrabbit.JcrConstants;
@@ -229,7 +230,7 @@ public class AdaptiveImageServlet extends SlingSafeMethodsServlet {
             return;
         }
 
-        boolean cacheHashCorrect = StringUtils.contains(request.getRequestPathInfo().getSuffix(),
+        boolean cacheHashCorrect = StringUtils.contains(XSS.filter(request.getRequestPathInfo().getSuffix()),
                 '/' + rendition.getCacheHash() + '/');
 
         if (config.redirectToCachefriendlyUrl() && !cacheHashCorrect) {

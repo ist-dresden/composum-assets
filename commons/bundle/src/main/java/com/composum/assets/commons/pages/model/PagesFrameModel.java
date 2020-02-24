@@ -8,6 +8,7 @@ package com.composum.assets.commons.pages.model;
 import com.composum.sling.core.AbstractSlingBean;
 import com.composum.sling.core.BeanContext;
 import com.composum.sling.core.ResourceHandle;
+import com.composum.sling.core.util.XSS;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
@@ -36,7 +37,7 @@ public class PagesFrameModel extends AbstractSlingBean {
      */
     public String getTargetPath(BeanContext context) {
         SlingHttpServletRequest request = context.getRequest();
-        String targetPath = request.getRequestPathInfo().getSuffix();
+        String targetPath = XSS.filter(request.getRequestPathInfo().getSuffix());
         if (StringUtils.isBlank(targetPath)) {
             targetPath = "/";
         }

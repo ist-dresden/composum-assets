@@ -6,6 +6,7 @@ import com.composum.sling.core.BeanContext;
 import com.composum.sling.core.filter.ResourceFilter;
 import com.composum.sling.core.filter.StringFilter;
 import com.composum.sling.core.util.RequestUtil;
+import com.composum.sling.core.util.XSS;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
@@ -95,7 +96,7 @@ public abstract class NavigatorBase extends AbstractServletBean {
         if (filterKey == null) {
             SlingHttpServletRequest request = getRequest();
             if (request != null) {
-                filterKey = request.getParameter(PARAM_FILTER);
+                filterKey = XSS.filter(request.getParameter(PARAM_FILTER));
             }
             if (filterKey == null) {
                 filterKey = "";

@@ -11,6 +11,7 @@ import com.composum.sling.core.servlet.ServletOperation;
 import com.composum.sling.core.servlet.ServletOperationSet;
 import com.composum.sling.core.servlet.Status;
 import com.composum.sling.core.util.ResponseUtil;
+import com.composum.sling.core.util.XSS;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
@@ -192,12 +193,12 @@ public class CommonsServlet extends AbstractServiceServlet {
             InputStream imageStream;
             if (file != null && (imageStream = file.getInputStream()) != null) {
 
-                String path = request.getParameter(PARAM_PATH);
-                String name = request.getParameter(PARAM_NAME);
+                String path = XSS.filter(request.getParameter(PARAM_PATH));
+                String name = XSS.filter(request.getParameter(PARAM_NAME));
                 if (StringUtils.isBlank(name)) {
                     name = getDefaultName(file);
                 }
-                String variation = request.getParameter("variation");
+                String variation = XSS.filter(request.getParameter("variation"));
 
                 try (ResourceResolver resolver = resource.getResourceResolver()) {
 

@@ -60,7 +60,7 @@
     <div class="row">
         <div class="col col-xs-12">
             <div class="form-group">
-                <input type="hidden" name="description@Delete" value="true"/>
+                <input type="hidden" name="jcr:description@Delete" value="true"/>
                 <label class="control-label">${cpn:i18n(slingRequest,'Description')}</label>
                 <div class="composum-widgets-richtext richtext-widget widget form-control"
                      data-rules="blank">

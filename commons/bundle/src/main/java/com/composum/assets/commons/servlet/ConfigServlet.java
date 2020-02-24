@@ -13,6 +13,7 @@ import com.composum.sling.core.servlet.ServletOperation;
 import com.composum.sling.core.servlet.ServletOperationSet;
 import com.composum.sling.core.servlet.Status;
 import com.composum.sling.core.util.ResourceUtil;
+import com.composum.sling.core.util.XSS;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
@@ -153,7 +154,7 @@ public class ConfigServlet extends AbstractServiceServlet {
                 config = new AssetConfig(AssetConfigUtil.assetConfigCascade(resource.getParent()));
             }
             if (config != null) {
-                String param = request.getParameter("cumulated");
+                String param = XSS.filter(request.getParameter("cumulated"));
                 boolean cumulated = param != null && (StringUtils.isBlank(param) || Boolean.parseBoolean(param));
                 Map<String, Object> configuration = status.data("configuration");
                 Map<String, Object> variationSet = status.data("variations");
@@ -200,7 +201,7 @@ public class ConfigServlet extends AbstractServiceServlet {
             AssetConfig assetConfig = null;
             VariationConfig config = null;
             if (isAssetConfigResource(resource)) {
-                String name = request.getParameter(VARIATION);
+                String name = XSS.filter(request.getParameter(VARIATION));
                 assetConfig = new AssetConfig(AssetConfigUtil.assetConfigCascade(resource));
                 if (StringUtils.isNotBlank(name)) {
                     config = assetConfig.getVariation(name);
@@ -216,7 +217,7 @@ public class ConfigServlet extends AbstractServiceServlet {
                 config = new VariationConfig(assetConfig, resource.getParent());
             }
             if (assetConfig != null) {
-                String param = request.getParameter("cumulated");
+                String param = XSS.filter(request.getParameter("cumulated"));
                 boolean cumulated = param != null && (StringUtils.isBlank(param) || Boolean.parseBoolean(param));
                 Map<String, Object> configuration = status.data("configuration");
                 configuration.put("path", assetConfig.getPath());
@@ -270,12 +271,12 @@ public class ConfigServlet extends AbstractServiceServlet {
             Status status = new Status(request, response);
 
             BeanContext context = new BeanContext.Servlet(getServletContext(), bundleContext, request, response);
-            String name = request.getParameter(PARAM_NAME);
+            String name = XSS.filter(request.getParameter(PARAM_NAME));
 
             if (!isAssetConfigResource(resource) || StringUtils.isNotBlank(name)) {
                 String param;
 
-                if (StringUtils.isNotBlank(param = request.getParameter(VARIATION))) {
+                if (StringUtils.isNotBlank(param = XSS.filter(request.getParameter(VARIATION)))) {
                     if (AssetConfigUtil.isVariationConfigResource(resource) && !resource.getName().equals(param)) {
                         resource = ResourceHandle.use(Objects.requireNonNull(resource.getParent()).getChild(param));
                     } else if (AssetConfigUtil.isAssetConfigResource(resource)) {
@@ -290,13 +291,13 @@ public class ConfigServlet extends AbstractServiceServlet {
                         ModifiableValueMap values;
                         if (configResource != null && (values = configResource.adaptTo(ModifiableValueMap.class)) != null) {
 
-                            if (StringUtils.isNotBlank(param = request.getParameter(ResourceUtil.JCR_TITLE))) {
+                            if (StringUtils.isNotBlank(param = XSS.filter(request.getParameter(ResourceUtil.JCR_TITLE)))) {
                                 values.put(ResourceUtil.JCR_TITLE, param);
                             }
-                            if (StringUtils.isNotBlank(param = request.getParameter(ResourceUtil.JCR_DESCRIPTION))) {
+                            if (StringUtils.isNotBlank(param = XSS.filter(request.getParameter(ResourceUtil.JCR_DESCRIPTION)))) {
                                 values.put(ResourceUtil.JCR_DESCRIPTION, param);
                             }
-                            if ((param = request.getParameter(ConfigHandle.EXTENSION)) != null &&
+                            if ((param = XSS.filter(request.getParameter(ConfigHandle.EXTENSION))) != null &&
                                     Boolean.parseBoolean(param) || "on".equalsIgnoreCase(param)) {
                                 values.put(ConfigHandle.EXTENSION, true);
                             }
@@ -337,7 +338,7 @@ public class ConfigServlet extends AbstractServiceServlet {
 
             BeanContext context = new BeanContext.Servlet(getServletContext(), bundleContext, request, response);
 
-            String path = request.getParameter(PARAM_PATH);
+            String path = XSS.filter(request.getParameter(PARAM_PATH));
 
             if (StringUtils.isNotBlank(path) && (context.getResolver().getResource(path)) != null) {
 
@@ -391,9 +392,9 @@ public class ConfigServlet extends AbstractServiceServlet {
             if (isAssetConfigResource(resource)) {
                 String param;
 
-                if (StringUtils.isNotBlank(param = request.getParameter(VARIATION))) {
+                if (StringUtils.isNotBlank(param = XSS.filter(request.getParameter(VARIATION)))) {
                     resource = ResourceHandle.use(resource.getChild(param));
-                    if (StringUtils.isNotBlank(param = request.getParameter(RENDITION))) {
+                    if (StringUtils.isNotBlank(param = XSS.filter(request.getParameter(RENDITION)))) {
                         resource = ResourceHandle.use(resource.getChild(param));
                     }
                 }

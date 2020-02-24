@@ -6,7 +6,7 @@
 <cpn:component id="manager" type="com.composum.assets.manager.view.ManagerBean" scope="request">
     <div class="detail-view">
         <sling:include resourceType="composum/assets/manager/components/breadcrumbs"/>
-        <sling:include path="${slingRequest.requestPathInfo.suffix}"
+        <sling:include path="${cpn:filter(slingRequest.requestPathInfo.suffix)}"
                        resourceType="composum/assets/manager/tabs/${manager.viewType}"/>
     </div>
 </cpn:component>

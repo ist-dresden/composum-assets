@@ -14,7 +14,6 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.SyntheticResource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -160,7 +159,7 @@ public abstract class ConfigHandle {
 
         @SuppressWarnings("unchecked")
         @Override
-        public <T> T get(@NotNull String name, @NotNull Class<T> type) {
+        public <T> T get(@Nonnull String name, @Nonnull Class<T> type) {
             Object value = super.get(name);
             if (value == null) {
                 value = getValue(name, type);
@@ -172,7 +171,7 @@ public abstract class ConfigHandle {
         @SuppressWarnings("unchecked")
         @Override
         @Nonnull
-        public <Type> Type get(@NotNull String name, @Nonnull Type defaultValue) {
+        public <Type> Type get(@Nonnull String name, @Nonnull Type defaultValue) {
             Type value = (Type) get(name, defaultValue.getClass());
             return value != null ? value : defaultValue;
         }
