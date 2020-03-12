@@ -4,5 +4,5 @@
 <sling:defineObjects/>
 <cpn:component var="model" type="com.composum.assets.commons.widget.Thumbnail">
     <img class="composum-assets-widget-preview_file_asset"
-         src="${model.url}" alt="${cpn:attr(slingRequest,resource.path,0)}"/>
+         src="${model.url}" alt="${cpn:text(resource.path)}"/>
 </cpn:component>

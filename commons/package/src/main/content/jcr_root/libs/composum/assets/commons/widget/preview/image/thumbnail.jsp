@@ -5,5 +5,5 @@
 <cpn:component var="model" type="com.composum.assets.commons.widget.Thumbnail">
     <img class="thumbnail-image"
          style="background-image:url(${cpn:unmappedUrl(slingRequest,'/libs/composum/nodes/commons/images/image-background.png')})"
-         src="${model.url}" alt="${cpn:attr(slingRequest,resource.path,0)}"/>
+         src="${model.url}" alt="${cpn:text(resource.path)}"/>
 </cpn:component>
