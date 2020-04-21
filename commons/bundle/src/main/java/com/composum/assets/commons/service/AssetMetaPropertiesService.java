@@ -82,7 +82,9 @@ public class AssetMetaPropertiesService implements MetaPropertiesService {
 
         protected void addMetaData(Resource contentResource, TikaMetaData metadata)
                 throws PersistenceException {
-            if (!ResourceUtil.isResourceType(contentResource, StagingConstants.TYPE_MIX_PLATFORM_RESOURCE)) { return; }
+            if (!ResourceUtil.isResourceType(contentResource, StagingConstants.TYPE_MIX_PLATFORM_RESOURCE)) {
+                return;
+            }
 
             prepareMetaData(contentResource, metadata);
             Resource metaResource = contentResource.getChild(AssetsConstants.NODE_META);
@@ -109,9 +111,13 @@ public class AssetMetaPropertiesService implements MetaPropertiesService {
         }
 
         protected boolean isAssetSubnode(Resource resource) {
-            if (resource.getPath().startsWith(AssetsConstants.PATH_TRANSIENTS)) { return true; }
+            if (resource.getPath().startsWith(AssetsConstants.PATH_TRANSIENTS)) {
+                return true;
+            }
             while (resource != null) {
-                if (ResourceUtil.isResourceType(resource, AssetsConstants.NODE_TYPE_ASSET)) { return true; }
+                if (ResourceUtil.isResourceType(resource, AssetsConstants.NODE_TYPE_ASSET)) {
+                    return true;
+                }
                 resource = resource.getParent();
             }
             return false;
@@ -151,9 +157,23 @@ public class AssetMetaPropertiesService implements MetaPropertiesService {
             ValueMap values = contentResource.getValueMap();
             return values.get(JcrConstants.JCR_MIMETYPE, "");
         }
+
+        protected boolean isVersionableContent(@Nonnull Resource resource) {
+            while ((resource = resource.getParent()) != null) {
+                if (ResourceUtil.isResourceType(resource, ResourceUtil.MIX_VERSIONABLE)) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
     public class SimpleImageStrategy extends FileResourceStrategy {
+
+        @Override
+        public boolean isMatching(Resource resource) {
+            return super.isMatching(resource) && !isVersionableContent(resource);
+        }
 
         @Override
         protected boolean isMatchingMimeType(String mimeType) {
