@@ -129,8 +129,7 @@ public class AssetMetaPropertiesService implements MetaPropertiesService {
         @Override
         public boolean isMatching(Resource resource) {
             Resource imageContent = getContentResource(resource);
-            return imageContent != null
-                    && ResourceUtil.isResourceType(imageContent, JcrConstants.NT_RESOURCE)
+            return ResourceUtil.isResourceType(imageContent, JcrConstants.NT_RESOURCE)
                     && isMatchingMimeType(getMimeType(imageContent));
         }
 
@@ -139,10 +138,14 @@ public class AssetMetaPropertiesService implements MetaPropertiesService {
         protected void adjustMixinTypes(Resource contentResource)
                 throws RepositoryException {
             String wantedType = isAssetSubnode(contentResource) ? StagingConstants.TYPE_MIX_PLATFORM_RESOURCE
-                    : ResourceUtil.MIX_VERSIONABLE;
-            if (!ResourceUtil.isResourceType(contentResource, wantedType)) {
+                    : isContentOfVersionable(contentResource) ? null : ResourceUtil.MIX_VERSIONABLE;
+            if (wantedType != null && !ResourceUtil.isResourceType(contentResource, wantedType)) {
                 Node node = contentResource.adaptTo(Node.class);
-                node.addMixin(wantedType);
+                if (node != null) {
+                    node.addMixin(wantedType);
+                } else {
+                    LOG.error("can't adapto to Node: '{}'", contentResource.getPath());
+                }
             }
         }
 
@@ -158,7 +161,7 @@ public class AssetMetaPropertiesService implements MetaPropertiesService {
             return values.get(JcrConstants.JCR_MIMETYPE, "");
         }
 
-        protected boolean isVersionableContent(@Nonnull Resource resource) {
+        protected boolean isContentOfVersionable(@Nonnull Resource resource) {
             while ((resource = resource.getParent()) != null) {
                 if (ResourceUtil.isResourceType(resource, ResourceUtil.MIX_VERSIONABLE)) {
                     return true;
@@ -169,11 +172,6 @@ public class AssetMetaPropertiesService implements MetaPropertiesService {
     }
 
     public class SimpleImageStrategy extends FileResourceStrategy {
-
-        @Override
-        public boolean isMatching(Resource resource) {
-            return super.isMatching(resource) && !isVersionableContent(resource);
-        }
 
         @Override
         protected boolean isMatchingMimeType(String mimeType) {
@@ -259,8 +257,7 @@ public class AssetMetaPropertiesService implements MetaPropertiesService {
         @Override
         public boolean isMatching(Resource resource) {
             Resource assetContent = getContentResource(resource);
-            return assetContent != null
-                    && ResourceUtil.isResourceType(assetContent, AssetsConstants.NODE_TYPE_ASSET_CONTENT);
+            return ResourceUtil.isResourceType(assetContent, AssetsConstants.NODE_TYPE_ASSET_CONTENT);
         }
 
         protected Resource getContentResource(Resource resource) {
@@ -287,7 +284,8 @@ public class AssetMetaPropertiesService implements MetaPropertiesService {
     }
 
     @Override
-    public boolean adjustMetaProperties(ResourceResolver resolver, Resource resource) {
+    public boolean adjustMetaProperties(@Nonnull final ResourceResolver resolver,
+                                        @Nonnull final Resource resource) {
         boolean result = false;
         for (MetaStrategy strategy : strategies) {
             if (strategy.isMatching(resource)) {
@@ -344,5 +342,4 @@ public class AssetMetaPropertiesService implements MetaPropertiesService {
                 "^([XxYy][ -])?[Rr]esolution([ -][Uu]nits)?$"
         };
     }
-
 }
