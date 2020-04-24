@@ -286,7 +286,6 @@ public class CommonsServlet extends AbstractServiceServlet {
 
                 BeanContext context = new BeanContext.Servlet(getServletContext(), bundleContext, request, response);
                 assetsService.transformToImageAsset(context, resource);
-                resolver.commit();
             }
 
             status.sendJson();
@@ -306,7 +305,6 @@ public class CommonsServlet extends AbstractServiceServlet {
 
                 BeanContext context = new BeanContext.Servlet(getServletContext(), bundleContext, request, response);
                 assetsService.transformToSimpleImage(context, resource);
-                resolver.commit();
             }
 
             status.sendJson();

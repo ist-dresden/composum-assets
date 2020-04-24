@@ -97,5 +97,60 @@
         ]
       }
     ]
+  },
+  {
+    "path": "/tmp",
+    "jcr:primaryType": "sling:Folder",
+    "acl": [
+      {
+        "principal": "composum-assets-service",
+        "acl": [
+          {
+            "allow": true,
+            "privileges": "jcr:read",
+            "restrictions": {
+              "rep:glob": ""
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "path": "/tmp/composum",
+    "jcr:primaryType": "sling:Folder",
+    "acl": [
+      {
+        "principal": "composum-assets-service",
+        "acl": [
+          {
+            "allow": true,
+            "privileges": "jcr:read",
+            "restrictions": {
+              "rep:glob": ""
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "path": "/tmp/composum/assets",
+    "jcr:primaryType": "sling:Folder",
+    "acl": [
+      {
+        "principal": "composum-assets-service",
+        "acl": [
+          {
+            "allow": true,
+            "privileges": [
+              "jcr:read",
+              "rep:write",
+              "jcr:versionManagement"
+            ]
+          }
+        ]
+      }
+    ]
   }
 ]

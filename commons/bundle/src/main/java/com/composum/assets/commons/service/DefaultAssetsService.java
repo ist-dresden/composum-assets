@@ -24,10 +24,12 @@ import com.composum.sling.platform.staging.search.SearchService;
 import com.composum.sling.platform.staging.search.SearchTermParseException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jackrabbit.JcrConstants;
+import org.apache.sling.api.resource.LoginException;
 import org.apache.sling.api.resource.ModifiableValueMap;
 import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
+import org.apache.sling.api.resource.ResourceResolverFactory;
 import org.apache.tika.mime.MimeType;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -44,6 +46,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 import static com.composum.assets.commons.AssetsConstants.ASSET_CONFIG;
 import static com.composum.assets.commons.AssetsConstants.IMAGE_CONFIG;
@@ -118,6 +121,9 @@ public class DefaultAssetsService implements AssetsService {
     }};
 
     @Reference
+    protected ResourceResolverFactory resolverFactory;
+
+    @Reference
     protected AdaptiveImageService adaptiveImageService;
 
     @Reference
@@ -179,23 +185,30 @@ public class DefaultAssetsService implements AssetsService {
     public void transformToImageAsset(@Nonnull final BeanContext context, @Nonnull final Resource imageResource)
             throws PersistenceException, RepositoryException {
         if (!ResourceUtil.isNodeType(imageResource, NODE_TYPE_ASSET)) {
-            ResourceResolver resolver = context.getResolver();
-            Resource parent = Objects.requireNonNull(imageResource.getParent());
-            String assetPath = imageResource.getPath();
-            String name = imageResource.getName();
-            String tmpPath = getAssetTmpPath(resolver, name);
-            // CRUD not possible because the resolvers 'move' performs 'copy' internally
-            // and the file is referenceable... - exception on copying the 'uuid'!
-            Session session = Objects.requireNonNull(resolver.adaptTo(Session.class));
-            session.move(assetPath, tmpPath);
-            resolver.refresh();
-            Resource assetResource = resolver.create(parent, name, IMAGE_PROPERTIES);
-            Resource content = resolver.create(assetResource, ResourceUtil.CONTENT_NODE, IMAGE_CONTENT_PROPERTIES);
-            ImageAsset imageAsset = new ImageAsset(context, assetResource);
-            AssetVariation variation = imageAsset.getOrCreateVariationForOriginal(null);
-            AssetRendition rendition = variation.getOrCreateOriginal(null);
-            session.move(tmpPath, rendition.getPath() + "/" + name);
-            resolver.refresh();
+            if (imageResource.adaptTo(ModifiableValueMap.class) != null) { // check write permission
+                try (ResourceResolver resolver = resolverFactory.getServiceResourceResolver(null)) {
+                    Resource parent = Objects.requireNonNull(imageResource.getParent());
+                    String assetPath = imageResource.getPath();
+                    String name = imageResource.getName();
+                    String tmpPath = getAssetTmpPath(resolver, "smpl-" + UUID.randomUUID().toString());
+                    // CRUD not possible because the resolvers 'move' performs 'copy' internally
+                    // and the file is referenceable... - exception on copying the 'uuid'!
+                    Session session = Objects.requireNonNull(resolver.adaptTo(Session.class));
+                    session.move(assetPath, tmpPath);
+                    resolver.refresh();
+                    Resource assetResource = resolver.create(parent, name, IMAGE_PROPERTIES);
+                    Resource content = resolver.create(assetResource, ResourceUtil.CONTENT_NODE, IMAGE_CONTENT_PROPERTIES);
+                    ImageAsset imageAsset = new ImageAsset(context, assetResource);
+                    AssetVariation variation = imageAsset.getOrCreateVariationForOriginal(null);
+                    AssetRendition rendition = variation.getOrCreateOriginal(null);
+                    session.move(tmpPath, rendition.getPath() + "/" + name);
+                    resolver.commit();
+                } catch (LoginException ex) {
+                    LOG.error(ex.toString());
+                }
+            } else {
+                // FIXME: signal problem...
+            }
         }
     }
 
@@ -203,20 +216,28 @@ public class DefaultAssetsService implements AssetsService {
     public void transformToSimpleImage(@Nonnull final BeanContext context, @Nonnull final Resource assetResource)
             throws PersistenceException, RepositoryException {
         if (!ResourceUtil.isNodeType(assetResource, JcrConstants.NT_FILE)) {
-            ResourceResolver resolver = context.getResolver();
-            String assetPath = assetResource.getPath();
-            ImageAsset imageAsset = new ImageAsset(context, assetResource);
-            AssetRendition original = imageAsset.getOriginal();
-            FileHandle file = original.getFile();
-            String filePath = file.getPath();
-            String tmpPath = getAssetTmpPath(resolver, assetResource.getName());
-            // CRUD not possible because - see above...
-            Session session = Objects.requireNonNull(resolver.adaptTo(Session.class));
-            session.move(filePath, tmpPath);
-            session.removeItem(assetPath);
-            session.save(); // FIXME - workaround for an OAK exception (change of protected version history property...)
-            session.move(tmpPath, assetPath);
-            resolver.refresh();
+            if (assetResource.adaptTo(ModifiableValueMap.class) != null) { // check write permission
+                try (ResourceResolver resolver = resolverFactory.getServiceResourceResolver(null)) {
+                    String assetPath = assetResource.getPath();
+                    ImageAsset imageAsset = new ImageAsset(context, assetResource);
+                    AssetRendition original = imageAsset.getOriginal();
+                    FileHandle file = original.getFile();
+                    String filePath = file.getPath();
+                    String tmpPath = getAssetTmpPath(resolver, "orig-" + UUID.randomUUID().toString());
+                    // CRUD not possible because - see above...
+                    Session session = Objects.requireNonNull(resolver.adaptTo(Session.class));
+                    session.move(filePath, tmpPath);
+                    session.removeItem(assetPath);
+                    session.save(); // FIXME - workaround for an OAK exception (change of protected version history property...)
+                    resolver.refresh();
+                    session.move(tmpPath, assetPath);
+                    resolver.commit();
+                } catch (LoginException ex) {
+                    LOG.error(ex.toString());
+                }
+            } else {
+                // FIXME: signal problem...
+            }
         }
     }
 
@@ -438,7 +459,7 @@ public class DefaultAssetsService implements AssetsService {
 
     protected Resource getAssetTmpFolder(@Nonnull final ResourceResolver resolver)
             throws PersistenceException {
-        return getOrCreateFolder(resolver, "/var/tmp/assets");
+        return getOrCreateFolder(resolver, "/tmp/composum/assets");
     }
 
     /**
