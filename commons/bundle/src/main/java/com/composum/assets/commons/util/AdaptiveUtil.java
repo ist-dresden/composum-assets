@@ -1,6 +1,7 @@
 package com.composum.assets.commons.util;
 
 import com.composum.assets.commons.handle.AssetRendition;
+import com.composum.sling.clientlibs.handle.FileHandle;
 import com.composum.sling.core.util.HttpUtil;
 import com.composum.sling.core.util.ResourceUtil;
 import com.composum.sling.core.util.XSS;
@@ -13,6 +14,8 @@ import org.apache.sling.api.resource.ResourceResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,8 +26,25 @@ public class AdaptiveUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(AdaptiveUtil.class);
 
-    public static void sendImageStream(HttpServletResponse response,
-                                       AssetRendition rendition, InputStream imageStream)
+    public static boolean sendRendition(@Nonnull final HttpServletResponse response,
+                                        @Nullable final AssetRendition rendition)
+            throws IOException {
+        if (rendition != null) {
+            FileHandle file = rendition.getFile();
+            if (file.isValid()) {
+                response.setContentType(rendition.getMimeType());
+                try (InputStream imageStream = file.getStream()) {
+                    AdaptiveUtil.sendImageStream(response, rendition, imageStream);
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static void sendImageStream(@Nonnull final HttpServletResponse response,
+                                       @Nonnull final AssetRendition rendition,
+                                       @Nonnull final InputStream imageStream)
             throws IOException {
 
         Object value;

@@ -16,7 +16,6 @@ import com.composum.assets.commons.handle.SimpleImageRendition;
 import com.composum.assets.commons.service.AdaptiveImageService;
 import com.composum.assets.commons.util.AdaptiveUtil;
 import com.composum.assets.commons.util.AssetConfigUtil;
-import com.composum.sling.clientlibs.handle.FileHandle;
 import com.composum.sling.core.BeanContext;
 import com.composum.sling.core.ResourceHandle;
 import com.composum.sling.core.util.ResourceUtil;
@@ -42,7 +41,6 @@ import javax.annotation.Nonnull;
 import javax.servlet.Servlet;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.InputStream;
 
 import static com.composum.assets.commons.servlet.AdaptiveImageServlet.parseSelectors;
 
@@ -113,15 +111,8 @@ public class ImageAssetServlet extends SlingSafeMethodsServlet {
                         ? imageAsset.getVariation(selectors[0]) : null;
                 AssetRendition original = variation != null
                         ? variation.getOriginal() : imageAsset.getOriginal();
-                if (original != null) {
-                    FileHandle file = original.getFile();
-                    if (file.isValid()) {
-                        response.setContentType(original.getMimeType());
-                        try (InputStream imageStream = file.getStream()) {
-                            AdaptiveUtil.sendImageStream(response, original, imageStream);
-                        }
-                        return;
-                    }
+                if (AdaptiveUtil.sendRendition(response, original)) {
+                    return;
                 }
             }
         }
