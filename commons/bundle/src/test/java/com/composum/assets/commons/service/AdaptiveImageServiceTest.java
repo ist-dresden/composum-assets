@@ -241,7 +241,7 @@ public class AdaptiveImageServiceTest {
         AssetRendition rendition = service.getOrCreateRendition(asset, "bar", "medium");
         int newlength = IOUtils.toByteArray(rendition.getStream()).length;
         ec.checkThat(newlength, allOf(lessThan(50000), greaterThan(10000), not(is(origlength))));
-        JcrTestUtils.printResourceRecursivelyAsJson(rendition.getResource());
+        // JcrTestUtils.printResourceRecursivelyAsJson(rendition.getResource());
 
         ec.checkThat(rendition.getTransientsPath().replaceAll("workspace-[0-9]*", "workspace-time"),
                 is("/var/composum/assets/test/assets/site-1/theuuidofthereplicatedversion/images" +
