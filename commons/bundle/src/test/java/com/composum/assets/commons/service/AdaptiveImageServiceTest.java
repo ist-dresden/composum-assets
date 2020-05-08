@@ -17,9 +17,9 @@ import com.composum.sling.core.ResourceHandle;
 import com.composum.sling.core.concurrent.LazyCreationServiceImpl;
 import com.composum.sling.core.concurrent.SemaphoreSequencer;
 import com.composum.sling.core.util.ResourceUtil;
+import com.composum.sling.platform.staging.Release;
 import com.composum.sling.platform.staging.ReleasedVersionable;
 import com.composum.sling.platform.staging.StagingConstants;
-import com.composum.sling.platform.staging.StagingReleaseManager;
 import com.composum.sling.platform.staging.impl.DefaultStagingReleaseManager;
 import com.composum.sling.platform.staging.impl.ReleaseChangeEventPublisherImpl;
 import com.composum.sling.platform.staging.query.QueryBuilder;
@@ -309,7 +309,7 @@ public class AdaptiveImageServiceTest {
         siteResource.adaptTo(ModifiableValueMap.class).put(ResourceUtil.PROP_MIXINTYPES, new String[]{StagingConstants.TYPE_MIX_RELEASE_ROOT});
         resolver.commit();
 
-        StagingReleaseManager.Release currentRelease = releaseManager.findRelease(siteResource, StagingConstants.CURRENT_RELEASE);
+        Release currentRelease = releaseManager.findRelease(siteResource, StagingConstants.CURRENT_RELEASE);
         releaseManager.updateRelease(currentRelease, Arrays.asList(ReleasedVersionable.forBaseVersion(resource)));
 
         ResourceResolver stagingResolver = releaseManager.getResolverForRelease(currentRelease, null, false);
