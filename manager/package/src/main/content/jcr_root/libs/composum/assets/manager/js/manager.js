@@ -187,16 +187,19 @@
             },
 
             openCreateAssetDialog: function (parentPath, callback) {
-                var dialog = assets.getAssetUploadDialog();
-                dialog.show(_.bind(function () {
-                    if (parentPath) {
-                        dialog.initParentPath(parentPath);
-                    }
-                }, this), _.bind(function () {
-                    if (_.isFunction(callback)) {
-                        callback.call(this, parentPath);
-                    }
-                }, this));
+                var u = assets.dialogs.const.asset.url;
+                core.openFormDialog(u.base + u._create + parentPath, assets.dialogs.AssetCreateDialog,
+                    {},
+                    _.bind(function (dialog) {
+                        if (parentPath) {
+                            dialog.initParentPath(parentPath);
+                        }
+                    }, this),
+                    _.bind(function (dialog) {
+                        if (_.isFunction(callback)) {
+                            callback.call(this, parentPath);
+                        }
+                    }, this));
             },
 
             createFolder: function (event, path, callback) {
@@ -206,16 +209,19 @@
                 if (!path) {
                     path = this.getCurrentPath();
                 }
-                var dialog = assets.getCreateFolderDialog();
-                dialog.show(_.bind(function () {
-                    if (path) {
-                        dialog.initParentPath(path);
-                    }
-                }, this), _.bind(function () {
-                    if (_.isFunction(callback)) {
-                        callback.call(this, path);
-                    }
-                }, this));
+                var u = assets.dialogs.const.folder.url;
+                core.openFormDialog(u.base + u._create + path, assets.dialogs.FolderCreateDialog,
+                    {},
+                    _.bind(function (dialog) {
+                        if (path) {
+                            dialog.initParentPath(path);
+                        }
+                    }, this),
+                    _.bind(function (dialog) {
+                        if (_.isFunction(callback)) {
+                            callback.call(this, path);
+                        }
+                    }, this));
                 return false;
             }
         });

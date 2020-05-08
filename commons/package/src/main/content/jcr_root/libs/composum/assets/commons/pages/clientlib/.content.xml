@@ -3,5 +3,5 @@
         jcr:primaryType="sling:Folder"
         sling:resourceType="composum/nodes/commons/clientlib"
         jcr:description="the Assets clientlib extension for the edit frame of Composum Pages"
-        category="[composum.pages.edit.frameX]"
+        category="[composum.pages.edit.frame]"
         order="999"/>

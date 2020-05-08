@@ -2,8 +2,8 @@
 <jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0"
         jcr:primaryType="sling:OrderedFolder"
         depends="[category:composum.nodes.console.default]"
-        embed="[category:composum.assets.widgets,
-                composum/assets/manager/js/dialogs.js,
+        embed="[composum/assets/commons/widget/js/console.js,
+                category:composum.assets.widgets,
                 composum/assets/manager/js/console.js,
                 composum/assets/manager/tabs/folder/js/folder.js,
                 composum/assets/manager/tabs/config/js/config.js,

@@ -50,6 +50,6 @@
 
         window.widgets.register('.' + widgets.const.assetfilter.css.base, widgets.AssetFilterWidget);
 
-    })(composum.assets.widgets, composum.assets, core.components);
+    })(CPM.assets.widgets, CPM.assets, CPM.core.components);
 
 })();

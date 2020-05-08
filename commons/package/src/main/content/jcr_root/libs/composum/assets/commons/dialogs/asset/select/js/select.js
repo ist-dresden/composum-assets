@@ -11,7 +11,7 @@
         dialogs.const = _.extend(dialogs.const || {}, {
             select: {
                 css: {
-                    base: 'composum-assets-dialogs-asset-select',
+                    base: 'composum-assets-dialog-select',
                     assetfield: 'composum-assets-widget-assetfield',
                     navigator: 'composum-assets-widget-navigator'
                 }

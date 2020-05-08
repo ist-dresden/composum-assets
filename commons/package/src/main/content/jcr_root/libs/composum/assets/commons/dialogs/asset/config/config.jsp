@@ -3,7 +3,7 @@
 <%@taglib prefix="cpn" uri="http://sling.composum.com/cpnl/1.0" %>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <sling:defineObjects/>
-<div class="composum-assets_pages-dialog composum-pages-stage-edit-dialog dialog-asset-config dialog modal fade"
+<div class="composum-assets-dialog_asset-config composum-assets-dialog dialog modal fade"
      role="dialog" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content form-panel create">

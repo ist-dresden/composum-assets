@@ -9,7 +9,7 @@
             <div class="form-group">
                 <cpn:text tagName="label" tagClass="control-label" value="Variation" i18n="true"/>
                 <select name="variation"
-                        class="composum-assets-dialogs-config_variation widget select-widget form-control">
+                        class="composum-assets-dialog_variation widget select-widget form-control">
                     <c:forEach items="${model.variations}" var="variation">
                         <option value="${variation.name}"
                                 <c:if test="${variation.name==model.variation.name}">selected</c:if>>${variation.name}</option>
@@ -19,7 +19,7 @@
             <div class="form-group">
                 <cpn:text tagName="label" tagClass="control-label" value="Delete" i18n="true"/>
                 <select name="rendition"
-                        class="composum-assets-dialogs-config_name widget select-widget form-control">
+                        class="composum-assets-dialog_name widget select-widget form-control">
                     <c:forEach items="${model.renditions}" var="rendition">
                         <option value="${rendition.name}"
                                 <c:if test="${rendition.name==model.rendition.name}">selected</c:if>>${rendition.name}</option>

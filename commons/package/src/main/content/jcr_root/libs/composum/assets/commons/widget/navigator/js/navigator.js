@@ -55,7 +55,7 @@
             }
         });
 
-        assets.profile = assets.profile || new core.LocalProfile('composum.assets');
+        assets.profile = assets.profile || new CPM.core.LocalProfile('composum.assets');
 
         navigator.AbstractNavWidget = widgets.Widget.extend({
 
@@ -675,6 +675,6 @@
 
         widgets.register('.widget.' + navigator.const.css.base, navigator.NavigatorWidget);
 
-    })(composum.assets.navigator, composum.assets, core.components);
+    })(CPM.assets.navigator, CPM.assets, CPM.core.components);
 
 })();

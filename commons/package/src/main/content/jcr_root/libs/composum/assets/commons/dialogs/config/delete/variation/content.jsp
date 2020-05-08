@@ -4,13 +4,13 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <sling:defineObjects/>
 <cpn:component var="model" type="com.composum.assets.commons.widget.ConfigModel" scope="request">
-    <div class="composum-assets-dialogs-config_content">
+    <div class="composum-assets-dialog_content">
         <div class="row" style="align-items: flex-start;">
             <div class="col col-xs-6">
                 <div class="form-group">
                     <cpn:text tagName="label" tagClass="control-label" value="Delete" i18n="true"/>
                     <select name="variation"
-                            class="composum-assets-dialogs-config_name widget select-widget form-control">
+                            class="composum-assets-dialog_name widget select-widget form-control">
                         <c:forEach items="${model.variations}" var="variation">
                             <option value="${variation.name}"
                                     <c:if test="${variation.name==model.variation.name}">selected</c:if>>${variation.name}</option>

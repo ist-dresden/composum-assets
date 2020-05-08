@@ -110,6 +110,6 @@
 
         window.widgets.register('.widget.assetfield-widget', widgets.AssetFieldWidget);
 
-    })(composum.assets.widgets, composum.assets, core.components);
+    })(CPM.assets.widgets, CPM.assets, CPM.core.components);
 
 })();

@@ -23,6 +23,8 @@
             }
         });
 
+        assets.profile = assets.profile || new CPM.core.LocalProfile('composum.assets');
+
         widgets.AssetRenditions = window.widgets.Widget.extend({
 
             initialize: function (options) {
@@ -40,7 +42,9 @@
                                 $rendition.on('shown.bs.collapse', function (event) {
                                     var $rendition = $(event.target);
                                     assets.profile.set('rendition', $rendition.data('key'), 'open');
-                                    $rendition.find('.' + p.base + p._frame).click(assets.commons.togglePreviewMode);
+                                    if (_.isFunction(assets.console.togglePreviewMode)) {
+                                        $rendition.find('.' + p.base + p._frame).click(assets.console.togglePreviewMode);
+                                    }
                                     var $image = $rendition.find('.' + p.base + p._rendition);
                                     $image.attr('src', $image.data('src'));
                                 });
@@ -71,6 +75,6 @@
             }
         });
 
-    })(composum.assets.widgets, composum.assets);
+    })(CPM.assets.widgets, CPM.assets);
 
 })();

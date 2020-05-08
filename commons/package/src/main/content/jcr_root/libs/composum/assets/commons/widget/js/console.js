@@ -4,13 +4,11 @@
  */
 (function () {
     'use strict';
-    CPM.namespace('assets.commons');
+    CPM.namespace('assets.console');
 
-    (function (commons, assets) {
+    (function (console, assets) {
 
-        assets.profile = assets.profile || new core.LocalProfile('composum.assets');
-
-        commons.const = _.extend(commons.const || {}, {
+        console.const = _.extend(console.const || {}, {
             preview: {
                 mode: {
                     base: 'assets-preview-mode',
@@ -20,8 +18,8 @@
             }
         });
 
-        commons.togglePreviewMode = function () {
-            var c = commons.const.preview.mode;
+        console.togglePreviewMode = function () {
+            var c = console.const.preview.mode;
             var $body = $('body');
             if ($body.is('.' + c.base + c._light)) {
                 $body.removeClass(c.base + c._light).addClass(c.base + c._dark);
@@ -30,6 +28,6 @@
             }
         };
 
-    })(composum.assets.commons, composum.assets);
+    })(CPM.assets.console, CPM.assets);
 
 })();

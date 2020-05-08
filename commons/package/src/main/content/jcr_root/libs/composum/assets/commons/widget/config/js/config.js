@@ -68,6 +68,8 @@
             }
         });
 
+        assets.profile = assets.profile || new CPM.core.LocalProfile('composum.assets');
+
         config.FormWidget = components.FormWidget.extend({
 
             initialize: function (options) {

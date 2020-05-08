@@ -29,7 +29,9 @@
                 var c = widgets.const.preview.css;
                 window.widgets.Widget.prototype.initialize.call(this, options);
                 this.$image = this.$('img');
-                this.$el.click(assets.commons.togglePreviewMode);
+                if (_.isFunction(assets.console.togglePreviewMode)) {
+                    this.$el.click(assets.console.togglePreviewMode);
+                }
             },
 
             setValue: function (value, triggerChange) {
@@ -88,6 +90,6 @@
 
         window.widgets.register('.widget.asset-preview-widget', widgets.AssetPreviewWidget);
 
-    })(composum.assets.widgets, composum.assets);
+    })(CPM.assets.widgets, CPM.assets);
 
 })();

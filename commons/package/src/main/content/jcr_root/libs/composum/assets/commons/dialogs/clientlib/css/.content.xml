@@ -4,4 +4,5 @@
         depends="[fonts/awesome/4.7.0/css/font-awesome.css,
                   jslibs/jstree/3.3.8/themes/proton/style.css,
                   category:composum.components.widgets]"
-        embed="[composum/assets/commons/widget/navigator/css/navigator.css]"/>
+        embed="[composum/assets/commons/dialogs/css/dialogs.css,
+                composum/assets/commons/widget/navigator/css/navigator.css]"/>

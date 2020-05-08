@@ -9,7 +9,7 @@
             <div class="form-group">
                 <cpn:text tagName="label" tagClass="control-label" value="Variation" i18n="true"/>
                 <select name="variation"
-                        class="composum-assets-dialogs-config_variation widget select-widget form-control">
+                        class="composum-assets-dialog_variation widget select-widget form-control">
                     <c:forEach items="${model.variations}" var="variation">
                         <option value="${variation.name}"
                                 <c:if test="${variation.name==model.variation.name}">selected</c:if>>${variation.name}</option>
@@ -19,12 +19,12 @@
             <div class="form-group">
                 <cpn:text tagName="label" tagClass="control-label" value="Name" i18n="true"/>
                 <input name="name" type="text" data-pattern="^[a-zA-Z_][a-zA-Z_0-9]*$"
-                       class="composum-assets-dialogs-config_name widget text-field-widget form-control"/>
+                       class="composum-assets-dialog_name widget text-field-widget form-control"/>
             </div>
             <div class="form-group">
                 <cpn:text tagName="label" tagClass="control-label" value="Title" i18n="true"/>
                 <input name="jcr:title" type="text"
-                       class="composum-assets-dialogs-config_title widget text-field-widget form-control"/>
+                       class="composum-assets-dialog_title widget text-field-widget form-control"/>
             </div>
         </div>
         <div class="col col-xs-6">

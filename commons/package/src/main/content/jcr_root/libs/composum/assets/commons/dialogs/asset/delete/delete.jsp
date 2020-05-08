@@ -2,8 +2,8 @@
 <%@taglib prefix="sling" uri="http://sling.apache.org/taglibs/sling/1.2" %>
 <%@taglib prefix="cpn" uri="http://sling.composum.com/cpnl/1.0" %>
 <sling:defineObjects/>
-<div class="composum-pages-stage-edit-dialog  dialog modal fade in" role="dialog" aria-hidden="true"
-     data-pages-edit-success="content:deleted">
+<div class="composum-assets-dialog_asset-delete composum-assets-dialog dialog modal fade in"
+     role="dialog" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content form-panel">
             <cpn:form class="widget-form composum-pages-stage-edit-dialog_form" method="POST"

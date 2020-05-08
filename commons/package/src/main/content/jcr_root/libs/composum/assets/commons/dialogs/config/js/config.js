@@ -13,7 +13,7 @@
                 css: {
                     title: 'h4.modal-title',
                     subtitle: 'h5.modal-subtitle',
-                    base: 'composum-assets-dialogs-config',
+                    base: 'composum-assets-dialog',
                     _content: '_content',
                     _variation: '_variation'
                 },

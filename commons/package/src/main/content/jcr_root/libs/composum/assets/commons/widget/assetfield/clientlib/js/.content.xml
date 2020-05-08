@@ -3,6 +3,5 @@
         jcr:primaryType="sling:OrderedFolder"
         depends="[jslibs/jquery/3.4.1/jquery.js,
                   category:composum.components.widgets]"
-        embed="[composum/assets/commons/js/commons.js,
-                composum/assets/commons/dialogs/asset/select/js/select.js,
+        embed="[composum/assets/commons/dialogs/asset/select/js/select.js,
                 composum/assets/commons/widget/assetfield/js/assetfield.js]"/>

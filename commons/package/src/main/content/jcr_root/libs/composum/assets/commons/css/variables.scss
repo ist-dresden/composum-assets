@@ -46,6 +46,14 @@ $bootstrap-link-focus: #23527c;
 
 $bootstrap-btn-menu-active-bg: #e6e6e6;
 
+$bootstrap-default-font-size: 14px;
+
+/*
+ *
+ */
+$widget-hint-font-size: $bootstrap-default-font-size - 2;
+$widget-hint-color: $bootstrap-color-muted;
+
 /*
  * Assets variables
  */
