@@ -28,7 +28,9 @@
                     event.preventDefault();
                 }
                 core.ajaxPost('/bin/cpm/assets/assets.toImageAsset.json' + core.encodePath(this.data.path),
-                    {}, {},
+                    {
+                        _charset_: 'UTF-8'
+                    }, {},
                     _.bind(function () {
                         this.resetView();
                     }, this));
