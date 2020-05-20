@@ -179,7 +179,7 @@
             reload: function () {
                 var u = navigator.const.url;
                 var path = this.getValue() || this.getRootPath();
-                var url = u.base + u._reload + (path ? path : '');
+                var url = u.base + u._reload + (path ? core.encodePath(path) : '');
                 var resourceType = this.$el.data('resource-type') || this.getResourceType();
                 var params = {
                     resourceType: resourceType,
@@ -566,12 +566,13 @@
                     return this.currentFolder;
                 } else {
                     var u = navigator.const.url;
-                    core.getJson(u.commons + u._folder + this.data.path, _.bind(function (data) {
-                        this.currentFolder = data.result.folder;
-                        if (_.isFunction(callback)) {
-                            callback(this.currentFolder);
-                        }
-                    }, this));
+                    core.getJson(u.commons + u._folder + core.encodePath(this.data.path),
+                        _.bind(function (data) {
+                            this.currentFolder = data.result.folder;
+                            if (_.isFunction(callback)) {
+                                callback(this.currentFolder);
+                            }
+                        }, this));
                 }
             },
 

@@ -138,7 +138,7 @@
                 var parentPath = this.getSelectedPath();
                 var path = this.getClipboardPath();
                 if (parentPath && path) {
-                    core.ajaxPost("/bin/cpm/assets/config.copy.json" + path, {
+                    core.ajaxPost("/bin/cpm/assets/config.copy.json" + core.encodePath(path), {
                         path: parentPath
                     }, {}, _.bind(function () {
                         this.resetView();

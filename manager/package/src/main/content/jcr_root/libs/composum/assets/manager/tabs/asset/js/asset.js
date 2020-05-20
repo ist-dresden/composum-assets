@@ -47,9 +47,11 @@
                 if (event) {
                     event.preventDefault();
                 }
-                core.ajaxPost('/bin/cpm/assets/assets.toSimpleImage.json' + this.data.path, {}, {}, _.bind(function () {
-                    this.resetView();
-                }, this));
+                core.ajaxPost('/bin/cpm/assets/assets.toSimpleImage.json' + core.encodePath(this.data.path),
+                    {}, {},
+                    _.bind(function () {
+                        this.resetView();
+                    }, this));
                 return false;
             },
 

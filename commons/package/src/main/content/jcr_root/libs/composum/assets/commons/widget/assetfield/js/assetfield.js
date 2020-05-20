@@ -80,7 +80,7 @@
                     var value = this.getValue();
                     if (value) {
                         var u = widgets.const.assetfield.url.content;
-                        core.getHtml(u.base + u._preview + value,
+                        core.getHtml(u.base + u._preview + core.encodePath(value),
                             _.bind(function (content, result, xhr) {
                                 if (xhr.status === 200) {
                                     this.$preview.html(content);

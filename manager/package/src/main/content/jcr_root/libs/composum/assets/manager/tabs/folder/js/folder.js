@@ -58,7 +58,7 @@
                 if (event) {
                     event.preventDefault();
                 }
-                core.ajaxGet('/bin/cpm/assets/assets.createConfig.json' + this.data.path, {}, _.bind(function () {
+                core.ajaxGet('/bin/cpm/assets/assets.createConfig.json' + core.encodePath(this.data.path), {}, _.bind(function () {
                     core.console.getProfile().set('assets', 'detailTab', 'view'); // set 'config edit' tab group
                     this.resetView();
                 }, this));
@@ -69,7 +69,7 @@
                 if (event) {
                     event.preventDefault();
                 }
-                core.ajaxGet('/bin/cpm/assets/assets.refreshMeta.json' + this.data.path, {}, _.bind(function () {
+                core.ajaxGet('/bin/cpm/assets/assets.refreshMeta.json' + core.encodePath(this.data.path), {}, _.bind(function () {
                     this.refresh();
                 }, this));
                 return false;

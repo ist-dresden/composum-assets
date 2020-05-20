@@ -63,7 +63,7 @@
                 var value = this.getValue();
                 if (value) {
                     var u = widgets.const.assetfield.url.content;
-                    core.getHtml(u.base + u._suffix + value,
+                    core.getHtml(u.base + u._suffix + core.encodePath(value),
                         _.bind(function (content, result, xhr) {
                             if (xhr.status === 200) {
                                 this.$el.html(content);
