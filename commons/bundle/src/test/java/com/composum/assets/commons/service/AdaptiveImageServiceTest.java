@@ -30,7 +30,6 @@ import com.composum.sling.platform.testing.testutil.AnnotationWithDefaults;
 import com.composum.sling.platform.testing.testutil.ErrorCollectorAlwaysPrintingFailures;
 import com.composum.sling.platform.testing.testutil.JcrTestUtils;
 import com.composum.sling.platform.testing.testutil.SlingMatchers;
-import com.google.common.base.Function;
 import org.apache.commons.io.IOUtils;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.apache.poi.openxml4j.exceptions.InvalidOperationException;
@@ -60,6 +59,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.function.Function;
 
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.greaterThan;
