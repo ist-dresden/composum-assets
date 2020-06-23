@@ -6,8 +6,10 @@
 <cpn:component id="navigator" type="com.composum.assets.manager.view.NavigatorBean" scope="request">
     <ol class="breadcrumbs">
         <c:forEach var="parent" items="${navigator.parents}">
-            <li data-path="${parent.path}"><cpn:link href="/bin/assets.html${parent.pathEncoded}">${parent.nameEscaped}</cpn:link></li>
+            <li data-path="${parent.path}"><cpn:link
+                    href="/bin/assets.html${parent.path}">${parent.nameEscaped}</cpn:link></li>
         </c:forEach>
-        <li class="active" data-path="${navigator.current.path}"><cpn:link href="/bin/assets.html${navigator.current.pathEncoded}">${navigator.current.nameEscaped}</cpn:link></li>
+        <li class="active" data-path="${navigator.current.path}"><cpn:link
+                href="/bin/assets.html${navigator.current.path}">${navigator.current.nameEscaped}</cpn:link></li>
     </ol>
 </cpn:component>
