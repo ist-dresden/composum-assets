@@ -42,10 +42,7 @@ import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.apache.sling.testing.mock.sling.junit.SlingContext;
 import org.apache.sling.testing.mock.sling.servlet.MockSlingHttpServletResponse;
 import org.jetbrains.annotations.NotNull;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.mockito.Mockito;
 import org.mockito.internal.stubbing.answers.ThrowsException;
 
@@ -164,7 +161,7 @@ public class AdaptiveImageServiceTest {
         assertNotNull(stream);
         ec.checkThat(IOUtils.toByteArray(stream).length, is(120063));
         ec.checkThat(rendition.getImageUri(), SlingMatchers.stringMatchingPattern(
-                "/test/assets/site-1/images/image-1.adaptive.wide.original.png/[0-9a-z]{10,26}/image-1.png"));
+                "/test/assets/site-1/images/image-1.png.adaptive.wide.original.png/[0-9a-z]{10,26}/image-1.png"));
         // e.g. "/test/assets/site-1/images/image-1.adaptive.wide.original.png/i1piz0xupo1jh2re7fv8n281/image-1.png"
     }
 
@@ -191,7 +188,7 @@ public class AdaptiveImageServiceTest {
         ec.checkThat(rendition.getProperty("image-1.png/jcr:content/meta/Content-Type", String.class), is("image/png"));
         ec.checkThat(rendition.getProperty("image-1.png/jcr:content/meta/width", Integer.class), is(32));
         ec.checkThat(rendition.getImageUri(), SlingMatchers.stringMatchingPattern(
-                "/test/assets/site-1/images/image-1.adaptive.thumbnail.small.png/[0-9a-z]{10,26}/image-1.png"));
+                "/test/assets/site-1/images/image-1.png.adaptive.thumbnail.small.png/[0-9a-z]{10,26}/image-1.png"));
         // e.g. "/test/assets/site-1/images/image-1.adaptive.thumbnail.small.png/4rctiiaic4j1wk06kyhit0ogo/image-1.png"
     }
 

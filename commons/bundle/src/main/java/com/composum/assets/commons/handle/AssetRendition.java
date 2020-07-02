@@ -123,10 +123,8 @@ public class AssetRendition extends AssetHandle<RenditionConfig> {
         if (ext.equals("jpeg")) {
             ext = "jpg";
         }
-        if (path.endsWith("." + ext)) {
-            path = path.substring(0, path.length() - (ext.length() + 1));
-        }
         String name = path.substring(path.lastIndexOf('/') + 1);
+        name = StringUtils.removeEnd(name, "." + ext);
         builder.append(path);
         builder.append(".adaptive");
         builder.append('.').append(getVariation().getName());
