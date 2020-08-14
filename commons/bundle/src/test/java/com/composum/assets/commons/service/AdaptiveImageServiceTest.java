@@ -6,11 +6,7 @@ import com.composum.assets.commons.AssetsConstants;
 import com.composum.assets.commons.handle.AssetRendition;
 import com.composum.assets.commons.handle.ImageAsset;
 import com.composum.assets.commons.image.DefaultRenditionTransformer;
-import com.composum.assets.commons.image.transform.GaussianBlurTransformer;
-import com.composum.assets.commons.image.transform.GraphicsCropTransformer;
-import com.composum.assets.commons.image.transform.GraphicsScaleTransformer;
-import com.composum.assets.commons.image.transform.GraphicsWatermarkTransformer;
-import com.composum.assets.commons.image.transform.ImgScalrTransformer;
+import com.composum.assets.commons.image.transform.*;
 import com.composum.assets.commons.servlet.ConfigServlet;
 import com.composum.sling.core.BeanContext;
 import com.composum.sling.core.ResourceHandle;
@@ -30,19 +26,19 @@ import com.composum.sling.platform.testing.testutil.AnnotationWithDefaults;
 import com.composum.sling.platform.testing.testutil.ErrorCollectorAlwaysPrintingFailures;
 import com.composum.sling.platform.testing.testutil.JcrTestUtils;
 import com.composum.sling.platform.testing.testutil.SlingMatchers;
+import com.google.common.base.Function;
 import org.apache.commons.io.IOUtils;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.apache.poi.openxml4j.exceptions.InvalidOperationException;
-import org.apache.sling.api.resource.ModifiableValueMap;
-import org.apache.sling.api.resource.PersistenceException;
-import org.apache.sling.api.resource.Resource;
-import org.apache.sling.api.resource.ResourceResolver;
-import org.apache.sling.api.resource.ResourceResolverFactory;
+import org.apache.sling.api.resource.*;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.apache.sling.testing.mock.sling.junit.SlingContext;
 import org.apache.sling.testing.mock.sling.servlet.MockSlingHttpServletResponse;
 import org.jetbrains.annotations.NotNull;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.stubbing.answers.ThrowsException;
 
@@ -56,18 +52,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.function.Function;
 
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.lessThan;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -298,7 +285,7 @@ public class AdaptiveImageServiceTest {
             when(this.resolverFactory.getServiceResourceResolver(null)).thenAnswer((x) -> context.resourceResolver().clone(null));
         }};
         context.registerAdapter(ResourceResolver.class, QueryBuilder.class,
-                (Function<ResourceResolver, QueryBuilder>) (resolver) ->
+                (Function) (resolver) ->
                         new QueryBuilderAdapterFactory().getAdapter(resolver, QueryBuilder.class));
 
         // Now the test:
