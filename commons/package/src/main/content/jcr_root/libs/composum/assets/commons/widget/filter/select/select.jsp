@@ -7,7 +7,7 @@
     <div class="composum-assets-widget-filter composum-assets-widget-filter_select">
         <select class="composum-assets-widget-filter_input input form-control">
             <c:forEach items="${model.filterSet}" var="filter">
-                <option value="${cpn:text(filter.key)}"
+                <option value="${cpn:value(filter.key)}"
                         title="${cpn:i18n(slingRequest,filter.hint)}">${cpn:i18n(slingRequest,filter.label)}</option>
             </c:forEach>
         </select>

@@ -9,14 +9,14 @@
                 class="composum-assets-widget-filter_button btn btn-default fa fa-filter">
             <select class="composum-assets-widget-filter_input input hidden">
                 <c:forEach items="${model.filterSet}" var="filter">
-                    <option value="${cpn:text(filter.key)}">${cpn:text(filter.label)}</option>
+                    <option value="${cpn:value(filter.key)}">${cpn:text(filter.label)}</option>
                 </c:forEach>
             </select>
         </button>
         <ul class="composum-assets-widget-filter_menu dropdown-menu dropdown-menu-${model.alignment}"
             aria-labelledby="${model.domId}">
             <c:forEach items="${model.filterSet}" var="filter">
-                <li><a href="#" data-value="${cpn:text(filter.key)}"
+                <li><a href="#" data-value="${cpn:value(filter.key)}"
                        title="${cpn:i18n(slingRequest,filter.hint)}">${cpn:i18n(slingRequest,filter.label)}</a></li>
             </c:forEach>
         </ul>

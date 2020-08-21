@@ -30,7 +30,7 @@
             <div class="col col-xs-6">
                 <div class="form-group">
                     <cpn:text tagName="label" tagClass="control-label" value="Title" i18n="true"/>
-                    <input name="jcr:title" value="${cpn:text(model.title)}" type="text" disabled
+                    <input name="jcr:title" value="${cpn:value(model.title)}" type="text" disabled
                            class="composum-assets-dialog_title widget text-field-widget form-control"/>
                 </div>
             </div>
