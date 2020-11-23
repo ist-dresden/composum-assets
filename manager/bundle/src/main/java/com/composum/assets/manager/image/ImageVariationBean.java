@@ -44,7 +44,8 @@ public class ImageVariationBean extends AbstractImageBean<VariationConfig> {
 
     @Override
     public String getDomId() {
-        return DomIdentifiers.getInstance(context).getElementId(getConfig().getResource());
+        VariationConfig config = getConfig();
+        return DomIdentifiers.getInstance(context).getElementId(config.getResource());
     }
 
     @Override
