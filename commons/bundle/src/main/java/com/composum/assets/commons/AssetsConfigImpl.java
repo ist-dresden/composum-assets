@@ -36,7 +36,7 @@ import java.util.Set;
  */
 @Component(
         property = {
-                Constants.SERVICE_DESCRIPTION + "=Composum Pages Assets Configuration"
+                Constants.SERVICE_DESCRIPTION + "=Composum Assets Module Configuration"
         }
 )
 @Designate(ocd = AssetsConfigImpl.Configuration.class)
@@ -45,7 +45,7 @@ public class AssetsConfigImpl implements AssetsConfiguration {
     public static final String ASSETS_MODULE_CONFIG_CLASS = "com.composum.assets.commons.AssetsConfiguration";
 
     @ObjectClassDefinition(
-            name = "Composum Pages Asset Configuration"
+            name = "Composum Assets Module Configuration"
     )
     public @interface Configuration {
 
@@ -78,6 +78,11 @@ public class AssetsConfigImpl implements AssetsConfiguration {
                 description = "the filter configuration to set the scope to binary files"
         )
         String binaryNodeFilterRule() default "and{PrimaryType(+'^nt:(file)$'),MimeType(+'^application/(zip)')}";
+
+        @AttributeDefinition(
+                description = "the filter configuration to set the scope all files"
+        )
+        String fileNodeFilterRule() default "PrimaryType(+'^nt:(file)$')";
 
         @AttributeDefinition(
                 description = "the filter configuration to restrict Assets content paths"

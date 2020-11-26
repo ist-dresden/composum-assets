@@ -18,6 +18,7 @@ import com.composum.sling.core.ResourceHandle;
 import com.composum.sling.core.SlingBean;
 import com.composum.sling.core.filter.ResourceFilter;
 import com.composum.sling.core.util.MimeTypeUtil;
+import com.composum.sling.core.util.NodeUtil;
 import com.composum.sling.core.util.ResourceUtil;
 import com.composum.sling.platform.staging.StagingConstants;
 import com.composum.sling.platform.staging.search.SearchService;
@@ -38,6 +39,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Workspace;
@@ -50,13 +52,12 @@ import java.util.UUID;
 
 import static com.composum.assets.commons.AssetsConstants.ASSET_CONFIG;
 import static com.composum.assets.commons.AssetsConstants.IMAGE_CONFIG;
+import static com.composum.assets.commons.AssetsConstants.MIX_ASSET_FOLDER;
 import static com.composum.assets.commons.AssetsConstants.NODE_TYPE_ASSET;
 import static com.composum.assets.commons.AssetsConstants.NODE_TYPE_ASSET_CONFIG;
+import static com.composum.assets.commons.AssetsConstants.NODE_TYPE_ASSET_CONTENT;
 import static com.composum.assets.commons.AssetsConstants.NODE_TYPE_IMAGE_CONFIG;
 import static com.composum.assets.commons.service.AssetsSearchPlugin.SELECTOR_ASSET;
-import static javax.jcr.nodetype.NodeType.MIX_CREATED;
-import static javax.jcr.nodetype.NodeType.MIX_LAST_MODIFIED;
-import static javax.jcr.nodetype.NodeType.MIX_VERSIONABLE;
 
 @Component(
         service = AssetsService.class
@@ -72,7 +73,7 @@ public class DefaultAssetsService implements AssetsService {
     }};
     public static final Map<String, Object> CONTENT_PROPERTIES = new HashMap<String, Object>() {{
         put(ResourceUtil.PROP_PRIMARY_TYPE, JcrConstants.NT_UNSTRUCTURED);
-        put(ResourceUtil.PROP_MIXINTYPES, new String[]{MIX_VERSIONABLE, MIX_CREATED, MIX_LAST_MODIFIED});
+        put(ResourceUtil.PROP_MIXINTYPES, new String[]{MIX_ASSET_FOLDER});
     }};
 
     public static final Map<String, Object> ASSET_CONFIG_PROPERTIES = new HashMap<String, Object>() {{
@@ -106,7 +107,7 @@ public class DefaultAssetsService implements AssetsService {
         put(ResourceUtil.PROP_RESOURCE_TYPE, ImageAsset.RESOURCE_TYPE);
     }};
     public static final Map<String, Object> IMAGE_CONTENT_PROPERTIES = new HashMap<String, Object>() {{
-        put(ResourceUtil.PROP_PRIMARY_TYPE, AssetsConstants.NODE_TYPE_ASSET_CONTENT);
+        put(ResourceUtil.PROP_PRIMARY_TYPE, NODE_TYPE_ASSET_CONTENT);
     }};
     public static final Map<String, Object> IMAGE_META_PROPERTIES = new HashMap<String, Object>() {{
         put(ResourceUtil.PROP_PRIMARY_TYPE, StagingConstants.TYPE_METADATA);
@@ -304,6 +305,19 @@ public class DefaultAssetsService implements AssetsService {
                 LOG.info("createContent: " + path);
                 content = resolver.create(holder, JcrConstants.JCR_CONTENT, CONTENT_PROPERTIES);
             } else {
+                if (!ResourceUtil.isNodeType(content, NODE_TYPE_ASSET_CONTENT)) {
+                    Node node = content.adaptTo(Node.class);
+                    if (node != null) {
+                        try {
+                            if (!NodeUtil.isNodeType(node, MIX_ASSET_FOLDER)) {
+                                node.addMixin(MIX_ASSET_FOLDER);
+                            }
+                        } catch (RepositoryException ex) {
+                            LOG.error(ex.toString());
+                            throw new PersistenceException(ex.getMessage(), ex);
+                        }
+                    }
+                }
                 List<Resource> configList = ResourceUtil.getChildrenByType(content, configType);
                 if (configList.size() > 0) {
                     config = configList.get(0);
@@ -429,6 +443,18 @@ public class DefaultAssetsService implements AssetsService {
                 if (!content.getChildren().iterator().hasNext()) {
                     // remove 'jcr:content' from asset configuration folder if content has no children
                     resolver.delete(content);
+                } else {
+                    if (ResourceUtil.isNodeType(content, MIX_ASSET_FOLDER)) {
+                        Node node = content.adaptTo(Node.class);
+                        if (node != null) {
+                            try {
+                                node.removeMixin(MIX_ASSET_FOLDER);
+                            } catch (RepositoryException ex) {
+                                LOG.error(ex.toString());
+                                throw new PersistenceException(ex.getMessage(), ex);
+                            }
+                        }
+                    }
                 }
             }
             if (commit) {

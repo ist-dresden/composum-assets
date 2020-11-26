@@ -32,14 +32,16 @@ import javax.jcr.query.QueryResult;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import static java.util.Collections.emptyList;
+import static org.apache.jackrabbit.JcrConstants.MIX_VERSIONABLE;
 
-/** Setup for Assets module. */
+/**
+ * Setup for Assets module.
+ */
 public class SetupHook implements InstallHook {
 
     private static final Logger LOG = LoggerFactory.getLogger(SetupHook.class);
@@ -47,6 +49,8 @@ public class SetupHook implements InstallHook {
     public static final String ASSETS_SYSTEM_USERS_PATH = "system/composum/assets/";
 
     public static final String ASSETS_SERVICE_USER = "composum-assets-service";
+
+    public static final String MIXIN_ASSET_FOLDER = "cpa:assetFolderContent";
 
     private static final String SERVICE_ACLS = "/conf/composum/assets/commons/acl/service.json";
 
@@ -73,7 +77,7 @@ public class SetupHook implements InstallHook {
             case INSTALLED:
                 LOG.info("installed: execute...");
                 setupAcls(ctx);
-                checkVersionableMixinToAssetConfigurationNodes(ctx);
+                checkContentNodeMixins(ctx, "cpa:AssetConfiguration", new String[]{MIXIN_ASSET_FOLDER});
                 // updateNodeTypes should be the last actions since we need a session.save() there.
                 updateNodeTypes(ctx);
                 LOG.info("installed: execute ends.");
@@ -124,22 +128,26 @@ public class SetupHook implements InstallHook {
      * We want all jcr:content nodes containing an cpa:AssetConfiguration to be versionable so that they can be
      * published. Thus, we need to add a mix:versionable if need be.
      */
-    protected void checkVersionableMixinToAssetConfigurationNodes(InstallContext ctx) throws PackageException {
+    protected void checkContentNodeMixins(InstallContext ctx, String primaryType, String[] mixins)
+            throws PackageException {
         try {
             Session session = ctx.getSession();
             QueryManager queryManager = session.getWorkspace().getQueryManager();
-            Query query = queryManager.createQuery("select * from [cpa:AssetConfiguration]", Query.JCR_SQL2);
+            Query query = queryManager.createQuery("select * from [" + primaryType + "]", Query.JCR_SQL2);
             QueryResult result = query.execute();
             for (NodeIterator it = result.getNodes(); it.hasNext(); ) {
                 Node node = it.nextNode();
-                if (node.isNodeType("cpa:AssetConfiguration")) {
+                if (node.isNodeType(primaryType)) {
                     while (node != null && !node.getName().equals(JcrConstants.JCR_CONTENT)) {
                         node = node.getParent();
                     }
-                    if (node != null && !node.isNodeType(JcrConstants.MIX_VERSIONABLE)) {
-                        LOG.warn("Consider adding {} to {} to have the asset configuration versioned",
-                                JcrConstants.MIX_VERSIONABLE, node.getPath());
-                        // Strangely Node.addMixin fails with missing mandatory properties. :-(
+                    for (String mixin : mixins) {
+                        if (node != null && !node.isNodeType(mixin)) {
+                            LOG.warn("Consider adding {} to {} to have the asset configuration versioned",
+                                    mixin, node.getPath());
+                            // Strangely Node.addMixin fails with missing mandatory properties. :-(
+                            node.addMixin(mixin);
+                        }
                     }
                 }
             }
@@ -178,15 +186,16 @@ public class SetupHook implements InstallHook {
 
     private boolean isUpdateIsNecessary(NodeTypeManager nodeTypeManager) throws RepositoryException {
         NodeType assetContentType = nodeTypeManager.getNodeType("cpa:AssetContent");
-        return !assetContentType.isNodeType(org.apache.jackrabbit.JcrConstants.MIX_VERSIONABLE);
+        return !assetContentType.isNodeType(MIX_VERSIONABLE)
+                || !assetContentType.isNodeType(NodeType.MIX_LOCKABLE)
+                || nodeTypeManager.getNodeType(MIXIN_ASSET_FOLDER) == null;
     }
-
 
     @SuppressWarnings("unchecked")
     public static <T> T getService(Class<T> type) {
         Bundle serviceBundle = FrameworkUtil.getBundle(type);
         BundleContext serviceBundleContext = serviceBundle.getBundleContext();
-        ServiceReference serviceReference = serviceBundleContext.getServiceReference(type.getName());
+        ServiceReference<?> serviceReference = serviceBundleContext.getServiceReference(type.getName());
         return (T) serviceBundleContext.getService(serviceReference);
     }
 }

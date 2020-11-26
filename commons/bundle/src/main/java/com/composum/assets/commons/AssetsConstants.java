@@ -61,6 +61,8 @@ public class AssetsConstants {
     public static final String NODE_TYPE_ASSET_CONFIG = NODE_TYPE_ASSET + CONFIGURATION;
     /** Node type for an image asset {@value #NODE_TYPE_IMAGE_CONFIG}. */
     public static final String NODE_TYPE_IMAGE_CONFIG = CPA_PREFIX + "Image" + CONFIGURATION;
+    /** Mixin type for a folder conmtent resource */
+    public static final String MIX_ASSET_FOLDER = CPA_PREFIX + "assetFolderContent";
 
     /** Node type for a variation {@value #NODE_TYPE_VARIATION}. */
     public static final String NODE_TYPE_VARIATION = CPA_PREFIX + _VARIATION;

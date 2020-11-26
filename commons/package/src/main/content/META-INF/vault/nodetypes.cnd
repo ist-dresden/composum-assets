@@ -11,6 +11,9 @@
 
 [cpa:ImageConfiguration] > cpa:AssetConfiguration
 
+[cpa:assetFolderContent] > mix:versionable, mix:lockable, mix:created, mix:lastModified
+  mixin
+
 [cpa:Variation] > sling:Folder
 
 [cpa:VariationConfig] > nt:unstructured, mix:created, mix:lastModified
@@ -22,7 +25,7 @@
 
 [cpa:RenditionConfig] > nt:unstructured, mix:created, mix:lastModified
 
-[cpa:AssetContent] > mix:created, mix:lastModified, mix:versionable, nt:unstructured
+[cpa:AssetContent] >  nt:unstructured, mix:versionable, mix:lockable, mix:created, mix:lastModified
   + meta (cpl:MetaData) = cpl:MetaData
 
 [cpa:Asset] > sling:Folder
