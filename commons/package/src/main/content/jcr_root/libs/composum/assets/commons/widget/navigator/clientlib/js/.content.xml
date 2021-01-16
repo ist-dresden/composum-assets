@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0"
         jcr:primaryType="sling:OrderedFolder"
-        depends="[jslibs/jquery/3.4.1/jquery.js,
-                  jslibs/jstree/3.3.8/jstree.js,
-                  category:composum.components.widgets]"
+        depends="[category:composum.components.widgets]"
         embed="[composum/assets/commons/widget/filter/js/filter.js,
                 composum/assets/commons/widget/navigator/js/navigator.js]"/>
