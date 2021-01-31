@@ -1,3 +1,78 @@
 @charset "UTF-8";
 
 @import "../../../../../../../../../../../_import/style/bootstrap/variables";
+
+/*
+ * screen sizes (potential breakpoints)
+ */
+$screen-size-xl: 1500px;
+$screen-size-l: 1200px; // bootstrap -lg-
+$screen-size-m: 992px; // bootstrap -md-
+$screen-size-s: 768px; // bootstrap -sm-
+$screen-size-xs: 624px;
+$screen-size-xxs: 480px;
+
+/*
+ * extracted bootstrap values
+ */
+$bootstrap-screen-sm-min: 768px !default;
+$bootstrap-screen-md-min: 992px !default;
+$bootstrap-screen-lg-min: 1200px !default;
+
+$bootstrap-screen-xs-max: ($bootstrap-screen-sm-min - 1) !default;
+$bootstrap-screen-sm-max: ($bootstrap-screen-md-min - 1) !default;
+$bootstrap-screen-md-max: ($bootstrap-screen-lg-min - 1) !default;
+
+$bootstrap-spacing-v: 10px;
+$bootstrap-spacing-h: 15px;
+
+$bootstrap-color-muted: #777;
+$bootstrap-color-default: #333;
+$bootstrap-color-info: #31708f;
+$bootstrap-color-primary: #fff;
+$bootstrap-color-success: #3c763d;
+$bootstrap-color-warning: #8a6d3b;
+$bootstrap-color-danger: #a94442;
+
+$bootstrap-bg-default: #fff;
+$bootstrap-bg-info: #d9edf7;
+$bootstrap-bg-primary: #337ab7;
+$bootstrap-bg-success: #dff0d8;
+$bootstrap-bg-warning: #fcf8e3;
+$bootstrap-bg-danger: #e4b9b9;
+
+$bootstrap-link-color: #337ab7;
+$bootstrap-link-focus: #23527c;
+
+$bootstrap-btn-menu-active-bg: #e6e6e6;
+
+$bootstrap-default-font-size: 14px;
+
+/*
+ *
+ */
+$widget-hint-font-size: $bootstrap-default-font-size - 2;
+$widget-hint-color: $bootstrap-color-muted;
+
+/*
+ * Assets variables
+ */
+$assets-light-preview-bg: #f8f8f8;
+$assets-light-symbol-fg: #aaa;
+$assets-light-spinner-fg: #888;
+
+$assets-dark-preview-bg: #555;
+$assets-dark-button-bg: #666;
+$assets-dark-input-bg: #777;
+$assets-dark-input-border: #aaa;
+$assets-dark-input-fg: #eee;
+$assets-dark-spinner-fg: #888;
+
+$assets-config-tabs-width: 180px;
+$assets-config-tabs-height: 70px;
+$assets-config-btn-size: 28px;
+
+$assets-config-tab-border: 1px solid #ccc;
+$assets-config-tab-gap: 1px solid #fff;
+$assets-config-tab-bg: #f8f8f8;
+$assets-config-tab-fg-disabled: #aaa;

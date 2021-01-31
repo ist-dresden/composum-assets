@@ -1,37 +1,45 @@
 package com.composum.assets.commons.handle;
 
-import com.composum.sling.core.AbstractServletBean;
+import com.composum.assets.commons.AssetsConstants;
 import com.composum.sling.core.BeanContext;
-import com.composum.sling.core.filter.ResourceFilter;
-import com.composum.sling.core.filter.StringFilter;
+import com.composum.sling.core.util.LinkUtil;
 import com.composum.sling.core.util.MimeTypeUtil;
 import org.apache.sling.api.resource.Resource;
 
-public class VideoAsset extends AbstractServletBean {
+public class VideoAsset extends AbstractAsset {
 
-    public static final ResourceFilter FILTER = new ResourceFilter.FilterSet(
-            ResourceFilter.FilterSet.Rule.and,
-            new ResourceFilter.PrimaryTypeFilter(new StringFilter.WhiteList("^nt:file$")),
-            new ResourceFilter.MimeTypeFilter(new StringFilter.WhiteList("^video/.+$"))
-    );
+    public static final String RESOURCE_TYPE = AssetsConstants.RESOURCE_TYPE_VIDEO;
 
+    private transient String videoUrl;
     private transient String mimeType;
 
     public VideoAsset(BeanContext context, Resource resource) {
         super(context, resource);
     }
 
-    public VideoAsset(BeanContext context) {
-        super(context);
-    }
-
     public VideoAsset() {
         super();
+    }
+
+    @Override
+    public AbstractAsset getAsset() {
+        return this;
     }
 
     public String getVideoCSS() {
         final String mimeType = getMimeType();
         return mimeType.substring(mimeType.indexOf('/') + 1).replaceAll("[+]", " ");
+    }
+
+    /**
+     * Returns the URL of this
+     * asset.
+     */
+    public String getVideoUrl() {
+        if (videoUrl == null) {
+            videoUrl = LinkUtil.getUrl(context.getRequest(), getPath());
+        }
+        return videoUrl;
     }
 
     /**

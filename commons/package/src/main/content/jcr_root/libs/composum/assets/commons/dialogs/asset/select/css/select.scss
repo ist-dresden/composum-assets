@@ -1,0 +1,212 @@
+@charset "UTF-8";
+
+@import "../../../../css/mixins";
+
+.composum-assets-dialog {
+
+    .composum-assets-widget-assetfield {
+
+        &_preview {
+            margin-top: 0;
+
+            .composum-assets-widget-data {
+
+                &_name {
+                    top: 0;
+                }
+            }
+        }
+    }
+
+    .composum-assets-widget-navigator {
+        height: 420px;
+        margin-left: -5px;
+        margin-right: -5px;
+
+        .composum-assets-widget-navigator {
+
+            &-tree_wrapper,
+            &_content {
+                bottom: 40px;
+            }
+
+            &_type {
+
+                &-small {
+
+                    .composum-assets-widget-thumbnail {
+
+                        &_wrapper {
+
+                            .thumbnail {
+
+                                &-file,
+                                &-document {
+
+                                    &:before {
+                                        font-size: 2vw;
+                                        line-height: 3vw;
+
+                                        @media (max-width: $screen-sm-max) {
+                                            line-height: 8vw;
+                                            font-size: 6vw;
+                                        }
+
+                                        @media (max-width: $screen-xs-max) {
+                                            line-height: 15vw;
+                                            font-size: 10vw;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                &-large {
+
+                    .composum-assets-widget-thumbnail {
+
+                        &_wrapper {
+
+                            .thumbnail {
+
+                                &-file,
+                                &-document {
+
+                                    &:before {
+                                        font-size: 4vw;
+                                        line-height: 6vw;
+
+                                        @media (max-width: $screen-sm-max) {
+                                            line-height: 12vw;
+                                            font-size: 8vw;
+                                        }
+
+                                        @media (max-width: $screen-xs-max) {
+                                            line-height: 27vw;
+                                            font-size: 18vw;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        &.tree-mode-panel {
+
+            &_left {
+                width: 34%;
+            }
+
+            &_right {
+                width: 66%;
+            }
+
+            .composum-assets-widget-navigator {
+
+                &-tree_wrapper,
+                &_content {
+                    bottom: 15px;
+                }
+
+                &_type {
+
+                    &-list {
+
+                        .composum-assets-widget-thumbnail {
+
+                            &_wrapper {
+
+                                .thumbnail {
+
+                                    &-file,
+                                    &-document {
+
+                                        &:before {
+
+                                            @media (max-width: $screen-sm-max) {
+                                                line-height: 6vw;
+                                                font-size: 3vw;
+                                            }
+
+                                            @media (max-width: $screen-xs-max) {
+                                                line-height: 9vw;
+                                                font-size: 6vw;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    &-small {
+
+                        .composum-assets-widget-thumbnail {
+
+                            &_wrapper {
+
+                                .thumbnail {
+
+                                    &-file,
+                                    &-document {
+
+                                        &:before {
+                                            line-height: 3vw;
+                                            font-size: 2vw;
+
+                                            @media (max-width: $screen-sm-max) {
+                                                line-height: 5vw;
+                                                font-size: 3vw;
+                                            }
+
+                                            @media (max-width: $screen-xs-max) {
+                                                line-height: 9vw;
+                                                font-size: 6vw;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    &-large {
+
+                        .composum-assets-widget-thumbnail {
+
+                            &_wrapper {
+
+                                .thumbnail {
+
+                                    &-file,
+                                    &-document {
+
+                                        &:before {
+                                            line-height: 5vw;
+                                            font-size: 3.75vw;
+
+                                            @media (max-width: $screen-sm-max) {
+                                                line-height: 7.5vw;
+                                                font-size: 5vw;
+                                            }
+
+                                            @media (max-width: $screen-xs-max) {
+                                                line-height: 18vw;
+                                                font-size: 12vw;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

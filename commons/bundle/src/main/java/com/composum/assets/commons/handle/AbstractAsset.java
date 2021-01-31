@@ -14,16 +14,23 @@ import com.composum.sling.core.BeanContext;
 import com.composum.sling.core.ResourceHandle;
 import com.composum.sling.core.util.ResourceUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.sling.api.resource.NonExistingResource;
 import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
+import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public abstract class AbstractAsset extends AssetHandle<AssetConfig> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractAsset.class);
 
     public static final Map<String, Object> VARIATION_PROPERTIES;
 
@@ -33,7 +40,9 @@ public abstract class AbstractAsset extends AssetHandle<AssetConfig> {
         VARIATION_PROPERTIES.put(ResourceUtil.PROP_RESOURCE_TYPE, AssetsConstants.RESOURCE_TYPE_VARIATION);
     }
 
+    private transient AssetMetaData metaData;
     private transient AssetConfig assetConfig;
+    private transient String transientsPath;
 
     protected AbstractAsset() {
     }
@@ -68,16 +77,51 @@ public abstract class AbstractAsset extends AssetHandle<AssetConfig> {
         return variation != null && !variation.equals(context) ? variation.getOriginal() : null;
     }
 
+    /**
+     * returns the meta data of the referenced asset
+     */
+    public AssetMetaData getMetaData() {
+        if (metaData == null) {
+            Resource metaResource = resource.getChild(AssetsConstants.PATH_META);
+            metaData = new AssetMetaData(context, ResourceHandle.use(metaResource));
+        }
+        return metaData;
+    }
+
+    /**
+     * Returns the variation if there is a resource for it.
+     */
+    @Nullable
     public AssetVariation getVariation(String... keyChain) {
         AssetVariation variation = null;
-        Resource variationResource = findChildByCategoryOrName(AssetVariation.NODE_TYPE, keyChain);
+        Resource variationResource = findChildByCategoryOrName(resource, AssetVariation.NODE_TYPE, keyChain);
         if (variationResource != null) {
             variation = new AssetVariation(context, variationResource, this);
+        } else {
+            Resource transientsResource = getResolver().getResource(getAsset().getTransientsPath());
+            if (transientsResource != null) {
+                Resource transientChild = findChildByCategoryOrName(transientsResource, AssetVariation.NODE_TYPE, keyChain);
+                if (transientChild != null) {
+                    variation = new AssetVariation(context, transientChild, this);
+                }
+            }
         }
         return variation;
     }
 
-    public AssetVariation getOrCreateVariation(String key) throws PersistenceException {
+    /** Returns a variation for the given config, possibly on a NonExistingResource if there was nothing created yet. */
+    @Nonnull
+    public AssetVariation giveVariation(@Nonnull VariationConfig config) {
+        AssetVariation variation = getVariation(config.getName());
+        if (variation == null) {
+            variation = new AssetVariation(context, new NonExistingResource(getResolver(), resource.getPath() +
+                    "/" + config.getName()), this);
+        }
+        return variation;
+    }
+
+    /** Retrieves or creates a variation to store an original - which is stored in the /content resource tree. */
+    public AssetVariation getOrCreateVariationForOriginal(String key) throws PersistenceException {
         if (StringUtils.isBlank(key)) {
             AssetConfig assetConfig = getConfig();
             if (assetConfig != null) {
@@ -100,6 +144,7 @@ public abstract class AbstractAsset extends AssetHandle<AssetConfig> {
         return variation;
     }
 
+    @Override
     public AssetConfig getConfig() {
         if (assetConfig == null) {
             List<ResourceHandle> cascade = getConfigCascade();
@@ -120,33 +165,48 @@ public abstract class AbstractAsset extends AssetHandle<AssetConfig> {
         return AssetConfigUtil.assetConfigCascade(resource);
     }
 
-    public VariationConfig getChildConfig(Resource resource) {
+    @Override
+    public VariationConfig getChildConfig(String targetPath) {
         AbstractAsset asset = getAsset();
-        List<ResourceHandle> variationCascade = asset.getConfigCascade(resource, VariationConfig.NODE_TYPE);
+        List<ResourceHandle> variationCascade = asset.getConfigCascade(targetPath, VariationConfig.NODE_TYPE);
         return variationCascade != null && variationCascade.size() > 0 ? new VariationConfig(getConfig(), variationCascade) : null;
     }
 
-    public List<ResourceHandle> getConfigCascade(Resource asset, String configResourceType) {
-        String targetPath = asset.getPath();
-        String assetPath = getPath();
-        if (targetPath.startsWith(assetPath)) {
-            targetPath = targetPath.substring(assetPath.length());
-        }
-        while (targetPath.startsWith("/")) {
-            targetPath = targetPath.substring(1);
-        }
-        String[] segments = targetPath.split("/");
-        StringBuilder path = new StringBuilder();
-        path.append(segments[0]);
-        if (segments.length > 1) {
-            path.append("/").append(segments[1]);
-        }
-        targetPath = path.toString();
+    public List<ResourceHandle> getConfigCascade(String targetPath, String configResourceType) {
         return getConfig().getCascadeForPath(configResourceType, targetPath);
     }
 
+    @Override
+    protected String getConfigTargetPath() {
+        return "";
+    }
+
+    /* Doc inherited: @see AssetHandle#getTransientsPath() */
+    @Override
+    @Nonnull
+    public String getTransientsPath() {
+        if (transientsPath == null) {
+            StringBuilder transientsPathBuilder = new StringBuilder();
+            Resource stepResource = resource;
+            while (stepResource != null && !"/".equals(stepResource.getPath())) {
+                String versionnodename = versionMarker(stepResource);
+                if (versionnodename != null) {
+                    transientsPathBuilder.insert(0, versionnodename);
+                    transientsPathBuilder.insert(0, "/");
+                }
+
+                transientsPathBuilder.insert(0, stepResource.getName());
+                transientsPathBuilder.insert(0, "/");
+                stepResource = stepResource.getParent();
+            }
+            transientsPathBuilder.insert(0, AssetsConstants.PATH_TRANSIENTS);
+            transientsPath = transientsPathBuilder.toString();
+        }
+        return transientsPath;
+    }
+
     /**
-     * the SelfConfig uses the asset itself as configuration (used if not configuration found)
+     * the SelfConfig uses the asset itself as configuration (used if no configuration found)
      */
     public static class SelfConfig extends AssetConfig {
 

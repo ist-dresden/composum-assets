@@ -6,41 +6,154 @@
 package com.composum.assets.commons.image;
 
 import com.composum.assets.commons.config.RenditionConfig;
-import com.composum.assets.commons.config.transform.Blur;
 import com.composum.assets.commons.config.aspect.Crop;
 import com.composum.assets.commons.config.aspect.Size;
 import com.composum.assets.commons.config.aspect.Watermark;
+import com.composum.assets.commons.config.transform.Blur;
 import com.composum.assets.commons.handle.AssetRendition;
-import org.imgscalr.Scalr;
+import com.composum.platform.commons.util.LockAsAutoCloseable;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.awt.AlphaComposite;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.geom.Rectangle2D;
+import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
-import java.awt.image.ConvolveOp;
-import java.awt.image.Kernel;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * Created by rw on 19.02.16.
+ * The RenditionTransformer is performing the build of each rendition requested by the AdaptiveImageServlet.
+ * This implementation is collecting the set of available ImageTransformer services which are used to perform
+ * the image transformation operations according to the asset configuration set if the image asset.
  */
+@Component(
+        service = {RenditionTransformer.class},
+        immediate = true
+)
 public class DefaultRenditionTransformer implements RenditionTransformer {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultRenditionTransformer.class);
 
     public static final float RATIO_SIMILARITY = 0.05f;
 
     public static final Crop ASPECT_RATIO_CROP = new Crop();
 
-    public BufferedImage transform(AssetRendition rendition, BufferedImage image, BuilderContext context) {
+    /**
+     * Maps operations to transformer list. Always access locked by {@link #readWriteLock}.
+     */
+    protected Map<String, List<ImageTransformer>> imageTransformers = new HashMap<>();
+
+    /**
+     * For imageTransformers, since it's a complicated datastructure to update.
+     */
+    protected ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+
+    /**
+     * Registers a ImageTransformer service implementation.
+     * Injection of the ImageTransformer services provided by the OSGi configuration.
+     */
+    @Reference(service = ImageTransformer.class,
+            cardinality = ReferenceCardinality.MULTIPLE,
+            policy = ReferencePolicy.DYNAMIC)
+    protected void bindImageTransformer(final ImageTransformer transformer) {
+        for (String operation : transformer.getOperations()) {
+            bindImageTransformer(operation, transformer);
+        }
+    }
+
+    /**
+     * Registers a ImageTransformer service implementation for one operation.
+     */
+    protected void bindImageTransformer(String operation, final ImageTransformer transformer) {
+        try (LockAsAutoCloseable ignored = LockAsAutoCloseable.lock(readWriteLock.readLock())) {
+            List<ImageTransformer> transformers = imageTransformers.computeIfAbsent(operation,
+                    k -> Collections.synchronizedList(new ArrayList<>()));
+            LOG.info("transformer.bind: [{}] {}", operation, transformer.getClass().getName());
+            transformers.add(transformer);
+        }
+    }
+
+    /**
+     * Removes a ImageTransformer service implementation from the transformer configuration.
+     */
+    protected void unbindImageTransformer(final ImageTransformer transformer) {
+        for (String operation : transformer.getOperations()) {
+            unbindImageTransformer(operation, transformer);
+        }
+    }
+
+    protected void unbindImageTransformer(String operation, final ImageTransformer transformer) {
+        try (LockAsAutoCloseable ignored = LockAsAutoCloseable.lock(readWriteLock.readLock())) {
+            List<ImageTransformer> transformers = imageTransformers.get(operation);
+            if (transformers != null && transformers.contains(transformer)) {
+                LOG.info("transformer.unbind: [{}] {}", operation, transformer.getClass().getName());
+                transformers.remove(transformer);
+            }
+        }
+    }
+
+    /**
+     * Performs a transformation operation using the best matching transformer in the configuration set.
+     */
+    @Override
+    public BufferedImage transform(BufferedImage image, String operation, Object options) {
+        ImageTransformer transformer = null;
+        try (LockAsAutoCloseable ignored = LockAsAutoCloseable.lock(readWriteLock.readLock())) {
+            List<ImageTransformer> transformers = imageTransformers.get(operation);
+            if (transformers != null) {
+                int rating = 0;
+                for (ImageTransformer t : transformers) {
+                    int r = t.rating(operation, options);
+                    if (r > rating) {
+                        rating = r;
+                        transformer = t;
+                    }
+                }
+            }
+        }
+        if (transformer != null) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("do transform [{}] using {}", operation, transformer.getClass().getName());
+            }
+            return transformer.transform(this, image, operation, options);
+        } else {
+            LOG.warn("no transfomer configured for operation: {}", operation);
+            return image;
+        }
+    }
+
+    @Override
+    public BufferedImage scale(BufferedImage image, int width, int height) {
+        return transform(image, ImageTransformer.OP_SCALE, new Size(width, height, null));
+    }
+
+    @Override
+    public BufferedImage crop(BufferedImage image, int width, int height, Crop options) {
+        return transform(image, ImageTransformer.OP_CROP, new Crop(width, height, options));
+    }
+
+    @Override
+    @Nonnull
+    public BufferedImage transform(@Nonnull final AssetRendition rendition, @Nonnull BufferedImage image,
+                                   @Nonnull final BuilderContext context) {
         RenditionConfig config = rendition.getConfig();
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("rendition transformation: {}", config);
+        }
         int imageWidth = image.getWidth();
         int imageHeight = image.getHeight();
         Size size = config.getSize();
-        Integer renditionWidth = size.width;
-        Integer renditionHeight = size.height;
-        Float aspectRatio = size.aspectRatio;
+        Integer renditionWidth = size.getWidth();
+        Integer renditionHeight = size.getHeight();
+        Float aspectRatio = size.getAspectRatio();
         if (aspectRatio == null) {
             aspectRatio = (float) imageWidth / (float) imageHeight;
         }
@@ -50,6 +163,7 @@ public class DefaultRenditionTransformer implements RenditionTransformer {
         if (renditionWidth == null && renditionHeight != null) {
             renditionWidth = Math.round((float) renditionHeight * aspectRatio);
         }
+        //noinspection ConstantConditions
         if (renditionWidth != null && renditionHeight != null &&
                 (renditionWidth < imageWidth || renditionHeight < imageHeight)) {
             Crop crop = config.getCrop();
@@ -57,178 +171,24 @@ public class DefaultRenditionTransformer implements RenditionTransformer {
             if (crop.isDefault()) {
                 float ratioAbberation = imageRatio - aspectRatio;
                 if (ratioAbberation < -RATIO_SIMILARITY) {
-                    image = getCroppedImage(image, renditionWidth, renditionHeight, ASPECT_RATIO_CROP);
+                    image = crop(image, renditionWidth, renditionHeight, ASPECT_RATIO_CROP);
                 } else if (ratioAbberation > RATIO_SIMILARITY) {
-                    image = getCroppedImage(image, renditionWidth, renditionHeight, ASPECT_RATIO_CROP);
+                    image = crop(image, renditionWidth, renditionHeight, ASPECT_RATIO_CROP);
                 } else {
-                    image = getScaledImage(image, renditionWidth, renditionHeight);
+                    image = scale(image, renditionWidth, renditionHeight);
                 }
             } else {
-                image = getCroppedImage(image, renditionWidth, renditionHeight, crop);
+                image = crop(image, renditionWidth, renditionHeight, crop);
             }
         }
         Blur blur = config.getBlur();
         if (blur.isValid()) {
-            image = getBlurredImage(image, blur);
+            image = transform(image, ImageTransformer.OP_BLUR, blur);
         }
         Watermark watermark = config.getWatermark();
         if (watermark.isValid()) {
-            image = getMarkedImage(image, watermark);
+            image = transform(image, ImageTransformer.OP_WATERMARK, watermark);
         }
         return image;
-    }
-
-    protected BufferedImage getScaledImage(BufferedImage image,
-                                           int width, int height) {
-        if (width < image.getWidth() || height < image.getHeight()) {
-            image = getScaledByScalr(image, width, height);
-        }
-        return image;
-    }
-
-    protected BufferedImage getScaledByScalr(BufferedImage image,
-                                             int width, int height) {
-        image = Scalr.resize(image, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.FIT_EXACT, width, height);
-        return image;
-    }
-
-    protected BufferedImage getScaledByGraphics(BufferedImage image,
-                                                int width, int height) {
-        BufferedImage scaled = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        Graphics2D g2 = scaled.createGraphics();
-        g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        g2.drawImage(image, 0, 0, width, height, null);
-        g2.dispose();
-        return scaled;
-    }
-
-    protected BufferedImage getCroppedImage(BufferedImage image,
-                                            int width, int height,
-                                            Crop crop) {
-        if (crop.scale != null && crop.scale > 0f) {
-            int imageWidth = image.getWidth();
-            int imageHeight = image.getHeight();
-            float aspectRatio = (float) imageWidth / (float) imageHeight;
-            float requestedRatio = (float) width / (float) height;
-            if (crop.scale < 1.0f) {
-                // scale to factor
-                if (aspectRatio < requestedRatio) {
-                    imageWidth = Math.round((float) imageWidth * crop.scale);
-                    imageHeight = Math.round((float) imageWidth / aspectRatio);
-                } else {
-                    imageHeight = Math.round((float) imageHeight * crop.scale);
-                    imageWidth = Math.round((float) imageHeight * aspectRatio);
-                }
-                image = getScaledImage(image, imageWidth, imageHeight);
-            } else {
-                // scale to target size if scale = '1'
-                if (aspectRatio < requestedRatio) {
-                    imageWidth = width;
-                    imageHeight = Math.round((float) imageWidth / aspectRatio);
-                } else {
-                    imageHeight = height;
-                    imageWidth = Math.round((float) imageHeight * aspectRatio);
-                }
-                image = getScaledImage(image, imageWidth, imageHeight);
-            }
-        }
-        int imageWidth = image.getWidth();
-        int imageHeight = image.getHeight();
-        width = Math.min(width, imageWidth);
-        height = Math.min(height, imageHeight);
-        int x = Math.round((imageWidth - width) * crop.horizontal);
-        int y = Math.round((imageHeight - height) * crop.vertical);
-        BufferedImage cropped = image.getSubimage(x, y, width, height);
-        return cropped;
-    }
-
-    protected BufferedImage getMarkedImage(BufferedImage image, Watermark watermark) {
-
-        if (watermark.isValid()) {
-
-            String text = watermark.text;
-            Watermark.Font font = watermark.font;
-            int width = image.getWidth();
-            int height = image.getHeight();
-            Graphics2D g2d = (Graphics2D) image.getGraphics();
-
-            AlphaComposite alphaChannel = AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, watermark.alpha);
-            g2d.setComposite(alphaChannel);
-            g2d.setColor(watermark.color);
-            g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-            g2d.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
-            g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-            FontMetrics fontMetrics;
-            Rectangle2D rect = null;
-
-            int fontStyle = 0 | (font.bold ? Font.BOLD : 0) | (font.italic ? Font.ITALIC : 0);
-            try {
-                int fontSize = Integer.parseInt(font.size);
-                g2d.setFont(new Font(font.family, fontStyle, fontSize));
-                fontMetrics = g2d.getFontMetrics();
-                rect = fontMetrics.getStringBounds(text, g2d);
-
-            } catch (NumberFormatException nfex) {
-
-                float fontSizeWeight = Float.parseFloat(font.size);
-                for (int fontSize = 128; fontSize > 8; fontSize = (int) (fontSize * 0.75f)) {
-                    g2d.setFont(new Font(font.family, fontStyle, fontSize));
-                    fontMetrics = g2d.getFontMetrics();
-                    rect = fontMetrics.getStringBounds(text, g2d);
-                    if (rect.getWidth() < (int) (width * fontSizeWeight) &&
-                            rect.getHeight() < (int) (height * fontSizeWeight)) {
-                        break;
-                    }
-                }
-            }
-
-            int x = 0;
-            try {
-                int xPos = Integer.parseInt(watermark.horizontal);
-                x = xPos < 0
-                        ? Math.round(width - (int) rect.getWidth()) + xPos
-                        : xPos;
-            } catch (NumberFormatException nfex) {
-                float xWeight = Float.parseFloat(watermark.horizontal);
-                x = Math.round((width - (int) rect.getWidth()) * xWeight);
-            }
-            int y = 0;
-            try {
-                int yPos = Integer.parseInt(watermark.vertical);
-                y = yPos < 0
-                        ? Math.round(height - (int) rect.getHeight()) + yPos
-                        : yPos;
-            } catch (NumberFormatException nfex) {
-                float yWeight = Float.parseFloat(watermark.vertical);
-                y = Math.round((height - (int) rect.getHeight()) * yWeight);
-            }
-            y += Math.round((int) rect.getHeight() * 0.8f);
-            g2d.drawString(text, x, y);
-            g2d.dispose();
-        }
-        return image;
-    }
-
-    protected BufferedImage getBlurredImage(BufferedImage image, Blur blur) {
-        ConvolveOp filter = getGaussianBlurFilter(blur.factor);
-        for (int i = 0; i < blur.factor; i++) {
-            image = filter.filter(image, null);
-        }
-        return image;
-    }
-
-    public static ConvolveOp getGaussianBlurFilter(int blurFactor) {
-
-        int square = blurFactor * blurFactor;
-        float value = 1.0f / (float) square;
-        float kernelData[] = new float[square];
-        Arrays.fill(kernelData, value);
-
-        Kernel kernel = new Kernel(blurFactor, blurFactor, kernelData);
-
-        return new ConvolveOp(kernel, ConvolveOp.EDGE_NO_OP, null);
     }
 }

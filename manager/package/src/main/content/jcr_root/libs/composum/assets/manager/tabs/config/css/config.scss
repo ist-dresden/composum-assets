@@ -1,0 +1,22 @@
+@charset "UTF-8";
+
+@import "../../../css/mixins";
+
+.detail-panel {
+
+    .special-toolbar {
+        position: absolute;
+        top: 28px;
+        left: 6px;
+    }
+
+    .config-content {
+
+        .composum-assets-widget-config {
+            position: absolute;
+            top: 62px;
+            bottom: 41px;
+            height: unset;
+        }
+    }
+}

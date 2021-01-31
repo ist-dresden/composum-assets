@@ -18,8 +18,8 @@
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                                 aria-hidden="true">&times;</span></button>
-                        <cpn:text tagName="h4" tagClass="modal-title create" value="Create a New Asset" i18n="true"/>
-                        <cpn:text tagName="h4" tagClass="modal-title original" value="Upload Asset Original"
+                        <cpn:text tagName="h4" class="modal-title create" value="Create a New Asset" i18n="true"/>
+                        <cpn:text tagName="h4" class="modal-title original" value="Upload Asset Original"
                                   i18n="true"/>
                     </div>
 
@@ -32,15 +32,15 @@
                             <div class="type btn-group btn-group-sm widget select-buttons-widget">
                                 <button type="button" data-value="asset" class="fa fa-picture-o btn btn-default"
                                         title="${cpn:i18n(slingRequest,'create an image asset')}"><cpn:text
-                                        tagName="span" tagClass="label" value="Image Asset" i18n="true"/></button>
+                                        tagName="span" class="label" value="Image Asset" i18n="true"/></button>
                                 <button type="button" data-value="file" class="fa fa-file-image-o btn btn-default"
                                         title="${cpn:i18n(slingRequest,'upload a simple file')}"><cpn:text
-                                        tagName="span" tagClass="label" value="Simple File" i18n="true"/></button>
+                                        tagName="span" class="label" value="Simple File" i18n="true"/></button>
                             </div>
                         </div>
 
                         <div class="form-group path">
-                            <cpn:text tagName="label" tagClass="control-label" value="Parent Folder" i18n="true"/>
+                            <cpn:text tagName="label" class="control-label" value="Parent Folder" i18n="true"/>
                             <div class="input-group widget path-widget" data-rules="mandatory">
                                 <input name="path" class="form-control" type="text"/>
                                 <span class="input-group-btn"><button
@@ -49,23 +49,23 @@
                             </div>
                         </div>
                         <div class="form-group variation">
-                            <cpn:text tagName="label" tagClass="control-label" value="Variation" i18n="true"/>
+                            <cpn:text tagName="label" class="control-label" value="Variation" i18n="true"/>
                             <select name="variation" class="widget select-widget form-control">
                             </select>
                         </div>
 
                         <div class="form-group name">
-                            <cpn:text tagName="label" tagClass="control-label" value="Resource Name" i18n="true"/>
+                            <cpn:text tagName="label" class="control-label" value="Resource Name" i18n="true"/>
                             <input name="name" class="widget text-field-widget form-control" type="text"
                                    placeholder="enter node name" data-rules="mandatory"/>
                         </div>
                         <div class="form-group file">
-                            <cpn:text tagName="label" tagClass="control-label" value="Upload File" i18n="true"/>
+                            <cpn:text tagName="label" class="control-label" value="Upload File" i18n="true"/>
                             <input name="file" class="widget file-upload-widget form-control" type="file"
                                    data-options="hidePreview"/>
                         </div>
                         <div class="form-group mime-type">
-                            <cpn:text tagName="label" tagClass="control-label" value="Mime Type" i18n="true"/>
+                            <cpn:text tagName="label" class="control-label" value="Mime Type" i18n="true"/>
                             <input name="mimeType" type="text" class="form-control"/>
                         </div>
                     </div>

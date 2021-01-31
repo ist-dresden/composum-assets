@@ -9,30 +9,39 @@ import com.composum.assets.commons.config.RenditionConfig;
 import com.composum.assets.commons.handle.AssetRendition;
 import com.composum.assets.commons.handle.ImageAsset;
 import com.composum.assets.commons.image.RenditionTransformer;
-import org.apache.sling.api.resource.LoginException;
+import org.apache.sling.api.resource.PersistenceException;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.jcr.RepositoryException;
 import java.io.IOException;
-import java.util.Map;
+import java.io.OutputStream;
 
 public interface AdaptiveImageService {
 
-    AssetRendition getRendition(ImageAsset asset,
-                                String variationKey, String renditionKey) throws RepositoryException;
+    @Nullable
+    AssetRendition getRendition(@Nonnull ImageAsset asset,
+                                @Nonnull String variationKey, @Nonnull String renditionKey)
+            throws RepositoryException;
 
-    RenditionConfig getRenditionConfig(ImageAsset asset,
-                                       String variationKey, String renditionKey);
+    @Nullable
+    RenditionConfig getRenditionConfig(@Nonnull ImageAsset asset,
+                                       @Nonnull String variationKey, @Nonnull String renditionKey);
 
-    RenditionConfig findRenditionConfig(ImageAsset asset,
-                                        String variationKey, String renditionKey);
+    @Nullable
+    RenditionConfig findRenditionConfig(@Nonnull ImageAsset asset,
+                                        @Nonnull String variationKey, @Nonnull String renditionKey);
 
-    AssetRendition getOrCreateRendition(ImageAsset asset,
-                                        String variationKey, String renditionKey)
-            throws LoginException, RepositoryException, IOException;
+    void volatileRendition(@Nonnull AssetRendition rendition, @Nonnull OutputStream outputStream)
+            throws RepositoryException, IOException;
 
-    void dropRenditions(String path,
-                        String variationKey, String renditionKey)
-            throws Exception;
+    AssetRendition getOrCreateRendition(@Nonnull ImageAsset asset,
+                                        @Nonnull String variationKey, @Nonnull String renditionKey)
+            throws RepositoryException, IOException;
 
-    Map<String, RenditionTransformer> getTransformers();
+    void dropRenditions(@Nonnull String path,
+                        @Nonnull String variationKey, @Nullable String renditionKey)
+            throws PersistenceException;
+
+    RenditionTransformer getRenditionTransformer();
 }

@@ -2,14 +2,16 @@ package com.composum.assets.manager.image;
 
 import com.composum.assets.commons.config.AssetConfig;
 import com.composum.assets.commons.config.VariationConfig;
-import com.composum.assets.commons.handle.ImageAsset;
 import com.composum.assets.commons.handle.AssetVariation;
+import com.composum.assets.commons.handle.ImageAsset;
 import com.composum.sling.core.BeanContext;
 import com.composum.sling.core.ResourceHandle;
+import com.composum.sling.core.request.DomIdentifiers;
 import com.composum.sling.core.util.ResourceUtil;
 import org.apache.sling.api.resource.Resource;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ImageAssetBean extends AbstractImageBean<AssetConfig> {
@@ -44,10 +46,16 @@ public class ImageAssetBean extends AbstractImageBean<AssetConfig> {
         return config;
     }
 
+    @Override
+    public String getDomId() {
+        return DomIdentifiers.getInstance(context).getElementId(getConfig().getResource());
+    }
+
     public List<VariationConfig> getVariationConfigList() {
         if (variationConfigList == null) {
             AssetConfig config = getConfig();
-            variationConfigList = config.getVariationList();
+            variationConfigList = config.getVariationList(true);
+            Collections.sort(variationConfigList);
         }
         return variationConfigList;
     }

@@ -21,7 +21,7 @@ public class AssetConfig extends ConfigHandle {
     public static final String NODE_TYPE = AssetsConstants.NODE_TYPE_ASSET_CONFIG;
     public static final String RESOURCE_TYPE = AssetsConstants.RESOURCE_TYPE_CONFIG;
 
-    private transient Boolean extension;
+    protected transient Boolean extension;
 
     public AssetConfig(Resource resource) {
         this(Collections.singletonList(ResourceHandle.use(resource)));
@@ -35,7 +35,13 @@ public class AssetConfig extends ConfigHandle {
         return this;
     }
 
-    public Boolean isExtension() {
+    @Override
+    public String getConfigType() {
+        return CHILD_NAME;
+    }
+
+    @Override
+    public Boolean getExtension() {
         if (extension == null) {
             extension = getResource().getProperty(EXTENSION, Boolean.FALSE);
         }
@@ -43,30 +49,30 @@ public class AssetConfig extends ConfigHandle {
     }
 
     public RenditionConfig getOriginal() {
-        VariationConfig variation = retrieveVariation(ORIGINAL, DEFAULT);
+        VariationConfig variation = retrieveVariation(true, ORIGINAL);
         return variation != null ? variation.getOriginal() : null;
     }
 
     public VariationConfig getVariation(String key) {
-        return retrieveVariation(key);
+        return retrieveVariation(false, key);
     }
 
     public VariationConfig findVariation(String... keyChain) {
-        VariationConfig config = retrieveVariation(keyChain);
+        VariationConfig config = retrieveVariation(true, keyChain);
         if (config == null) {
-            config = retrieveVariation(DEFAULT, ORIGINAL);
+            config = retrieveVariation(false, ORIGINAL);
         }
         return config;
     }
 
-    public VariationConfig retrieveVariation(String... keyChain) {
-        List<ResourceHandle> variationCascade = findCascadeByCategoryOrName(VariationConfig.NODE_TYPE, keyChain);
+    public VariationConfig retrieveVariation(boolean fallbackToDefault, String... keyChain) {
+        List<ResourceHandle> variationCascade = findCascadeByCategoryOrName(fallbackToDefault, VariationConfig.NODE_TYPE, keyChain);
         return variationCascade != null && variationCascade.size() > 0 ? new VariationConfig(this, variationCascade) : null;
     }
 
-    public List<VariationConfig> getVariationList() {
+    public List<VariationConfig> getVariationList(boolean cumulated) {
         List<VariationConfig> result = new ArrayList<>();
-        for (List<ResourceHandle> variations : getChildren(VariationConfig.NODE_TYPE).values()) {
+        for (List<ResourceHandle> variations : getChildren(VariationConfig.NODE_TYPE, cumulated).values()) {
             result.add(new VariationConfig(this, variations));
         }
         return result;

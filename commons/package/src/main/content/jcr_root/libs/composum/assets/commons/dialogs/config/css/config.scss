@@ -1,0 +1,64 @@
+@charset "UTF-8";
+
+@import "../../../css/mixins";
+
+.composum-assets-dialog_config-change {
+
+    .modal-header {
+
+        .modal-subtitle {
+            margin: 10px 0 -10px;
+        }
+    }
+
+    .modal-body {
+
+        .nav.nav-tabs, .tab-content {
+            margin-left: -15px;
+            margin-right: -15px;
+        }
+
+        .nav.nav-tabs {
+            padding-left: 15px;
+        }
+
+        .list-group-item {
+            padding: 6px 10px;
+        }
+
+        .form-control.readonly {
+            cursor: not-allowed;
+            min-height: 34px;
+            background-color: #eeeeee;
+            opacity: 1;
+        }
+
+        .row {
+            display: flex;
+            align-items: flex-end; /* align on bottom */
+        }
+
+        .checkbox-inline {
+            min-height: 28px;
+        }
+
+        .composum-assets-widget-config-form {
+
+            &_content {
+                padding-top: 0;
+            }
+
+            &_header {
+                top: 6px;
+                right: 0;
+            }
+        }
+
+        .composum-commons-form-tab {
+
+            &-panel {
+                padding: 15px 15px 10px;
+            }
+        }
+    }
+}

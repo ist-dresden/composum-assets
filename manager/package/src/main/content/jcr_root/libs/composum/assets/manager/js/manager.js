@@ -2,12 +2,17 @@
  *
  *
  */
-(function (window) {
+(function () {
     'use strict';
+    CPM.namespace('assets.manager');
 
-    window.assets = window.assets || {};
+    (function (manager, assets, core) {
 
-    (function (assets, core) {
+        manager.const = _.extend(manager.const || {}, {
+            general: {
+                rootPath: '/content'
+            }
+        });
 
         assets.current = {};
 
@@ -18,15 +23,14 @@
         assets.setCurrentPath = function (path, callback) {
             if (!assets.current || assets.current.path !== path) {
                 if (path) {
-                    core.getJson('/bin/cpm/assets/assets.tree.json' + path, undefined, undefined,
+                    core.getJson(assets.buildUrl('/bin/cpm/assets/assets.tree.json', core.encodePath(path)),
+                        undefined, undefined,
                         _.bind(function (result) {
                             assets.current = {
                                 path: path,
                                 node: result.responseJSON,
-                                viewUrl: core.getContextUrl('/bin/assets.view.html'
-                                    + window.core.encodePath(path)),
-                                nodeUrl: core.getContextUrl('/bin/assets.html'
-                                    + window.core.encodePath(path))
+                                viewUrl: assets.buildUrl('/bin/assets.view.html', core.encodePath(path)),
+                                nodeUrl: assets.buildUrl('/bin/assets.html', core.encodePath(path))
                             };
                             core.console.getProfile().set('assets', 'current', path);
                             if (history.replaceState) {
@@ -44,10 +48,22 @@
             }
         };
 
-        assets.Manager = core.components.SplitView.extend({
+        assets.buildUrl = function (uri, suffix) {
+            var url = new core.SlingUrl(uri);
+            if (suffix) {
+                url.suffix = suffix;
+            }
+            var filter = core.console.getProfile().get('assets', 'filter', undefined);
+            if (filter) {
+                url.parameters['filter'] = filter;
+            }
+            return url.build();
+        };
+
+        assets.Manager = CPM.console.components.SplitView.extend({
 
             initialize: function (options) {
-                core.components.SplitView.prototype.initialize.apply(this, [options]);
+                CPM.console.components.SplitView.prototype.initialize.apply(this, [options]);
                 $(document).on('path:select', _.bind(this.onPathSelect, this));
                 $(document).on('path:selected', _.bind(this.onPathSelected, this));
                 $(document).on('path:changed', _.bind(this.onPathChanged, this));
@@ -75,7 +91,7 @@
 
         assets.manager = core.getView('#assets', assets.Manager);
 
-        assets.Tree = core.browser.Tree.extend({
+        assets.Tree = core.console.Tree.extend({
 
             nodeIdPrefix: 'AM_',
 
@@ -84,14 +100,19 @@
             },
 
             initializeFilter: function () {
+                this.rootPath = manager.const.general.rootPath;
+                this.filter = core.console.getProfile().get('assets', 'filter', undefined);
+                $(document).on('filter:changed.AssetsManagerTree', _.bind(function (event, filter) {
+                    this.setFilter(filter);
+                }, this));
             },
 
             dataUrlForPath: function (path) {
-                return '/bin/cpm/assets/assets.tree.json' + path;
+                return assets.buildUrl('/bin/cpm/assets/assets.tree.json', path);
             },
 
             refreshNodeState: function ($node, node) {
-                var result = core.browser.Tree.prototype.refreshNodeState.apply(this, [$node, node]);
+                var result = core.console.Tree.prototype.refreshNodeState.apply(this, [$node, node]);
                 if (node.original.contentType === 'assetconfig') {
                     $node.removeClass('intermediate').addClass('assetconfig');
                 }
@@ -101,24 +122,42 @@
 
         assets.tree = core.getView('#assets-tree', assets.Tree);
 
-        assets.TreeActions = core.browser.TreeActions.extend({
+        assets.TreeActions = core.console.TreeActions.extend({
 
             initialize: function (options) {
-                core.browser.TreeActions.prototype.initialize.apply(this, [options]);
                 this.tree = assets.tree;
+                core.console.TreeActions.prototype.initialize.apply(this, [options]);
                 this.$browserLink = this.$('a.browser');
                 this.setBrowserLink();
                 this.$('button.create-asset').on('click', _.bind(this.createAsset, this));
                 this.$('button.create-folder').on('click', _.bind(this.createFolder, this));
+                this.filter = core.getWidget(this.$el,
+                    '.composum-assets-widget-filter', assets.widgets.AssetFilterWidget);
+                if (this.filter) {
+                    this.filter.$el.on('change.AssetsManager', _.bind(function () {
+                        var filter = this.filter.getValue();
+                        core.console.getProfile().set('assets', 'filter', filter);
+                        $(document).trigger("filter:changed", [filter]);
+                    }, this));
+                    this.filter.setValue(core.console.getProfile().get('assets', 'filter', undefined));
+                }
                 $(document).on('path:selected', _.bind(this.setBrowserLink, this));
             },
 
+            // @Override
             getCurrent: function () {
                 return assets.current;
             },
 
+            // @Override
             getCurrentPath: function () {
                 return assets.getCurrentPath();
+            },
+
+            /**
+             * @override core.console.TreeActions unused - disabled
+             */
+            setFilter: function () {
             },
 
             setBrowserLink: function () {
@@ -148,16 +187,19 @@
             },
 
             openCreateAssetDialog: function (parentPath, callback) {
-                var dialog = assets.getAssetUploadDialog();
-                dialog.show(_.bind(function () {
-                    if (parentPath) {
-                        dialog.initParentPath(parentPath);
-                    }
-                }, this), _.bind(function () {
-                    if (_.isFunction(callback)) {
-                        callback.call(this, parentPath);
-                    }
-                }, this));
+                var u = assets.dialogs.const.asset.url;
+                core.openFormDialog(u.base + u._create + parentPath, assets.dialogs.AssetCreateDialog,
+                    {},
+                    _.bind(function (dialog) {
+                        if (parentPath) {
+                            dialog.initParentPath(parentPath);
+                        }
+                    }, this),
+                    _.bind(function (dialog) {
+                        if (_.isFunction(callback)) {
+                            callback.call(this, parentPath);
+                        }
+                    }, this));
             },
 
             createFolder: function (event, path, callback) {
@@ -167,16 +209,19 @@
                 if (!path) {
                     path = this.getCurrentPath();
                 }
-                var dialog = assets.getCreateFolderDialog();
-                dialog.show(_.bind(function () {
-                    if (path) {
-                        dialog.initParentPath(path);
-                    }
-                }, this), _.bind(function () {
-                    if (_.isFunction(callback)) {
-                        callback.call(this, path);
-                    }
-                }, this));
+                var u = assets.dialogs.const.folder.url;
+                core.openFormDialog(u.base + u._create + path, assets.dialogs.FolderCreateDialog,
+                    {},
+                    _.bind(function (dialog) {
+                        if (path) {
+                            dialog.initParentPath(path);
+                        }
+                    }, this),
+                    _.bind(function (dialog) {
+                        if (_.isFunction(callback)) {
+                            callback.call(this, path);
+                        }
+                    }, this));
                 return false;
             }
         });
@@ -189,22 +234,22 @@
 
         assets.detailViewTabTypes = [{
             selector: '> .config-detail',
-            tabType: assets.ConfigTab
+            tabType: manager.ConfigTab
         }, {
             selector: '> .folder-detail',
-            tabType: assets.FolderTab
+            tabType: manager.FolderTab
         }, {
             selector: '> .asset-original',
-            tabType: assets.AssetTab
+            tabType: manager.AssetOriginalsTab
         }, {
             selector: '> .asset-renditions',
-            tabType: assets.AssetConfigTab
+            tabType: manager.AssetRenditionsTab
         }, {
             selector: '> .image-detail',
-            tabType: assets.ImageTab
+            tabType: manager.ImageTab
         }, {
-            selector: '> .video-detail',
-            tabType: assets.VideoTab
+            selector: '> .preview-detail',
+            tabType: manager.PreviewTab
         }, {
             // the fallback to the basic implementation as a default rule
             selector: '> div',
@@ -243,6 +288,45 @@
 
         assets.detailView = core.getView('#assets-view', assets.DetailView);
 
-    })(window.assets, window.core);
+        /**
+         * the assets query view which is embedding a navigator search widget
+         */
+        assets.QueryView = Backbone.View.extend({
 
-})(window);
+            initialize: function (options) {
+                this.search = core.getWidget(this.$el,
+                    '.' + assets.navigator.const.search.css.base, assets.navigator.SearchWidget, {
+                        rootPath: manager.const.general.rootPath,
+                        filter: core.console.getProfile().get('assets', 'filter', undefined)
+                    });
+                this.search.navigator = this;
+                $(document).on('filter:changed.AssetsManagerQuery', _.bind(function (event, filter) {
+                    this.search.setFilter(filter);
+                }, this));
+                this.search.$el.off('change.QueryView').on('change.QueryView', _.bind(this.onSelect, this));
+            },
+
+            onSelect: function (event) {
+                if (event) {
+                    event.preventDefault();
+                }
+                var path = this.search.getValue();
+                $(document).trigger("path:selected", [path]);
+                return false;
+            },
+
+            getCurrentFolder: function (callback) {
+                var u = assets.navigator.const.url;
+                core.getJson(u.commons + u._folder + assets.getCurrentPath(), _.bind(function (data) {
+                    if (_.isFunction(callback)) {
+                        callback(data.result.folder);
+                    }
+                }, this));
+            }
+        });
+
+        assets.queryView = core.getView('#assets-query', assets.QueryView);
+
+    })(composum.assets.manager, composum.assets, core);
+
+})();

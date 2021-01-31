@@ -30,3 +30,27 @@
     right: 0;
     bottom: 0;
 }
+
+@mixin btn-dark {
+    background-image: -webkit-linear-gradient(top, $assets-dark-input-bg 0%, $assets-dark-button-bg 100%);
+    background-image: -o-linear-gradient(top, $assets-dark-input-bg 0%, $assets-dark-button-bg 100%);
+    background-image: -webkit-gradient(linear, left top, left bottom, from($assets-dark-input-bg), to($assets-dark-button-bg));
+    background-image: linear-gradient(to bottom, $assets-dark-input-bg 0%, $assets-dark-button-bg 100%);
+    text-shadow: 0 1px 0 $assets-dark-input-border;
+    border-color: $assets-dark-input-border;
+    color: $assets-dark-input-fg;
+
+    &:hover, &:focus {
+        background-color: unset;
+        background-position: unset;
+    }
+}
+
+@mixin input-dark {
+    color: $assets-dark-input-fg;
+    background-color: $assets-dark-input-bg;
+    background-image: none;
+    border-color: $assets-dark-input-border;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.2);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.2);
+}

@@ -1,6 +1,6 @@
 package com.composum.assets.commons.model;
 
-import com.composum.assets.commons.util.ImageUtil;
+import com.composum.assets.commons.handle.ImageAsset;
 import com.composum.assets.commons.util.TemplateUtil;
 import com.composum.sling.core.util.LinkUtil;
 import org.apache.commons.io.IOUtils;
@@ -38,14 +38,18 @@ public class AdaptiveTagTemplate {
     public static final String KEY_ALT = "alt";
     public static final String KEY_TITLE = "title";
 
-    public static final Pattern RENDITION_PATTERN = Pattern.compile("\\$\\{([^.}]*)\\.?([^.}]*)\\}");
+    public static final Pattern RENDITION_PATTERN = Pattern.compile("\\$\\{([^.}]*)\\.?([^.}]*)}");
 
     protected String code = "";
 
     public AdaptiveTagTemplate(Resource resource) {
         try {
             try (InputStream inputStream = TemplateUtil.getTemplate(resource)) {
-                code = IOUtils.toString(inputStream, TEMPLATE_ENCODING);
+                if (inputStream != null) {
+                    code = IOUtils.toString(inputStream, TEMPLATE_ENCODING);
+                } else {
+                    LOG.error("can't load template content");
+                }
             } catch (IOException ioex) {
                 LOG.error(ioex.getMessage(), ioex);
             }
@@ -71,8 +75,11 @@ public class AdaptiveTagTemplate {
                     result.append(component.getAltText());
                     break;
                 default:
-                    result.append(LinkUtil.getUrl(component.getRequest(),
-                            ImageUtil.getImageUri(component.getAsset(), variation, rendition)));
+                    ImageAsset asset = component.getAsset();
+                    if (asset != null) {
+                        result.append(LinkUtil.getUrl(component.getRequest(),
+                                asset.getImageUri(variation, rendition)));
+                    }
                     break;
             }
             pos = matcher.end();

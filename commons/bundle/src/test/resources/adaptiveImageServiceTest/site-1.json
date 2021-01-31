@@ -15,25 +15,20 @@
         "jcr:primaryType": "cpa:Variation",
         "jcr:createdBy": "admin",
         "jcr:created": "Tue Jul 04 2017 18:00:47 GMT+0200",
-        "sling:resourceType": "composum/assets/manager/image/variation",
-        "categories": [
+        "sling:resourceType": "composum/assets/image/variation",
+        "category": [
           "original"
         ],
         "original": {
           "jcr:primaryType": "cpa:Rendition",
           "jcr:createdBy": "admin",
           "jcr:created": "Tue Jul 04 2017 18:00:47 GMT+0200",
-          "sling:resourceType": "composum/assets/manager/image/rendition"
+          "valid": "true",
+          "sling:resourceType": "composum/assets/image/rendition"
         }
       },
       "jcr:content": {
-        "jcr:primaryType": "cpa:AssetContent",
-        "meta": {
-          "jcr:primaryType": "cpa:MetaData",
-          "sourceUrl": "https://de.wikipedia.org/wiki/Testbild",
-          "source": "Wikipedia",
-          "sling:resourceType": "composum/assets/manager/image/meta"
-        }
+        "jcr:primaryType": "cpa:AssetContent"
       }
     },
     "image-1.png": {
@@ -42,27 +37,22 @@
       "jcr:created": "Tue Jul 04 2017 18:00:47 GMT+0200",
       "sling:resourceType": "composum/assets/image",
       "jcr:content": {
-        "jcr:primaryType": "cpa:AssetContent",
-        "meta": {
-          "jcr:primaryType": "cpa:MetaData",
-          "sourceUrl": "https://de.wikipedia.org/wiki/Testbild",
-          "source": "Wikipedia",
-          "sling:resourceType": "composum/assets/manager/image/meta"
-        }
+        "jcr:primaryType": "cpa:AssetContent"
       },
       "wide": {
         "jcr:primaryType": "cpa:Variation",
         "jcr:createdBy": "admin",
         "jcr:created": "Tue Jul 04 2017 18:00:47 GMT+0200",
-        "sling:resourceType": "composum/assets/manager/image/variation",
-        "categories": [
+        "sling:resourceType": "composum/assets/image/variation",
+        "category": [
           "original"
         ],
         "original": {
           "jcr:primaryType": "cpa:Rendition",
           "jcr:createdBy": "admin",
           "jcr:created": "Tue Jul 04 2017 18:00:47 GMT+0200",
-          "sling:resourceType": "composum/assets/manager/image/rendition"
+          "valid": "true",
+          "sling:resourceType": "composum/assets/image/rendition"
         }
       }
     }
@@ -70,131 +60,135 @@
   "jcr:content": {
     "jcr:primaryType": "nt:unstructured",
     "jcr:title": "Assets Example 1",
+    "jcr:mixinTypes": [
+      "mix:versionable"
+    ],
+    "cpl:replicatedVersion": "theuuidofthereplicatedversion",
     "assetconfig": {
       "jcr:primaryType": "cpa:AssetConfiguration",
-      "example.image.path": "/test/assets/site-1/images/image-01.png",
-      "file.png.quality": "82.5",
-      "sling:resourceType": "composum/assets/manager/config",
+      "example_image_path": "/test/assets/site-1/images/image-01.png",
+      "file_png_quality": "82.5",
+      "sling:resourceType": "composum/assets/config",
       "bar": {
         "jcr:primaryType": "cpa:VariationConfig",
-        "size.aspectRatio": "5:1",
-        "crop.horizontal": "0",
-        "crop.vertical": "0",
-        "sling:resourceType": "composum/assets/manager/config/variation",
+        "size_aspectRatio": "5:1",
+        "crop_horizontal": "0",
+        "crop_vertical": "0",
+        "sling:resourceType": "composum/assets/config/variation",
         "small": {
           "jcr:primaryType": "cpa:RenditionConfig",
-          "crop.scale": "1.0",
-          "crop.horizontal": "0.5",
-          "size.width": "640",
-          "crop.vertical": "0.5",
-          "sling:resourceType": "composum/assets/manager/config/rendition",
-          "categories": [
+          "crop_scale": "1.0",
+          "crop_horizontal": "0.5",
+          "size_width": "640",
+          "crop_vertical": "0.5",
+          "sling:resourceType": "composum/assets/config/rendition",
+          "category": [
             "default"
           ]
         },
         "medium": {
           "jcr:primaryType": "cpa:RenditionConfig",
-          "size.width": "1024",
-          "sling:resourceType": "composum/assets/manager/config/rendition",
-          "categories": [
+          "size_width": "1024",
+          "sling:resourceType": "composum/assets/config/rendition",
+          "category": [
             "default"
           ]
         },
         "large": {
           "jcr:primaryType": "cpa:RenditionConfig",
-          "transformation.blur.factor": "default",
-          "size.width": "1920",
-          "sling:resourceType": "composum/assets/manager/config/rendition"
+          "transformation_blur_factor": "default",
+          "size_width": "1920",
+          "sling:resourceType": "composum/assets/config/rendition"
         }
       },
       "thumbnail": {
         "jcr:primaryType": "cpa:VariationConfig",
-        "sling:resourceType": "composum/assets/manager/config/variation",
+        "sling:resourceType": "composum/assets/config/variation",
         "small": {
           "jcr:primaryType": "cpa:RenditionConfig",
-          "size.width": "32",
-          "sling:resourceType": "composum/assets/manager/config/rendition"
+          "size_width": "32",
+          "sling:resourceType": "composum/assets/config/rendition"
         },
         "medium": {
           "jcr:primaryType": "cpa:RenditionConfig",
-          "size.width": "128",
-          "sling:resourceType": "composum/assets/manager/config/rendition",
-          "categories": [
+          "size_width": "128",
+          "sling:resourceType": "composum/assets/config/rendition",
+          "category": [
             "default"
           ]
         },
         "large": {
           "jcr:primaryType": "cpa:RenditionConfig",
-          "size.width": "512",
-          "sling:resourceType": "composum/assets/manager/config/rendition"
+          "size_width": "512",
+          "sling:resourceType": "composum/assets/config/rendition"
         }
       },
       "wide": {
         "jcr:primaryType": "cpa:VariationConfig",
-        "size.aspectRatio": "16:9",
-        "sling:resourceType": "composum/assets/manager/config/variation",
-        "categories": [
+        "size_aspectRatio": "16:9",
+        "sling:resourceType": "composum/assets/config/variation",
+        "category": [
           "default"
         ],
         "small": {
           "jcr:primaryType": "cpa:RenditionConfig",
-          "size.width": "640",
-          "sling:resourceType": "composum/assets/manager/config/rendition"
+          "size_width": "640",
+          "sling:resourceType": "composum/assets/config/rendition"
         },
         "medium": {
           "jcr:primaryType": "cpa:RenditionConfig",
-          "size.width": "1024",
-          "sling:resourceType": "composum/assets/manager/config/rendition"
+          "size_width": "1024",
+          "sling:resourceType": "composum/assets/config/rendition"
         },
         "thumbnail": {
           "jcr:primaryType": "cpa:RenditionConfig",
-          "size.aspectRatio": "1:1",
-          "size.width": "128",
-          "sling:resourceType": "composum/assets/manager/config/rendition",
-          "categories": [
+          "size_aspectRatio": "1:1",
+          "size_width": "128",
+          "sling:resourceType": "composum/assets/config/rendition",
+          "category": [
             "default",
             "icon"
           ]
         },
         "large": {
           "jcr:primaryType": "cpa:RenditionConfig",
-          "size.width": "1920",
-          "sling:resourceType": "composum/assets/manager/config/rendition"
+          "size_width": "1920",
+          "sling:resourceType": "composum/assets/config/rendition"
         }
       },
       "vertical": {
         "jcr:primaryType": "cpa:VariationConfig",
-        "size.aspectRatio": "1:5",
-        "sling:resourceType": "composum/assets/manager/config/variation",
+        "size_aspectRatio": "1:5",
+        "sling:resourceType": "composum/assets/config/variation",
         "no-scale": {
           "jcr:primaryType": "cpa:RenditionConfig",
-          "size.height": "400",
-          "crop.scale": "0",
-          "sling:resourceType": "composum/assets/manager/config/rendition"
+          "size_height": "400",
+          "crop_scale": "0",
+          "sling:resourceType": "composum/assets/config/rendition"
         },
         "no-explicit-crop": {
           "jcr:primaryType": "cpa:RenditionConfig",
-          "size.height": "400",
-          "sling:resourceType": "composum/assets/manager/config/rendition"
+          "size_height": "400",
+          "sling:resourceType": "composum/assets/config/rendition"
         },
         "target-scale": {
           "jcr:primaryType": "cpa:RenditionConfig",
-          "size.height": "400",
-          "crop.scale": "0.8",
-          "crop.vertical": "0.7",
-          "sling:resourceType": "composum/assets/manager/config/rendition",
-          "categories": [
+          "size_height": "400",
+          "crop_scale": "0.8",
+          "crop_vertical": "0.7",
+          "sling:resourceType": "composum/assets/config/rendition",
+          "category": [
             "default"
           ]
         },
         "half-scale": {
           "jcr:primaryType": "cpa:RenditionConfig",
-          "size.height": "400",
-          "crop.scale": "0.5",
-          "crop.horizontal": "0.6",
-          "crop.vertical": "0.5",
-          "sling:resourceType": "composum/assets/manager/config/rendition",
-          "categories": [
+          "size_height": "400",
+          "crop_scale": "0.5",
+          "crop_horizontal": "0.6",
+          "crop_vertical": "0.5",
+          "sling:resourceType": "composum/assets/config/rendition",
+          "category": [
             "default"
           ]
         }

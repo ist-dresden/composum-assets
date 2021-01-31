@@ -1,0 +1,62 @@
+@charset "UTF-8";
+
+@import "../../css/mixins";
+
+.composum-assets-dialog {
+
+    .control-label {
+        width: 100%;
+
+        .label {
+
+            &-text {
+                margin-left: 0;
+                float: left;
+                font-weight: inherit;
+            }
+        }
+
+        .widget {
+
+            &-hint {
+                display: block;
+                margin-top: 2px;
+                text-align: right;
+                float: right;
+                font-size: $widget-hint-font-size;
+                color: $widget-hint-color;
+
+                p {
+                    margin: 0;
+                }
+
+                a, a:visited, a:hover, a:active, a:focus {
+                    text-decoration: none;
+                }
+            }
+        }
+    }
+
+    &_asset {
+
+        &-create {
+
+            .type-selection {
+                text-align: right;
+
+                .select-buttons-widget {
+                    margin-left: 5px;
+
+                    button {
+                        width: 40px;
+                        text-align: center;
+
+                        .label {
+                            display: none;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

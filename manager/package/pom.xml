@@ -4,12 +4,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.composum.sling.assets</groupId>
-        <artifactId>composum-sling-assets-manager</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <groupId>com.composum.assets</groupId>
+        <artifactId>composum-assets-manager</artifactId>
+        <version>1.0.0</version>
     </parent>
 
-    <artifactId>composum-sling-assets-manager-package</artifactId>
+    <artifactId>composum-assets-manager-package</artifactId>
     <packaging>content-package</packaging>
 
     <name>Composum Assets Manager Package</name>
@@ -76,7 +76,7 @@
                         <filter>
                             <root>/libs/composum/assets/install</root>
                             <includes>
-                                <include>.*/composum-sling-assets-manager-bundle.*\.jar</include>
+                                <include>.*/composum-assets-manager-bundle.*\.jar</include>
                             </includes>
                         </filter>
 
@@ -85,7 +85,7 @@
                     <embeddeds>
                         <embedded>
                             <groupId>${project.groupId}</groupId>
-                            <artifactId>composum-sling-assets-manager-bundle</artifactId>
+                            <artifactId>composum-assets-manager-bundle</artifactId>
                             <target>/libs/composum/assets/install</target>
                         </embedded>
                     </embeddeds>
@@ -100,7 +100,7 @@
         <!-- Composum Assets -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>composum-sling-assets-manager-bundle</artifactId>
+            <artifactId>composum-assets-manager-bundle</artifactId>
             <version>${project.version}</version>
         </dependency>
 

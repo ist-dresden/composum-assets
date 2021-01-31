@@ -1,0 +1,63 @@
+@charset "UTF-8";
+
+@import "../../../css/mixins";
+
+#assets-view .detail-panel {
+
+    &.folder .detail-tabs {
+        padding-left: 42px;
+    }
+
+    .folder-detail {
+
+        .folder-toolbar {
+            right: 95px !important;
+        }
+
+        .folder-content {
+            position: absolute;
+            top: $console-details-content-top;
+            left: 0.5%; /* padding if the left tree is not visible */
+            right: 0;
+            bottom: 40px;
+            overflow: visible;
+        }
+
+        .left-open & {
+
+            .folder-content {
+                left: 0; /* no extra padding if left side is open */
+            }
+        }
+
+        .composum-assets-manager-browse {
+
+            &_toolbar {
+                pointer-events: none;
+                position: absolute;
+                top: -40px;
+                left: 0;
+                right: 0;
+                padding: 5px 6px;
+
+                .btn {
+                    pointer-events: auto;
+                }
+            }
+        }
+
+        .composum-assets-widget-navigator-browse {
+
+            .composum-assets-widget-navigator {
+
+                &_view-type-keys {
+                    background: transparent;
+                }
+
+                &_content {
+                    top: 0;
+                }
+            }
+        }
+    }
+}

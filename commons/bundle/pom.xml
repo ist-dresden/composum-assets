@@ -4,12 +4,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.composum.sling.assets</groupId>
-        <artifactId>composum-sling-assets-commons</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <groupId>com.composum.assets</groupId>
+        <artifactId>composum-assets-commons</artifactId>
+        <version>1.0.0</version>
     </parent>
 
-    <artifactId>composum-sling-assets-commons-bundle</artifactId>
+    <artifactId>composum-assets-commons-bundle</artifactId>
     <packaging>bundle</packaging>
 
     <name>Composum Assets Commons Bundle</name>
@@ -23,8 +23,8 @@
         <plugins>
 
             <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-scr-plugin</artifactId>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
             </plugin>
 
             <plugin>
@@ -40,20 +40,36 @@
                         </Include-Resource>
                         <Export-Package>
                             com.composum.assets.commons.*,
-                            org.imgscalr.*
+                            org.imgscalr.*,
+                            com.drew.*;version="${com.drewnoakes.metadata-extractor.version}"
                         </Export-Package>
                         <Import-Package>
-                            org.apache.sling.api.request.*;version="[2.4.1,3)",
-                            org.apache.sling.api.resource.*;version="[2.8.0,3)",
-                            org.apache.sling.api.servlets.*;version="[2.1.1,3)",
-                            org.apache.sling.api.*;version="[2.2.2,3)",
+                            com.composum.sling.core.*;version="[1.11,3)",
+                            com.composum.sling.clientlibs.*;version="[1.11,3)",
+                            com.composum.sling.nodes.*;version="[1.11,3)",
+                            com.composum.sling.cpnl.*;version="[1.11,3)",
+                            javax.annotation.*;version="[0,4)",
                             *
                         </Import-Package>
                         <Embed-Dependency>
                             *;scope=compile|runtime
                         </Embed-Dependency>
                     </instructions>
+                    <exportScr>true</exportScr>
                 </configuration>
+
+                <executions>
+                    <!-- Configure extra execution of 'manifest' in process-classes phase to make sure SCR metadata is generated before unit test runs -->
+                    <execution>
+                        <id>scr-metadata</id>
+                        <goals>
+                            <goal>manifest</goal>
+                        </goals>
+                        <configuration>
+                            <supportIncrementalBuild>true</supportIncrementalBuild>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
 
         </plugins>
@@ -77,6 +93,16 @@
             <artifactId>composum-sling-core-commons</artifactId>
         </dependency>
 
+        <!-- Composum Platform -->
+        <dependency>
+            <groupId>com.composum.platform</groupId>
+            <artifactId>composum-platform-commons-bundle</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.composum.platform</groupId>
+            <artifactId>composum-platform-staging-bundle</artifactId>
+        </dependency>
+
         <!-- Sling, JCR -->
         <dependency>
             <groupId>org.apache.sling</groupId>
@@ -84,11 +110,29 @@
         </dependency>
         <dependency>
             <groupId>org.apache.sling</groupId>
+            <artifactId>org.apache.sling.xss</artifactId>
+            <!-- This is an evil JAR with several old versions of libraries as embedded dependencies that aren't exported
+            and can conflict with your code. "Optional" at least means that that doesn't conflict with artifacts
+            using a bundle that uses the sling.xss bundle.
+             -->
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.sling</groupId>
             <artifactId>org.apache.sling.jcr.api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.sling</groupId>
+            <artifactId>org.apache.sling.servlets.post</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.sling</groupId>
             <artifactId>org.apache.sling.commons.osgi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.sling</groupId>
+            <artifactId>org.apache.sling.commons.scheduler</artifactId>
         </dependency>
 
         <!-- JCR API, Jackrabbit -->
@@ -105,10 +149,35 @@
         <dependency>
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-parsers</artifactId>
+            <exclusions>
+                <!-- These introduce an unwanted dependency to commons-lang and aren't deployed, anyway. -->
+                <exclusion>
+                    <groupId>com.healthmarketscience.jackcess</groupId>
+                    <artifactId>jackcess</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.uima</groupId>
+                    <artifactId>uimafit-core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-core</artifactId>
+        </dependency>
+        <dependency>
+            <!-- embedded via scope compile since that's missing due to https://issues.apache.org/jira/browse/SLING-7125 -->
+            <groupId>com.drewnoakes</groupId>
+            <artifactId>metadata-extractor</artifactId>
+            <version>${com.drewnoakes.metadata-extractor.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <!-- embedded via scope compile since that's missing due to https://issues.apache.org/jira/browse/SLING-7125 -->
+            <groupId>com.adobe.xmp</groupId>
+            <artifactId>xmpcore</artifactId>
+            <version>${com.adobe.xmp.xmpcore.version}</version>
+            <scope>compile</scope>
         </dependency>
 
         <!-- JSON -->
@@ -128,14 +197,6 @@
         </dependency>
 
         <!-- OSGi, Felix -->
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.scr</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.scr.annotations</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
@@ -178,7 +239,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.sling</groupId>
-            <artifactId>org.apache.sling.testing.sling-mock</artifactId>
+            <artifactId>org.apache.sling.testing.sling-mock.junit4</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.sling</groupId>
@@ -187,6 +248,21 @@
         <dependency>
             <groupId>org.apache.sling</groupId>
             <artifactId>org.apache.sling.testing.hamcrest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.composum.platform</groupId>
+            <artifactId>composum-platform-testing-testutil</artifactId>
+            <version>${composum.platform.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- TODO Temporary workaround for https://issues.apache.org/jira/browse/SLING-8576 . Once that's fixed this
+          should be removed. -->
+        <dependency>
+            <groupId>org.apache.sling</groupId>
+            <artifactId>org.apache.sling.scripting.core</artifactId>
+            <version>2.0.50</version>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

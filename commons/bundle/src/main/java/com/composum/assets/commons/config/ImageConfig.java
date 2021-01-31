@@ -5,6 +5,8 @@
  */
 package com.composum.assets.commons.config;
 
+import com.composum.assets.commons.AssetsConstants;
+import com.composum.assets.commons.config.aspect.Example;
 import com.composum.sling.core.ResourceHandle;
 import org.apache.sling.api.resource.Resource;
 
@@ -15,6 +17,14 @@ public class ImageConfig extends AssetConfig {
 
     public static final String CHILD_NAME = "imageconfig";
     public static final Pattern NAME_PATTERN = Pattern.compile("^" + CHILD_NAME + "$");
+    public static final String NODE_TYPE = AssetsConstants.NODE_TYPE_IMAGE_CONFIG;
+
+    public class Preview extends Example {
+
+        public Preview() {
+            super(ImageConfig.this.getPath());
+        }
+    }
 
     public ImageConfig(Resource resource) {
         super(resource);
@@ -22,5 +32,22 @@ public class ImageConfig extends AssetConfig {
 
     public ImageConfig(List<ResourceHandle> cascade) {
         super(cascade);
+    }
+
+    @Override
+    public String getConfigType() {
+        return CHILD_NAME;
+    }
+
+    @Override
+    public Boolean getExtension() {
+        if (extension == null) {
+            extension = getResource().getProperty(EXTENSION, Boolean.TRUE);
+        }
+        return extension;
+    }
+
+    public Example getExample() {
+        return new Preview();
     }
 }

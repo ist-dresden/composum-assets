@@ -1,12 +1,18 @@
 package com.composum.assets.manager.image;
 
 import com.composum.assets.commons.config.ConfigHandle;
+import com.composum.assets.commons.config.RenditionConfig;
 import com.composum.assets.commons.config.VariationConfig;
 import com.composum.assets.commons.handle.AssetRendition;
 import com.composum.assets.commons.handle.AssetVariation;
 import com.composum.sling.core.BeanContext;
 import com.composum.sling.core.ResourceHandle;
+import com.composum.sling.core.request.DomIdentifiers;
 import org.apache.sling.api.resource.Resource;
+
+import javax.annotation.Nonnull;
+import java.util.Collections;
+import java.util.List;
 
 public class ImageVariationBean extends AbstractImageBean<VariationConfig> {
 
@@ -36,15 +42,30 @@ public class ImageVariationBean extends AbstractImageBean<VariationConfig> {
         }
     }
 
+    @Override
+    public String getDomId() {
+        VariationConfig config = getConfig();
+        return DomIdentifiers.getInstance(context).getElementId(config.getResource());
+    }
+
+    @Override
     public VariationConfig getConfig() {
         return config;
     }
 
+    public List<RenditionConfig> getRenditionConfigList() {
+        List<RenditionConfig> renditionConfigs = config.getRenditionList(true);
+        Collections.sort(renditionConfigs);
+        return renditionConfigs;
+    }
+
+    @Nonnull
     @Override
     public String getName() {
         return variation != null ? variation.getName() : config.getName();
     }
 
+    @Nonnull
     @Override
     public String getPath() {
         return variation != null ? variation.getPath() : config.getPath();
@@ -63,7 +84,7 @@ public class ImageVariationBean extends AbstractImageBean<VariationConfig> {
         return original;
     }
 
-    public String getOriginalUrl() {
+    public String getOriginalUri() {
         return original != null ? original.getPath() + "/" + asset.getName() : "";
     }
 }

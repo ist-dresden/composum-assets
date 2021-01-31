@@ -12,14 +12,23 @@ import com.composum.assets.commons.config.VariationConfig;
 import com.composum.sling.core.BeanContext;
 import com.composum.sling.core.ResourceHandle;
 import com.composum.sling.core.util.ResourceUtil;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.sling.api.resource.NonExistingResource;
 import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
-import org.apache.sling.api.resource.ResourceResolver;
+import org.apache.sling.api.resource.SyntheticResource;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Model of a stored variation. The resource for this might point both to the original location in /content if there
+ * is an original stored for the variation, or to the transient location below {@value AssetsConstants#PATH_TRANSIENTS}
+ * if not.
+ */
 public class AssetVariation extends AssetHandle<VariationConfig> {
 
     public static final String NODE_TYPE = AssetsConstants.NODE_TYPE_VARIATION;
@@ -27,58 +36,132 @@ public class AssetVariation extends AssetHandle<VariationConfig> {
 
     public static final Map<String, Object> RENDITION_PROPERTIES;
 
+    protected transient String transientsPath;
+
     static {
         RENDITION_PROPERTIES = new HashMap<>();
         RENDITION_PROPERTIES.put(ResourceUtil.PROP_PRIMARY_TYPE, AssetsConstants.NODE_TYPE_RENDITION);
         RENDITION_PROPERTIES.put(ResourceUtil.PROP_RESOURCE_TYPE, AssetsConstants.RESOURCE_TYPE_RENDITION);
     }
 
+    @Nonnull
     protected final AbstractAsset asset;
     protected final VariationConfig config;
 
-    public AssetVariation(BeanContext context, Resource resource, AbstractAsset asset) {
-        super(context, resource);
-        this.asset = asset;
-        this.config = asset.getChildConfig(resource);
+    public AssetVariation(@Nonnull final BeanContext context, @Nonnull final Resource resource,
+                          @Nonnull final AbstractAsset asset) {
+        this(context, resource, asset, asset.getChildConfig(resource.getName()));
     }
 
+    public AssetVariation(@Nonnull final BeanContext context, @Nonnull final Resource resource,
+                          @Nonnull final AbstractAsset asset, @Nonnull final VariationConfig config) {
+        super(context, resource);
+        this.asset = asset;
+        this.config = config;
+    }
+
+    @Override
     public VariationConfig getConfig() {
         return config;
     }
 
-    public RenditionConfig getChildConfig(Resource resource) {
-        AbstractAsset asset = getAsset();
-        List<ResourceHandle> renditionCascade = asset.getConfigCascade(resource, RenditionConfig.NODE_TYPE);
+    @Override
+    public RenditionConfig getChildConfig(String targetPath) {
+        List<ResourceHandle> renditionCascade = asset.getConfigCascade(targetPath, RenditionConfig.NODE_TYPE);
         return renditionCascade != null && renditionCascade.size() > 0 ? new RenditionConfig(getConfig(), renditionCascade) : null;
     }
 
+    @Override
+    protected String getConfigTargetPath() {
+        return getName();
+    }
+
+    /**
+     * The folder where the transients are stored. For Variations, this is a subfolder {@link #getName()}/{originalversion} of
+     * {@link #getAsset()}. {@link AssetHandle#getTransientsPath()} which stores the renditions dependent on that original
+     * version. *
+     */
+    @Override
+    @Nonnull
+    public String getTransientsPath() {
+        if (transientsPath == null) {
+            AssetRendition original = getOriginal();
+            Resource fileresource = original != null && original.getFile() != null ? original.getFile().getResource() : null;
+            String originalversion = fileresource != null ? versionMarker(fileresource) : null;
+            transientsPath =
+                    getAsset().getTransientsPath() + "/" + getName() + "/" + StringUtils.defaultIfBlank(originalversion,
+                            AssetsConstants.NODE_WORKSPACECONFIGURED);
+        }
+        return transientsPath;
+    }
+
+    @Nonnull
     public AbstractAsset getAsset() {
         return asset;
     }
 
+    @Nullable
     public AssetRendition getOriginal() {
-        AssetRendition original = getRendition(ConfigHandle.ORIGINAL);
-        if (original == null) {
+        return getOriginal(null);
+    }
+
+    @Nullable
+    public AssetRendition getOriginal(@Nullable final String variation) {
+        Resource originalResource = findChildByCategoryOrName(resource, AssetRendition.NODE_TYPE, ConfigHandle.ORIGINAL);
+        AssetRendition original = originalResource != null ? new AssetRendition(context, originalResource, this) : null;
+        if (original == null && StringUtils.isBlank(variation)) {
             original = getAsset().retrieveOriginal(this);
         }
         return original;
     }
 
+    /**
+     * Returns the rendition according to the keys if there is one. If this is not an original, it's resource
+     * can be a {@link NonExistingResource}.
+     */
+    @Nullable
     public AssetRendition getRendition(String... keyChain) {
         AssetRendition rendition = null;
-        Resource renditionResource = findChildByCategoryOrName(AssetRendition.NODE_TYPE, keyChain);
+        Resource renditionResource = findChildByCategoryOrName(resource, AssetRendition.NODE_TYPE, keyChain);
+        if (renditionResource == null) {
+            Resource transientsResource = getResolver().getResource(getTransientsPath());
+            if (transientsResource != null) {
+                renditionResource = findChildByCategoryOrName(transientsResource, AssetRendition.NODE_TYPE,
+                        keyChain);
+            }
+        }
         if (renditionResource != null) {
             rendition = new AssetRendition(context, renditionResource, this);
         }
         return rendition;
     }
 
-    public AssetRendition getOrCreateOriginal() throws PersistenceException {
-        AssetRendition rendition = getOriginal();
+    /**
+     * Returns the rendition according to the config. If this is not an original, it's resource
+     * can be a {@link SyntheticResource} - mainly useful during the transients creation process.
+     */
+    @Nonnull
+    public AssetRendition giveRendition(@Nonnull RenditionConfig renditionConfig) {
+        AssetRendition rendition;
+        Resource renditionResource = resource.getChild(renditionConfig.getName());
+        if (renditionResource != null) {
+            rendition = new AssetRendition(context, renditionResource, this);
+        } else {
+            SyntheticResource syntheticResource = new SyntheticResource(getResolver(),
+                    getPath() + "/" + renditionConfig.getName(), AssetsConstants.NODE_TYPE_RENDITION);
+            rendition = new AssetRendition(context, syntheticResource, this);
+        }
+        return rendition;
+    }
+
+    /**
+     * Creates an original rendition - which is stored in the /content resource tree.
+     */
+    public AssetRendition getOrCreateOriginal(@Nullable final String variation) throws PersistenceException {
+        AssetRendition rendition = getOriginal(variation);
         if (rendition == null) {
             Resource variationResource = getResource();
-            ResourceResolver resolver = variationResource.getResourceResolver();
-            Resource renditionResource = resolver.create(variationResource,"original", RENDITION_PROPERTIES);
+            Resource renditionResource = getResolver().create(variationResource, "original", RENDITION_PROPERTIES);
             rendition = new AssetRendition(context, renditionResource, this);
         }
         return rendition;
@@ -93,4 +176,5 @@ public class AssetVariation extends AssetHandle<VariationConfig> {
     public int hashCode() {
         return getPath().hashCode();
     }
+
 }

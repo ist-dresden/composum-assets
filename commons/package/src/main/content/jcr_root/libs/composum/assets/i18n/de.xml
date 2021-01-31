@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0"
         xmlns:mix="http://www.jcp.org/jcr/mix/1.0"
-        jcr:language="en"
+        jcr:language="de"
         jcr:mixinTypes="[mix:language]"
         jcr:primaryType="sling:Folder"
         sling:basename="composum-assets">
@@ -47,19 +47,8 @@
     <upload-original jcr:primaryType="sling:MessageEntry"
             sling:key="Upload Asset Original" sling:message="Ein neues Original hochladen"/>
 
-    <go-one-level-up jcr:primaryType="sling:MessageEntry"
-            sling:key="Go one level Up" sling:message="Eine Ebene nach Oben"/>
-    <small-thumbnails jcr:primaryType="sling:MessageEntry"
-            sling:key="Small Thumbnails" sling:message="Kleine Miniaturen"/>
-    <large-thumbnails jcr:primaryType="sling:MessageEntry"
-            sling:key="Large Thumbnails" sling:message="Große Miniaturen"/>
-    <asset-list jcr:primaryType="sling:MessageEntry"
-            sling:key="Assets List" sling:message="Asset-Liste"/>
     <create-asset-configuration jcr:primaryType="sling:MessageEntry"
             sling:key="Create Asset Configuration" sling:message="Konfiguration anlegen"/>
-
-    <open-containing-folder jcr:primaryType="sling:MessageEntry"
-            sling:key="Open containing Folder" sling:message="Ordner zum Bild öffnen"/>
     <to-image-asset jcr:primaryType="sling:MessageEntry"
             sling:key="Transform into an Image Asset" sling:message="Umwandeln in ein Bild-Asset"/>
     <to-simple-image jcr:primaryType="sling:MessageEntry"
@@ -68,5 +57,153 @@
             sling:key="Asset Files (Originals)" sling:message="Asset-Dateien (Originale)"/>
     <renditions-view jcr:primaryType="sling:MessageEntry"
             sling:key="Renditions View" sling:message="Renditions-Ansicht"/>
+
+    <filter jcr:primaryType="nt:unstructured">
+
+        <all jcr:primaryType="sling:MessageEntry"
+                sling:key="All" sling:message="Alles"/>
+        <all-hint jcr:primaryType="sling:MessageEntry"
+                sling:key="show all available asset object types" sling:message="alle Asset-Objekt-Typen anzeigen"/>
+        <image-asset jcr:primaryType="sling:MessageEntry"
+                sling:key="Image Asset" sling:message="Bild-Asset"/>
+        <image-asset-hint jcr:primaryType="sling:MessageEntry"
+                sling:key="restrict to 'Composum Assets' image objects"
+                sling:message="Beschränkung auf 'Composum Assets' Bild-Objekte"/>
+        <image-simple jcr:primaryType="sling:MessageEntry"
+                sling:key="Simple Image" sling:message="einfaches Bild"/>
+        <image-simple-hint jcr:primaryType="sling:MessageEntry"
+                sling:key="restrict to simple image files"
+                sling:message="Beschränkung auf einfache Bilder"/>
+        <image jcr:primaryType="sling:MessageEntry"
+                sling:key="Image" sling:message="Bild"/>
+        <image-hint jcr:primaryType="sling:MessageEntry"
+                sling:key="restrict to image asset or image file resources"
+                sling:message="Beschränkung auf Bild-Assets oder Bild-Dateien"/>
+        <video-hint jcr:primaryType="sling:MessageEntry"
+                sling:key="restrict to video file objects"
+                sling:message="Beschränkung auf Video-Dateien"/>
+        <audio-hint jcr:primaryType="sling:MessageEntry"
+                sling:key="restrict to audio file objects"
+                sling:message="Beschränkung auf Audio-Dateien"/>
+        <document jcr:primaryType="sling:MessageEntry"
+                sling:key="Document" sling:message="Dokument"/>
+        <document-hint jcr:primaryType="sling:MessageEntry"
+                sling:key="restrict to document file objects"
+                sling:message="Beschränkung auf Dokument-Dateien"/>
+        <binary-hint jcr:primaryType="sling:MessageEntry"
+                sling:key="restrict to binary file objects"
+                sling:message="Beschränkung auf Daten-Dateien"/>
+
+    </filter>
+
+    <navigator jcr:primaryType="nt:unstructured">
+
+        <tree jcr:primaryType="sling:MessageEntry"
+                sling:key="Tree" sling:message="Baum"/>
+        <browse jcr:primaryType="sling:MessageEntry"
+                sling:key="Browse" sling:message="Browsen"/>
+        <search jcr:primaryType="sling:MessageEntry"
+                sling:key="Search" sling:message="Suche"/>
+
+        <go-one-level-up jcr:primaryType="sling:MessageEntry"
+                sling:key="Go one level Up" sling:message="Eine Ebene nach Oben"/>
+        <small-thumbnails jcr:primaryType="sling:MessageEntry"
+                sling:key="Small Thumbnails" sling:message="Kleine Miniaturen"/>
+        <large-thumbnails jcr:primaryType="sling:MessageEntry"
+                sling:key="Large Thumbnails" sling:message="Große Miniaturen"/>
+        <asset-list jcr:primaryType="sling:MessageEntry"
+                sling:key="Assets List" sling:message="Asset-Liste"/>
+        <open-containing-folder jcr:primaryType="sling:MessageEntry"
+                sling:key="Open containing Folder" sling:message="Ordner zum Bild öffnen"/>
+
+        <search-root jcr:primaryType="sling:MessageEntry"
+                sling:key="Search Root" sling:message="Such-Basis"/>
+        <select-root-folder jcr:primaryType="sling:MessageEntry"
+                sling:key="select root folder" sling:message="Basis-Folder auswählen"/>
+        <folder-as-root jcr:primaryType="sling:MessageEntry"
+                sling:key="use current folder as root" sling:message="aktuellen Folder als Basis nutzen"/>
+    </navigator>
+
+    <config jcr:primaryType="nt:unstructured">
+
+        <CreateConfig jcr:primaryType="sling:MessageEntry"
+                sling:key="Create Configuration" sling:message="Konfiguration Anlegen"/>
+        <ChangeConfig jcr:primaryType="sling:MessageEntry"
+                sling:key="Change Configuration" sling:message="Konfiguration Ändern"/>
+        <DeleteConfig jcr:primaryType="sling:MessageEntry"
+                sling:key="Delete Configuration" sling:message="Konfiguration Löschen"/>
+        <AddVariation jcr:primaryType="sling:MessageEntry"
+                sling:key="Add Variation" sling:message="Variation Hinzufügen"/>
+        <RemoveVariation jcr:primaryType="sling:MessageEntry"
+                sling:key="Remove Variation" sling:message="Variation Entfernen"/>
+        <AddRendition jcr:primaryType="sling:MessageEntry"
+                sling:key="Add Rendition" sling:message="Rendition Hinzufügen"/>
+        <RemoveRendition jcr:primaryType="sling:MessageEntry"
+                sling:key="Remove Rendition" sling:message="Rendition Entfernen"/>
+
+        <SelectLayer jcr:primaryType="sling:MessageEntry"
+                sling:key="Select Layer" sling:message="Ebene Wählen"/>
+        <Base jcr:primaryType="sling:MessageEntry"
+                sling:key="Base" sling:message="Basis"/>
+        <Default jcr:primaryType="sling:MessageEntry"
+                sling:key="Default" sling:message="Standard"/>
+        <Extension jcr:primaryType="sling:MessageEntry"
+                sling:key="Extension" sling:message="Erweiterung"/>
+        <Category jcr:primaryType="sling:MessageEntry"
+                sling:key="Category" sling:message="Kategorie"/>
+        <ExampleImage jcr:primaryType="sling:MessageEntry"
+                sling:key="Example Image" sling:message="Beispielbild"/>
+        <Crop jcr:primaryType="sling:MessageEntry"
+                sling:key="Crop" sling:message="Schnitt"/>
+        <Width jcr:primaryType="sling:MessageEntry"
+                sling:key="Width" sling:message="Breite"/>
+        <Height jcr:primaryType="sling:MessageEntry"
+                sling:key="Height" sling:message="Höhe"/>
+        <AspectRatio jcr:primaryType="sling:MessageEntry"
+                sling:key="Aspect Ratio" sling:message="Seitenverhältnis"/>
+        <Vertical jcr:primaryType="sling:MessageEntry"
+                sling:key="Vertical" sling:message="Vertikal"/>
+        <Scale jcr:primaryType="sling:MessageEntry"
+                sling:key="Scale" sling:message="Skalierung"/>
+        <Watermark jcr:primaryType="sling:MessageEntry"
+                sling:key="Watermark" sling:message="Wasserzeichen"/>
+        <Color jcr:primaryType="sling:MessageEntry"
+                sling:key="Color" sling:message="Farbe"/>
+        <Opacity jcr:primaryType="sling:MessageEntry"
+                sling:key="Opacity" sling:message="Deckkraft"/>
+        <Font jcr:primaryType="sling:MessageEntry"
+                sling:key="Font" sling:message="Zeichensatz"/>
+        <Family jcr:primaryType="sling:MessageEntry"
+                sling:key="Family" sling:message="Familie"/>
+        <Style jcr:primaryType="sling:MessageEntry"
+                sling:key="Style" sling:message="Stil"/>
+        <Italic jcr:primaryType="sling:MessageEntry"
+                sling:key="Italic" sling:message="Kursiv"/>
+        <Bold jcr:primaryType="sling:MessageEntry"
+                sling:key="Bold" sling:message="Fett"/>
+        <Other jcr:primaryType="sling:MessageEntry"
+                sling:key="Other" sling:message="Weiteres"/>
+        <BlurFactor jcr:primaryType="sling:MessageEntry"
+                sling:key="Blur Factor" sling:message="Unschärfe-Faktor"/>
+
+        <transformSize jcr:primaryType="sling:MessageEntry"
+                sling:key="the renditions size - width or height probably with an aspect ratio"
+                sling:message="die vorgesehene Breite oder Höhe, bei Bedarf mit Seitenverhältnis"/>
+        <transformCrop jcr:primaryType="sling:MessageEntry"
+                sling:key="the position and scale of the renditions part of the image"
+                sling:message="die Position und Skalierung des Bildausschnitts der Rendition"/>
+        <transformMore jcr:primaryType="sling:MessageEntry"
+                sling:key="settings for special transformations"
+                sling:message="Einstellungen für spezielle Transformationen"/>
+        <watermarkText jcr:primaryType="sling:MessageEntry"
+                sling:key="the text which should be part of each image"
+                sling:message="der Text, der in jedes Bild integriert werden soll"/>
+        <watermarkPos jcr:primaryType="sling:MessageEntry"
+                sling:key="the position of the text relative to the image bounds"
+                sling:message="die Position des Textes relativ zum Bildumriß"/>
+        <watermarkFont jcr:primaryType="sling:MessageEntry"
+                sling:key="the font family, size and style"
+                sling:message="Schriftart, -größe und -stil des Textes"/>
+    </config>
 
 </jcr:root>

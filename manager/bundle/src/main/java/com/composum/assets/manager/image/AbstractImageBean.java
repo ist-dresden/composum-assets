@@ -1,7 +1,6 @@
 package com.composum.assets.manager.image;
 
 import com.composum.assets.commons.config.ConfigHandle;
-import com.composum.assets.commons.handle.AssetHandle;
 import com.composum.assets.commons.handle.ImageAsset;
 import com.composum.sling.core.AbstractSlingBean;
 import com.composum.sling.core.BeanContext;
@@ -41,7 +40,7 @@ public abstract class AbstractImageBean<Config extends ConfigHandle> extends Abs
     }
 
     public Resource getImageAssetResource(Resource resource) {
-        while (resource != null && !resource.isResourceType(AssetHandle.IMAGE_RESOURCE_TYPE)) {
+        while (resource != null && !resource.isResourceType(ImageAsset.RESOURCE_TYPE)) {
             resource = resource.getParent();
         }
         return resource;

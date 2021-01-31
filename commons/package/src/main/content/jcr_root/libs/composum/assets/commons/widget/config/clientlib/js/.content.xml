@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0"
+        jcr:primaryType="sling:OrderedFolder"
+        depends="[category:composum.assets.widgets]"
+        embed="[composum/assets/commons/dialogs/asset/config/js/config.js,
+                composum/assets/commons/dialogs/folder/config/js/config.js,
+                composum/assets/commons/widget/config/js/config.js]"/>

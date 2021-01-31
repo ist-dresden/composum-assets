@@ -5,6 +5,7 @@
  */
 package com.composum.assets.commons.service;
 
+import com.composum.assets.commons.AssetsConstants;
 import com.composum.assets.commons.config.AssetConfig;
 import com.composum.assets.commons.config.ConfigHandle;
 import com.composum.assets.commons.config.RenditionConfig;
@@ -13,61 +14,62 @@ import com.composum.assets.commons.handle.AssetRendition;
 import com.composum.assets.commons.handle.AssetVariation;
 import com.composum.assets.commons.handle.ImageAsset;
 import com.composum.assets.commons.image.BuilderContext;
-import com.composum.assets.commons.image.DefaultRenditionTransformer;
 import com.composum.assets.commons.image.RenditionBuilder;
+import com.composum.assets.commons.image.RenditionReader;
 import com.composum.assets.commons.image.RenditionTransformer;
+import com.composum.assets.commons.image.RenditionWriter;
 import com.composum.sling.core.ResourceHandle;
 import com.composum.sling.core.concurrent.LazyCreationService;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Properties;
-import org.apache.felix.scr.annotations.Property;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.Service;
 import org.apache.sling.api.resource.LoginException;
+import org.apache.sling.api.resource.ModifiableValueMap;
 import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ResourceResolverFactory;
-import org.apache.sling.commons.osgi.PropertiesUtil;
+import org.osgi.framework.Constants;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.metatype.annotations.AttributeDefinition;
+import org.osgi.service.metatype.annotations.Designate;
+import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.jcr.RepositoryException;
 import javax.jcr.query.Query;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.Dictionary;
+import java.io.OutputStream;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
+/**
+ * The Composum Assets - Image Service supports renditions of image assets".
+ */
 @Component(
-        label = "Composum Assets - Image Service",
-        description = "supports renditions of image assets",
-        immediate = true,
-        metatype = true
+        service = AdaptiveImageService.class,
+        property = {
+                Constants.SERVICE_DESCRIPTION + "=Composum Assets - Image Service: supports renditions of image assets",
+        },
+        immediate = true
 )
-@Service
-@Properties({
-        @Property(
-                name = DefaultAdaptiveImageService.THREAD_POOL_SIZE,
-                label = "Thread Pool Size",
-                description = "the maximum number of threads used to create image renditions",
-                intValue = DefaultAdaptiveImageService.THREAD_POOL_SIZE_DEFAULT),
-})
 @SuppressWarnings("deprecation")
+@Designate(ocd = DefaultAdaptiveImageService.Configuration.class)
 public class DefaultAdaptiveImageService implements AdaptiveImageService {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultAdaptiveImageService.class);
-
-    public static final String THREAD_POOL_SIZE = "thread.pool.size";
-
-    public static final int THREAD_POOL_SIZE_DEFAULT = 9;
 
     @Reference
     protected ResourceResolverFactory resolverFactory;
@@ -75,38 +77,61 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
     @Reference
     protected LazyCreationService lazyCreationService;
 
+    @Reference
+    protected MetaPropertiesService metaPropertiesService;
+
     protected ExecutorService executorService;
 
-    protected Map<String, RenditionTransformer> transformers;
+    @Reference
+    protected RenditionTransformer renditionTransformer;
+
+    protected Configuration config;
 
     @Activate
-    protected void activate(ComponentContext context) throws Exception {
-        Dictionary<String, Object> properties = context.getProperties();
-        int threadPoolSize = PropertiesUtil.toInteger(properties.get(THREAD_POOL_SIZE), THREAD_POOL_SIZE_DEFAULT);
-        executorService = Executors.newFixedThreadPool(threadPoolSize);
-        transformers = new LinkedHashMap<>();
-        transformers.put("default", new DefaultRenditionTransformer());
+    @Modified
+    protected void activate(@Nonnull ComponentContext context, @Nonnull Configuration configuration) {
+        if (executorService != null) {
+            executorService.shutdown();
+        }
+        executorService = Executors.newFixedThreadPool(configuration.threadPoolSize());
+        config = configuration;
     }
 
-    public Map<String, RenditionTransformer> getTransformers() {
-        return transformers;
+    @Deactivate
+    protected void deactivate() {
+        executorService.shutdown();
+        executorService = null;
+        config = null;
     }
 
-    public AssetRendition getRendition(ImageAsset asset,
-                                       String variationKey, String renditionKey) throws RepositoryException {
+    @Override
+    public RenditionTransformer getRenditionTransformer() {
+        return renditionTransformer;
+    }
+
+    @Override
+    @Nullable
+    public AssetRendition getRendition(@Nonnull final ImageAsset asset,
+                                       @Nonnull final String variationKey, @Nonnull final String renditionKey)
+            throws RepositoryException {
         AssetRendition rendition = null;
         AssetVariation variation = asset.getVariation(variationKey);
         if (variation != null) {
             rendition = variation.getRendition(renditionKey);
         }
-        if (null != rendition && lazyCreationService.isInitialized(rendition.getResource()) && rendition.isValid()) {
+        if (null != rendition && rendition.isValid() &&
+                (lazyCreationService.isInitialized(rendition.getResource()) || rendition.isOriginal())
+        ) {
+            updateLastRendered(rendition);
             return rendition;
         }
         return null;
     }
 
-    public RenditionConfig getRenditionConfig(ImageAsset asset,
-                                              String variationKey, String renditionKey) {
+    @Override
+    @Nullable
+    public RenditionConfig getRenditionConfig(@Nonnull final ImageAsset asset,
+                                              @Nonnull final String variationKey, @Nonnull final String renditionKey) {
         RenditionConfig renditionConfig = null;
         AssetConfig assetConfig = asset.getConfig();
         VariationConfig variationConfig = assetConfig.getVariation(variationKey);
@@ -116,8 +141,10 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
         return renditionConfig;
     }
 
-    public RenditionConfig findRenditionConfig(ImageAsset asset,
-                                               String variationKey, String renditionKey) {
+    @Override
+    @Nullable
+    public RenditionConfig findRenditionConfig(@Nonnull final ImageAsset asset,
+                                               @Nonnull final String variationKey, @Nonnull final String renditionKey) {
         RenditionConfig renditionConfig = null;
         AssetConfig assetConfig = asset.getConfig();
         VariationConfig variationConfig = assetConfig.findVariation(variationKey);
@@ -127,9 +154,31 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
         return renditionConfig;
     }
 
-    public AssetRendition getOrCreateRendition(ImageAsset asset,
-                                               String variationKey, String renditionKey)
-            throws LoginException, RepositoryException, IOException {
+    /**
+     * writes an in memory image instance (built live) of a redition to a given output stream
+     */
+    @Override
+    public void volatileRendition(@Nonnull final AssetRendition rendition,
+                                  @Nonnull final OutputStream outputStream)
+            throws RepositoryException, IOException {
+
+        HashMap<String, Object> hints = new HashMap<>();
+        BuilderContext context = new BuilderContext(this, lazyCreationService, metaPropertiesService, executorService, hints);
+
+        RenditionReader reader = new RenditionReader();
+        BufferedImage image = reader.readImage(rendition, context);
+
+        RenditionTransformer transformer = context.getService().getRenditionTransformer();
+        image = transformer.transform(rendition, image, context);
+
+        RenditionWriter writer = new RenditionWriter();
+        writer.writeImage(rendition, image, outputStream);
+    }
+
+    @Override
+    public AssetRendition getOrCreateRendition(@Nonnull final ImageAsset asset,
+                                               @Nonnull final String variationKey, @Nonnull final String renditionKey)
+            throws RepositoryException, IOException {
 
         AssetRendition rendition = getRendition(asset, variationKey, renditionKey);
 
@@ -143,29 +192,54 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
         return rendition;
     }
 
-    protected AssetRendition createRendition(ImageAsset asset, RenditionConfig renditionConfig) throws
-            PersistenceException,
-            RepositoryException {
+    protected AssetRendition createRendition(ImageAsset asset, RenditionConfig renditionConfig)
+            throws PersistenceException, RepositoryException {
         HashMap<String, Object> hints = new HashMap<>();
-        BuilderContext context = new BuilderContext(this, lazyCreationService, executorService, hints);
+        BuilderContext context = new BuilderContext(this, lazyCreationService, metaPropertiesService, executorService, hints);
         RenditionBuilder builder = new RenditionBuilder(asset, renditionConfig, context);
         AssetRendition rendition = builder.getOrCreateRendition();
         LOG.debug("Rendition created: {}", rendition);
         return rendition;
     }
 
-    public void dropRenditions(String path,
-                               String variationKey, String renditionKey)
-            throws Exception {
+    protected void updateLastRendered(AssetRendition rendition) {
+        if (!rendition.isTransient()) {
+            return;
+        }
+        Calendar lastRendered = rendition.getProperty(AssetsConstants.PROP_LAST_RENDERED, Calendar.class);
+        long lastRenderedTime = lastRendered != null ? lastRendered.getTimeInMillis() : Long.MIN_VALUE;
+        if (lastRenderedTime < System.currentTimeMillis() - TimeUnit.SECONDS.toMillis(config.lastRenderTimestep())) {
+            try (ResourceResolver resolver = resolverFactory.getServiceResourceResolver(null)) {
+                Resource updateResource = resolver.getResource(rendition.getPath());
+                if (updateResource != null) {
+                    ModifiableValueMap values = updateResource.adaptTo(ModifiableValueMap.class);
+                    if (values != null) {
+                        values.put(AssetsConstants.PROP_LAST_RENDERED, Calendar.getInstance());
+                    } else {
+                        LOG.error("can't modify '{}'", updateResource.getPath());
+                    }
+                } else { // that should not be possible, but somehow happens. Why?
+                    LOG.error("Bug: Can't find resource in updateLastRendered: {}", rendition.getPath(),
+                            new Exception("Stacktrace, not thrown"));
+                }
+                resolver.commit();
+            } catch (LoginException | RuntimeException | PersistenceException e) {
+                LOG.error("Trouble updating last rendering time for " + rendition.getPath(), e);
+            }
+        }
+    }
+
+    @Override
+    public void dropRenditions(@Nonnull String path,
+                               @Nonnull final String variationKey, @Nullable final String renditionKey)
+            throws PersistenceException {
 
         path = path.trim();
-        if (LOG.isInfoEnabled()) {
-            LOG.info("dropRenditions('" + path + "','" + variationKey + "','" + renditionKey + "')...");
-        }
+        LOG.info("dropRenditions('{}','{}','{}')...", path, variationKey, renditionKey);
 
-        try (ResourceResolver resolver = createServiceResolver()) {
+        try (ResourceResolver resolver = resolverFactory.getServiceResourceResolver(null)) {
 
-            Exception fault = null;
+            PersistenceException fault = null;
             Iterator<Resource> iterator;
             StringBuilder query;
             String queryString;
@@ -186,17 +260,21 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
             queryString = query.toString();
 
             if (LOG.isDebugEnabled()) {
-                LOG.debug("dropRenditions.query '" + queryString + "'");
+                LOG.debug("dropRenditions.query '{}'", queryString);
             }
             iterator = resolver.findResources(queryString, Query.XPATH);
             while (iterator.hasNext()) {
                 ResourceHandle resource = ResourceHandle.use(iterator.next());
                 try {
                     dropRendition(resolver, resource, variationKey);
-                } catch (PersistenceException | RuntimeException ex) {
+                } catch (PersistenceException ex) {
                     // we drop all other stuff even if there was something broken.
-                    LOG.error("Failure dropping rendition" + resource, ex);
+                    LOG.error("Failure dropping rendition " + resource, ex);
                     fault = ex;
+                } catch (RuntimeException ex) {
+                    // we drop all other stuff even if there was something broken.
+                    LOG.error("Failure dropping rendition " + resource, ex);
+                    fault = new PersistenceException(ex.getMessage(), ex);
                 }
             }
 
@@ -205,17 +283,18 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
                     .append(",").append(AssetVariation.NODE_TYPE).append(")");
             queryString = query.toString();
 
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("dropVariations.query '" + queryString + "'");
-            }
+            LOG.debug("dropVariations.query '{}'", queryString);
             iterator = resolver.findResources(queryString, Query.XPATH);
             while (iterator.hasNext()) {
                 ResourceHandle resource = ResourceHandle.use(iterator.next());
                 try {
                     dropVariation(resolver, resource);
-                } catch (PersistenceException | RuntimeException ex) {
-                    LOG.error("Failure dropping variation" + resource, ex);
+                } catch (PersistenceException ex) {
+                    LOG.error("Failure dropping variation " + resource, ex);
                     fault = ex;
+                } catch (RuntimeException ex) {
+                    LOG.error("Failure dropping variation " + resource, ex);
+                    fault = new PersistenceException(ex.getMessage(), ex);
                 }
             }
 
@@ -224,22 +303,25 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
             if (fault != null) {
                 throw fault;
             }
+        } catch (LoginException ex) {
+            LOG.error(ex.getMessage());
+            throw new PersistenceException(ex.getMessage());
         }
     }
 
     protected void dropRendition(ResourceResolver resolver, ResourceHandle rendition, String variationKey)
             throws PersistenceException {
         if (!isProtected(rendition)) {
-            ResourceHandle variation = rendition.getParent();
+            ResourceHandle variation = Objects.requireNonNull(rendition.getParent());
             if (StringUtils.isBlank(variationKey) || variationKey.equals(variation.getName())) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("dropRendition(" + rendition.getPath() + ")...");
+                    LOG.debug("dropRendition({})...", rendition.getPath());
                 }
                 resolver.delete(rendition);
             }
         } else {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("keepRendition(" + rendition.getPath() + ") - rendition is protected");
+                LOG.debug("keepRendition({}) - rendition is protected", rendition.getPath());
             }
         }
     }
@@ -248,7 +330,7 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
             throws PersistenceException {
         if (!variation.listChildren().hasNext()) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("dropVariation(" + variation.getPath() + ")...");
+                LOG.debug("dropVariation({})...", variation.getPath());
             }
             resolver.delete(variation);
         }
@@ -259,8 +341,8 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
         if (ConfigHandle.ORIGINAL.equals(handle.getName())) {
             return true;
         }
-        String[] categories = handle.getProperty(ConfigHandle.CATEGORIES, new String[0]);
-        for (String category : categories) {
+        String[] categorySet = handle.getProperty(ConfigHandle.CATEGORY, new String[0]);
+        for (String category : categorySet) {
             if (ConfigHandle.ORIGINAL.equals(category)) {
                 return true;
             }
@@ -268,7 +350,25 @@ public class DefaultAdaptiveImageService implements AdaptiveImageService {
         return false;
     }
 
-    protected ResourceResolver createServiceResolver() throws LoginException {
-        return resolverFactory.getAdministrativeResourceResolver(null);
+    @ObjectClassDefinition(
+            name = "Composum Assets - Image Service Configuration",
+            description = "delivers renditions of image assets for the configured variations"
+    )
+    public @interface Configuration {
+
+        @AttributeDefinition(
+                name = "Thread Pool Size",
+                description = "The maximum number of threads used to create image renditions."
+        )
+        int threadPoolSize() default 9;
+
+        @AttributeDefinition(
+                name = "Last Rendered Timelag",
+                description = "Minimum timestep the last rendering time of an asset rendering is updated for " +
+                        "performance reasons. On access, the last rendering time is only updated if it's this old in " +
+                        "seconds. default: 1 day (86400)."
+        )
+        int lastRenderTimestep() default 86400;
     }
+
 }

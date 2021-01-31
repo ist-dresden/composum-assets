@@ -10,23 +10,27 @@ import com.composum.assets.commons.AssetsConstants;
 import com.composum.assets.commons.util.TikaMetaData;
 import com.composum.sling.core.filter.StringFilter;
 import com.composum.sling.core.util.ResourceUtil;
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Modified;
-import org.apache.felix.scr.annotations.Property;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.Service;
+import com.composum.sling.core.util.SlingResourceUtil;
+import com.composum.sling.platform.staging.StagingConstants;
 import org.apache.jackrabbit.JcrConstants;
 import org.apache.sling.api.resource.ModifiableValueMap;
 import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ValueMap;
-import org.apache.sling.commons.osgi.PropertiesUtil;
+import org.osgi.framework.Constants;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Modified;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.metatype.annotations.AttributeDefinition;
+import org.osgi.service.metatype.annotations.Designate;
+import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import javax.imageio.ImageIO;
 import javax.jcr.Binary;
 import javax.jcr.Node;
@@ -37,62 +41,27 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Dictionary;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
+import static com.composum.assets.commons.service.DefaultAssetsService.IMAGE_META_PROPERTIES;
+
 @Component(
-        name = "Composum Assets - Meta Data Extraction Service",
-        immediate = true,
-        metatype = true
+        service = MetaPropertiesService.class,
+        property = {
+                Constants.SERVICE_DESCRIPTION + "=Composum Assets - Meta Data Extraction Service: delivers " +
+                        "renditions of image assets for the configured variations",
+        },
+        immediate = true
 )
-@Service
+@Designate(ocd = AssetMetaPropertiesService.Configuration.class)
 public class AssetMetaPropertiesService implements MetaPropertiesService {
 
     private static final Logger LOG = LoggerFactory.getLogger(AssetMetaPropertiesService.class);
 
-    public static final String IMAGE_META_DATA_FILTER = "assets.metadata.filter.image";
-
-    @Property(
-            name = IMAGE_META_DATA_FILTER,
-            label = "Image Meta Data Names",
-            description = "the list of patterns with the meta data property names to import",
-            value = {
-                    "^[Cc]ontent[ -]?[Tt]ype$",
-                    "^([Ff]ile ?)?[Ss]ize$",
-                    "^([Ii]mage ?)?([Ww]idth|[Hh]eight)$",
-                    "^[Dd]escription$",
-                    "^[Cc]opyright( ?[Uu]rl)?$",
-                    "^[Aa]uthor( ?[Uu]rl)?$",
-                    "^[Cc]redits( ?[Uu]rl)?$",
-                    "^[Ll]icense( ?[Uu]rl)?$",
-                    "^[Oo]rigin( ?[Uu]rl)?$",
-                    "^[Ss]ource( ?[Uu]rl)?$",
-                    "^[Ll]ocation( ?[Uu]rl)?$",
-                    "^([Gg]oogle)?[Ee]arth$",
-                    "^[Oo]rientation$",
-                    "^([Ll]ast[ -]?)?[Mm]odified$",
-                    "^[Dd]ate(/[Tt]ime)?( ?[Oo]riginal)?$",
-                    "^[Dd]imension( [\\w\\s]+)?$",
-                    "^[Tt]ransparency( [\\w\\s]+)?$",
-                    "^.*[Cc]olor ?[Ss]pace.*$",
-                    "^[Dd]ata( [\\w\\s]+)$",
-                    "^[Cc]ompression( [\\w\\s]+)?$",
-                    "^([\\w\\s]+ )?[Qq]uality$",
-                    "^([Uu]ser ?)?[Cc]omments?$",
-                    "^([XxYy][ -])?[Rr]esolution([ -][Uu]nits)?$"
-            }
-    )
     protected StringFilter imageMetaDataFilter;
-
-    public static final Map<String, Object> CRUD_META_PROPERTIES;
-
-    static {
-        CRUD_META_PROPERTIES = new HashMap<>();
-        CRUD_META_PROPERTIES.put(ResourceUtil.PROP_PRIMARY_TYPE, AssetsConstants.NODE_TYPE_META_DATA);
-    }
 
     @Reference
     protected AssetsConfiguration assetsConfiguration;
@@ -106,45 +75,77 @@ public class AssetMetaPropertiesService implements MetaPropertiesService {
         void adjustMetaProperties(ResourceResolver resolver, Resource resource);
     }
 
-    public abstract class AbstractMetaStrategy implements MetaStrategy {
+    public abstract static class AbstractMetaStrategy implements MetaStrategy {
 
         protected void prepareMetaData(Resource contentResource, TikaMetaData metadata) {
         }
 
         protected void addMetaData(Resource contentResource, TikaMetaData metadata)
                 throws PersistenceException {
+            if (!ResourceUtil.isResourceType(contentResource, StagingConstants.TYPE_MIX_PLATFORM_RESOURCE)) {
+                return;
+            }
+
             prepareMetaData(contentResource, metadata);
             Resource metaResource = contentResource.getChild(AssetsConstants.NODE_META);
             if (metaResource == null) {
                 ResourceResolver resolver = contentResource.getResourceResolver();
-                metaResource = resolver.create(contentResource, AssetsConstants.NODE_META, CRUD_META_PROPERTIES);
+                metaResource = resolver.create(contentResource, AssetsConstants.NODE_META, IMAGE_META_PROPERTIES);
             }
             ModifiableValueMap values = metaResource.adaptTo(ModifiableValueMap.class);
-            for (Map.Entry<String, Object> entry : metadata.entrySet()) {
-                String key = entry.getKey();
-                key = key.replace('/', '-').replace(':', '.');
-                values.put(key, entry.getValue());
+            if (values != null) {
+                for (String key : new LinkedHashSet<>(values.keySet())) {
+                    if (!key.startsWith("jcr:")) {
+                        values.remove(key);
+                    }
+                }
+                for (Map.Entry<String, Object> entry : metadata.entrySet()) {
+                    String key = entry.getKey();
+                    key = key.replace('/', '-').replace(':', '.');
+                    values.put(key, entry.getValue());
+                }
+            } else {
+                LOG.warn("Cannot adjust meta data - not modifiable by {}? {}",
+                        contentResource.getResourceResolver().getUserID(), SlingResourceUtil.getPath(metaResource));
             }
+        }
+
+        protected boolean isAssetSubnode(Resource resource) {
+            if (resource.getPath().startsWith(AssetsConstants.PATH_TRANSIENTS)) {
+                return true;
+            }
+            while (resource != null) {
+                if (ResourceUtil.isResourceType(resource, AssetsConstants.NODE_TYPE_ASSET)) {
+                    return true;
+                }
+                resource = resource.getParent();
+            }
+            return false;
         }
     }
 
-    public abstract class FileResourceStrategy extends AbstractMetaStrategy {
+    public abstract static class FileResourceStrategy extends AbstractMetaStrategy {
 
         @Override
         public boolean isMatching(Resource resource) {
             Resource imageContent = getContentResource(resource);
-            return imageContent != null
-                    && ResourceUtil.isResourceType(imageContent, JcrConstants.NT_RESOURCE)
+            return ResourceUtil.isResourceType(imageContent, JcrConstants.NT_RESOURCE)
                     && isMatchingMimeType(getMimeType(imageContent));
         }
 
         protected abstract boolean isMatchingMimeType(String mimeType);
 
-        protected void adjustMixinTypes(Resource contentResoure)
+        protected void adjustMixinTypes(Resource contentResource)
                 throws RepositoryException {
-            if (!ResourceUtil.isResourceType(contentResoure, AssetsConstants.MIXIN_TYPE_ASSET_RESOURCE)) {
-                Node node = contentResoure.adaptTo(Node.class);
-                node.addMixin(AssetsConstants.MIXIN_TYPE_ASSET_RESOURCE);
+            String wantedType = isAssetSubnode(contentResource) ? StagingConstants.TYPE_MIX_PLATFORM_RESOURCE
+                    : isContentOfVersionable(contentResource) ? null : ResourceUtil.MIX_VERSIONABLE;
+            if (wantedType != null && !ResourceUtil.isResourceType(contentResource, wantedType)) {
+                Node node = contentResource.adaptTo(Node.class);
+                if (node != null) {
+                    node.addMixin(wantedType);
+                } else {
+                    LOG.error("can't adapto to Node: '{}'", contentResource.getPath());
+                }
             }
         }
 
@@ -158,6 +159,15 @@ public class AssetMetaPropertiesService implements MetaPropertiesService {
         protected String getMimeType(Resource contentResource) {
             ValueMap values = contentResource.getValueMap();
             return values.get(JcrConstants.JCR_MIMETYPE, "");
+        }
+
+        protected boolean isContentOfVersionable(@Nonnull Resource resource) {
+            while ((resource = resource.getParent()) != null) {
+                if (ResourceUtil.isResourceType(resource, ResourceUtil.MIX_VERSIONABLE)) {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 
@@ -176,7 +186,7 @@ public class AssetMetaPropertiesService implements MetaPropertiesService {
                 adjustMixinTypes(contentResource);
                 addMetaData(contentResource, metadata);
             } catch (RepositoryException | IOException ex) {
-                LOG.error(ex.getMessage(), ex);
+                LOG.error("Error changing {}: {}", SlingResourceUtil.getPath(resource), ex, ex);
             }
         }
 
@@ -224,7 +234,7 @@ public class AssetMetaPropertiesService implements MetaPropertiesService {
         }
     }
 
-    public class VideoFileStrategy extends FileResourceStrategy {
+    public static class VideoFileStrategy extends FileResourceStrategy {
 
         @Override
         protected boolean isMatchingMimeType(String mimeType) {
@@ -233,6 +243,12 @@ public class AssetMetaPropertiesService implements MetaPropertiesService {
 
         @Override
         public void adjustMetaProperties(ResourceResolver resolver, Resource resource) {
+            Resource contentResource = getContentResource(resource);
+            try {
+                adjustMixinTypes(contentResource);
+            } catch (RepositoryException ex) {
+                LOG.error("Error changing {}: {}", SlingResourceUtil.getPath(resource), ex, ex);
+            }
         }
     }
 
@@ -241,8 +257,7 @@ public class AssetMetaPropertiesService implements MetaPropertiesService {
         @Override
         public boolean isMatching(Resource resource) {
             Resource assetContent = getContentResource(resource);
-            return assetContent != null
-                    && ResourceUtil.isResourceType(assetContent, AssetsConstants.NODE_TYPE_ASSET_CONTENT);
+            return ResourceUtil.isResourceType(assetContent, AssetsConstants.NODE_TYPE_ASSET_CONTENT);
         }
 
         protected Resource getContentResource(Resource resource) {
@@ -268,7 +283,9 @@ public class AssetMetaPropertiesService implements MetaPropertiesService {
         }
     }
 
-    public boolean adjustMetaProperties(ResourceResolver resolver, Resource resource) {
+    @Override
+    public boolean adjustMetaProperties(@Nonnull final ResourceResolver resolver,
+                                        @Nonnull final Resource resource) {
         boolean result = false;
         for (MetaStrategy strategy : strategies) {
             if (strategy.isMatching(resource)) {
@@ -281,14 +298,48 @@ public class AssetMetaPropertiesService implements MetaPropertiesService {
 
     @Activate
     @Modified
-    protected void activate(ComponentContext context) {
-        Dictionary properties = context.getProperties();
-        imageMetaDataFilter = new StringFilter.WhiteList(
-                PropertiesUtil.toStringArray(properties.get(IMAGE_META_DATA_FILTER)));
+    protected void activate(ComponentContext context, @Nonnull Configuration configuration) {
+        imageMetaDataFilter = new StringFilter.WhiteList(configuration.assetsMetadataFilterImage());
         strategies = new ArrayList<>();
         strategies.add(new ImageAssetStrategy());
         strategies.add(new SimpleImageStrategy());
         strategies.add(new VideoFileStrategy());
         strategies.add(new FolderStrategy());
+    }
+
+    @ObjectClassDefinition(
+            name = "Composum Assets - Meta Data Extraction Service Configuration",
+            description = "delivers renditions of image assets for the configured variations"
+    )
+    public @interface Configuration {
+        @AttributeDefinition(
+                name = "Image Meta Data Names",
+                description = "the list of patterns with the meta data property names to import"
+        )
+        String[] assetsMetadataFilterImage() default {
+                "^[Cc]ontent[ -]?[Tt]ype$",
+                "^([Ff]ile ?)?[Ss]ize$",
+                "^([Ii]mage ?)?([Ww]idth|[Hh]eight)$",
+                "^[Dd]escription$",
+                "^[Cc]opyright( ?[Uu]rl)?$",
+                "^[Aa]uthor( ?[Uu]rl)?$",
+                "^[Cc]redits( ?[Uu]rl)?$",
+                "^[Ll]icense( ?[Uu]rl)?$",
+                "^[Oo]rigin( ?[Uu]rl)?$",
+                "^[Ss]ource( ?[Uu]rl)?$",
+                "^[Ll]ocation( ?[Uu]rl)?$",
+                "^([Gg]oogle)?[Ee]arth$",
+                "^[Oo]rientation$",
+                "^([Ll]ast[ -]?)?[Mm]odified$",
+                "^[Dd]ate(/[Tt]ime)?( ?[Oo]riginal)?$",
+                "^[Dd]imension( [\\w\\s]+)?$",
+                "^[Tt]ransparency( [\\w\\s]+)?$",
+                "^.*[Cc]olor ?[Ss]pace.*$",
+                "^[Dd]ata( [\\w\\s]+)$",
+                "^[Cc]ompression( [\\w\\s]+)?$",
+                "^([\\w\\s]+ )?[Qq]uality$",
+                "^([Uu]ser ?)?[Cc]omments?$",
+                "^([XxYy][ -])?[Rr]esolution([ -][Uu]nits)?$"
+        };
     }
 }

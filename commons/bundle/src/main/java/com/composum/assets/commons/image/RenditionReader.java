@@ -17,8 +17,8 @@ public class RenditionReader {
 
     public BufferedImage readImage(AssetRendition rendition, BuilderContext context)
             throws IOException, RepositoryException {
-        InputStream stream = rendition.getStream();
-        BufferedImage image = ImageIO.read(stream);
-        return image;
+        try (InputStream stream = rendition.getStream()) {
+            return ImageIO.read(stream);
+        }
     }
 }

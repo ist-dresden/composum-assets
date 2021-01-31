@@ -1,0 +1,690 @@
+@charset "UTF-8";
+
+@import "../../../css/mixins";
+
+$assets-navigation-panel-padding: 6px;
+$assets-navigation-selection-width: 4px;
+
+.composum-assets-widget-thumbnail {
+    position: relative;
+
+    &-panel {
+        display: flex;
+        flex-wrap: wrap;
+        padding: 0 $assets-navigation-panel-padding / 3 0.5% $assets-navigation-panel-padding;
+    }
+
+    &_wrapper {
+        border: 1px solid #ccc;
+        @include aspect-ratio-wrapper(1, 1);
+
+        .thumbnail {
+
+            &-image,
+            &-video,
+            &-audio {
+                @include aspect-ratio-element;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            &-file,
+            &-document {
+
+                &:before {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    text-align: center;
+                    line-height: 9vw;
+                    font-size: 6vw;
+
+                    @media (max-width: $screen-sm-max) {
+                        line-height: 13.5vw;
+                        font-size: 9vw;
+                    }
+
+                    @media (max-width: $screen-xs-max) {
+                        line-height: 18vw;
+                        font-size: 12vw;
+                    }
+                }
+            }
+        }
+    }
+}
+
+.composum-assets-widget-navigator {
+
+    &_go-up {
+        padding-top: 7px;
+        padding-left: 3px;
+
+        .fa-stack-1x {
+            top: 0;
+            left: auto;
+            right: -3px;
+        }
+    }
+
+    &_asset-link {
+        position: relative;
+        display: block;
+
+        &.selected:after {
+            content: ' ';
+            position: absolute;
+            top: -$assets-navigation-selection-width;
+            left: -$assets-navigation-selection-width;
+            right: -$assets-navigation-selection-width;
+            bottom: -$assets-navigation-selection-width;
+            border: $assets-navigation-selection-width solid $input-border-focus;
+        }
+
+        &, &:visited, &:active, &:focus, &:hover {
+            text-decoration: none;
+        }
+    }
+
+    &_content {
+        position: absolute;
+        top: 40px;
+        left: 0;
+        right: 0;
+        bottom: 45px;
+        overflow: auto;
+    }
+
+    &_view-type-keys {
+        position: absolute;
+        top: 0;
+        right: 0;
+        padding: 5px 6px 5px 10px;
+        background-color: $body-bg;
+    }
+
+    &_type {
+
+        &-list {
+
+            .composum-assets-widget-thumbnail {
+                width: 20%;
+                max-width: 100px;
+
+                &_wrapper {
+
+                    .thumbnail {
+
+                        &-file,
+                        &-document {
+
+                            &:before {
+                                line-height: 96px;
+                                font-size: 64px;
+
+                                @media (max-width: $screen-sm-max) {
+                                    line-height: 96px;
+                                    font-size: 64px;
+                                }
+
+                                @media (max-width: $screen-xs-max) {
+                                    line-height: 72px;
+                                    font-size: 48px;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                &_list-data {
+                    flex-grow: 1;
+                    padding: 0 15px 2px;
+
+                    @media (max-width: $screen-xs-max) {
+                        padding: 0 10px 2px;
+                    }
+
+                    .name {
+                        margin: 5px 0;
+                        font-size: 16px;
+                    }
+
+                    table {
+                        border-spacing: 1px;
+                        border-collapse: separate;
+
+                        .value {
+                            padding: 0 4px;
+                            font-size: 14px;
+                        }
+
+                        .label-default {
+                            display: table-cell;
+                            padding: 2px 4px 1px;
+                            background-color: #c0c0c0;
+                            font-size: 12px;
+                            font-weight: normal;
+                            text-align: right;
+                        }
+                    }
+                }
+            }
+
+            .composum-assets-widget-navigator {
+
+                &_item-list {
+                    padding: 0 $assets-navigation-panel-padding;
+                }
+
+                &_asset-link {
+                    display: flex;
+                    flex-wrap: nowrap;
+                    margin: 0.5% 0;
+                    border-bottom: 1px solid #ddd;
+                    padding-bottom: 0.5%;
+
+                    &:last-child {
+                        border-bottom: none;
+                        padding-bottom: 0;
+                    }
+
+                    @media (max-width: $screen-xs-max) {
+                        margin: 1% 0;
+                        padding-bottom: 1%;
+                    }
+
+                    &.selected:after {
+                        bottom: 1px;
+                    }
+                }
+
+                &-browse {
+
+                    &_subfolder {
+
+                        .composum-assets-widget-thumbnail {
+                            width: 15%;
+                            max-width: 75px;
+
+                            &_list-data {
+
+                                .name {
+                                    font-size: 104%;
+                                    line-height: 104%;
+                                }
+
+                                table {
+
+                                    .label {
+                                        font-size: 11px;
+                                    }
+
+                                    .value {
+                                        font-size: 80%;
+                                        line-height: 80%;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        &-small {
+
+            .composum-assets-widget-thumbnail {
+
+                &_meta {
+                    display: none;
+                }
+            }
+
+            .composum-assets-widget-navigator {
+
+                &_asset-link {
+                    width: 9.5%;
+                    margin: 0.5% 0.5% 0 0;
+
+                    @media (max-width: $screen-sm-max) {
+                        width: 13.75%;
+                    }
+
+                    @media (max-width: $screen-xs-max) {
+                        width: 19.5%;
+                    }
+                }
+
+                &-browse {
+
+                    &_subfolder {
+
+                        .composum-assets-widget-navigator {
+
+                            &_asset-link {
+                                width: 7.75%;
+
+                                @media (max-width: $screen-sm-max) {
+                                    width: 9.5%;
+                                }
+
+                                @media (max-width: $screen-xs-max) {
+                                    width: 13.75%;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        &-large {
+
+            .composum-assets-widget-thumbnail {
+
+                &_meta {
+                    position: absolute;
+                    left: 1px;
+                    right: 1px;
+                    bottom: 1px;
+                    max-height: 80%;
+                    padding: 1px 4px;
+                    color: #fff;
+                    background-color: rgba(0, 0, 0, 0.6);
+                }
+            }
+
+            .composum-assets-widget-navigator {
+
+                &_asset-link {
+                    width: 19.25%;
+                    margin: 0.75% 0.75% 0 0;
+
+                    @media (max-width: $screen-sm-max) {
+                        width: 24.25%;
+                    }
+
+                    @media (max-width: $screen-xs-max) {
+                        width: 49.25%;
+                    }
+                }
+
+                &-browse {
+
+                    &_subfolder {
+
+                        .composum-assets-widget-thumbnail {
+
+                            &_meta {
+                                font-size: 75%;
+                            }
+                        }
+
+                        .composum-assets-widget-navigator {
+
+                            &_asset-link {
+                                width: 15%;
+
+                                @media (max-width: $screen-sm-max) {
+                                    width: 19.25%;
+                                }
+
+                                @media (max-width: $screen-xs-max) {
+                                    width: 24.25%;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    &-tree,
+    &-browse,
+    &-search {
+        position: relative;
+        width: 100%;
+        height: 100%;
+    }
+
+    &-tree {
+
+        &_wrapper {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: 5px;
+            bottom: 45px;
+            overflow: auto;
+        }
+    }
+
+    &-browse {
+
+        .composum-assets-widget-navigator {
+
+            &_drill-down {
+                padding-top: 2px;
+                padding-left: 3px;
+
+                .fa-stack-1x {
+                    top: 6px;
+                    left: auto;
+                    right: -4px;
+                }
+            }
+        }
+
+        &_toolbar {
+            position: relative;
+            display: flex;
+            flex-wrap: nowrap;
+            height: 40px;
+            margin: 0;
+            padding: 5px 1px;
+            border-bottom: 1px solid #ddd;
+
+            .composum-assets-widget-navigator-browse {
+
+                &_folder-title {
+                    flex-grow: 1;
+                    margin: 5px 10px 4px;
+                    font-size: 14px;
+                }
+            }
+
+            .btn, .form-control {
+                height: 29px !important;
+            }
+
+            .btn {
+                width: 31px !important;
+                padding: 4px 7px 3px !important;
+                font-size: 14px;
+            }
+        }
+
+        &_subfolders-item {
+            margin: 0.5% 0;
+
+            .panel-heading {
+                position: relative;
+                padding: 0 !important;
+
+                .head-actions {
+                    position: absolute;
+                    top: 3px;
+                    left: 6px;
+
+                    .btn {
+                        height: 28px;
+
+                        .label {
+                            display: none;
+                        }
+                    }
+                }
+
+                .panel-title {
+                    line-height: normal;
+
+                    a {
+                        display: inline-block;
+                        width: 100%;
+                        margin-left: 45px;
+                        padding: 9px 0;
+                        font-size: 14px;
+                        font-weight: normal;
+                        line-height: normal;
+                    }
+                }
+            }
+
+            .panel-body {
+                padding: 0;
+
+                .panel-group {
+                    margin-bottom: 0;
+                }
+            }
+        }
+    }
+
+    &-search {
+
+        .composum-assets-widget-navigator {
+
+            &_view-type-keys {
+                background: none;
+            }
+        }
+
+        &.root-open {
+
+            .composum-assets-widget-navigator {
+
+                &_content {
+                    top: 74px;
+                }
+
+                &-search {
+
+                    &_toolbar {
+                        height: 74px;
+
+                        &-bottom {
+                            display: flex;
+                        }
+                    }
+
+                    &_open-root:before {
+                        content: '\f115'
+                    }
+                }
+            }
+        }
+
+        &_toolbar {
+            position: relative;
+            height: 40px;
+            padding: 5px $assets-navigation-panel-padding;
+            border-bottom: 1px solid #ddd;
+
+            &-top, &-bottom {
+                display: flex;
+                flex-wrap: nowrap;
+            }
+
+            &-bottom {
+                display: none;
+                padding: 5px 1px 5px 6px;
+            }
+
+            .btn, .form-control {
+                height: 29px !important;
+            }
+
+            .btn {
+                width: 31px !important;
+                padding: 4px 7px 3px !important;
+                font-size: 14px;
+            }
+        }
+
+        &_input, &_root {
+            flex-grow: 1;
+            height: 29px;
+        }
+
+        &_input {
+            padding-right: 96px;
+        }
+
+        &_clear {
+            padding: 7px 5px 6px 6px;
+        }
+
+        &_toggle-grp {
+            margin-left: 5px;
+        }
+
+        .toolbar-label,
+        &_folder-as-root {
+            padding: 5px 0;
+        }
+
+        .toolbar-label {
+            white-space: nowrap;
+        }
+
+        &_folder-as-root {
+            display: none;
+            flex-shrink: 1;
+            position: relative;
+            max-width: 30%;
+            height: 30px;
+            padding: 0 0 0 15px;
+            line-height: 16px;
+
+            #assets-query &,
+            .composum-assets-widget-navigator & {
+                display: block;
+            }
+
+            .icon {
+                position: absolute;
+                top: 0;
+                left: 0;
+                padding: 2px 5px 14px;
+            }
+
+            &, &:active, &:focus, &:visited {
+                text-decoration: none;
+            }
+        }
+    }
+
+    &_right {
+        position: relative;
+
+        .composum-assets-widget-filter {
+            position: absolute;
+            top: 0;
+            right: 5px;
+        }
+    }
+
+    &_left {
+        display: none;
+    }
+
+    &_left, &_tabs {
+
+        .nav-tabs {
+            padding: 0 5px;
+        }
+    }
+
+    &_toggle-tree {
+        position: relative;
+
+        .toggle-handle {
+            z-index: 1;
+            position: absolute;
+            top: 4px;
+            padding: 6px 5px;
+            font-size: 21px;
+            line-height: 21px;
+        }
+
+        &.open-tree-panel {
+
+            .toggle-handle {
+                cursor: w-resize;
+                left: 9px;
+            }
+
+            .toggle-label {
+                padding-left: 30px;
+            }
+        }
+
+        &.close-tree-panel {
+
+            .toggle-handle {
+                cursor: e-resize;
+                right: 9px;
+            }
+
+            .toggle-label {
+                padding-right: 30px;
+            }
+        }
+    }
+
+    &.tree-mode-panel {
+
+        .composum-assets-widget-navigator {
+
+            &_left {
+                position: relative;
+                display: block;
+                width: 40%;
+                height: 100%;
+                float: left;
+            }
+
+            &_right {
+                width: 60%;
+                float: right;
+            }
+
+            &_toggle-tree.open-tree-panel {
+                display: none;
+            }
+
+            &-tree_wrapper,
+            &_content {
+                bottom: 20px;
+            }
+
+            &_type {
+
+                &-small {
+
+                    .composum-assets-widget-thumbnail {
+
+                        &_wrapper {
+
+                            .thumbnail {
+
+                                &-file,
+                                &-document {
+
+                                    &:before {
+                                        line-height: 5vw;
+                                        font-size: 3.75vw;
+
+                                        @media (max-width: $screen-sm-max) {
+                                            line-height: 8vw;
+                                            font-size: 6vw;
+                                        }
+
+                                        @media (max-width: $screen-xs-max) {
+                                            line-height: 11vw;
+                                            font-size: 8vw;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

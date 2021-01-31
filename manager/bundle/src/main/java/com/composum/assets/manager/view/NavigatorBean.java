@@ -115,7 +115,7 @@ public class NavigatorBean extends AbstractServletBean {
             Resource resource = getResource();
             String parentPath;
             Resource parent;
-            while ((parent = resource.getParent()) != null) {
+            while ((parent = resource.getParent()) != null && !"/".equals(parent.getPath())) {
                 parents.add(0, new ResourceItem(parent));
                 resource = parent;
             }

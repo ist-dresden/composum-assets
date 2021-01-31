@@ -14,11 +14,14 @@ import com.composum.assets.commons.config.aspect.Watermark;
 import com.composum.assets.commons.config.transform.Blur;
 import com.composum.sling.core.ResourceHandle;
 import org.apache.sling.api.resource.Resource;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
 
-public class RenditionConfig extends ConfigHandle {
+import static com.composum.assets.commons.AssetsConstants.RENDITION;
+
+public class RenditionConfig extends ConfigHandle implements Comparable<RenditionConfig> {
 
     public static final String NODE_TYPE = AssetsConstants.NODE_TYPE_RENDITION_CONFIG;
     public static final String RESOURCE_TYPE = AssetsConstants.RESOURCE_TYPE_RENDITION_CONFIG;
@@ -41,6 +44,12 @@ public class RenditionConfig extends ConfigHandle {
         this.variation = variation;
     }
 
+    @Override
+    public String getConfigType() {
+        return RENDITION;
+    }
+
+    @Override
     public AssetConfig getAssetConfig() {
         return getVariation().getAssetConfig();
     }
@@ -49,6 +58,7 @@ public class RenditionConfig extends ConfigHandle {
         return variation;
     }
 
+    @Override
     public RenditionConfig getOriginal() {
         return getVariation().getOriginal();
     }
@@ -93,5 +103,10 @@ public class RenditionConfig extends ConfigHandle {
             exampleImage = new Example(this);
         }
         return exampleImage;
+    }
+
+    @Override
+    public int compareTo(@NotNull RenditionConfig other) {
+        return getName().compareTo(other.getName());
     }
 }

@@ -8,9 +8,6 @@ import com.composum.sling.core.BeanContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.resource.Resource;
 
-import java.util.Calendar;
-import java.util.Date;
-
 public class ImageUtil {
 
     public static ImageAsset getImageAsset(BeanContext context, Resource resource, String propertyName) {
@@ -28,46 +25,16 @@ public class ImageUtil {
         return asset;
     }
 
+    /**
+     * Calls {@link ImageAsset#getImageUri(String, String)}.
+     *
+     * @deprecated for backward compatibility only
+     */
+    @Deprecated
     public static String getImageUri(ImageAsset asset, String variationKey, String renditionKey) {
-        StringBuilder builder = new StringBuilder();
-        if (asset != null) {
-            String mimeType = asset.getMimeType();
-            if (mimeType != null) {
-                AssetConfig config = asset.getConfig();
-                VariationConfig variation = config.findVariation(variationKey);
-                RenditionConfig rendition = variation.findRendition(renditionKey);
-                String path = asset.getPath();
-                String ext = mimeType.substring("image/".length());
-                if (ext.equals("jpeg")) {
-                    ext = "jpg";
-                }
-                if (path.endsWith("." + ext)) {
-                    path = path.substring(0, path.length() - (ext.length() + 1));
-                }
-                String name = path.substring(path.lastIndexOf('/') + 1);
-                builder.append(path);
-                builder.append(".adaptive");
-                builder.append('.').append(variation.getName());
-                builder.append('.').append(rendition.getName());
-                builder.append('.').append(ext);
-                builder.append('/').append(getCacheHash(asset));
-                builder.append('/').append(name);
-                builder.append('.').append(ext);
-            }
-        }
-        return builder.toString();
+        return asset != null ? asset.getImageUri(variationKey, renditionKey) : null;
     }
 
-    public static String getCacheHash(ImageAsset asset) {
-        StringBuilder builder = new StringBuilder("T");
-        Calendar lastModified = asset.getLastModified();
-        if (lastModified != null) {
-            builder.append(lastModified.getTimeInMillis());
-        } else {
-            builder.append(new Date().getTime());
-        }
-        return builder.toString();
-    }
 
     public static String mimeTypeToCss(String mimeType) {
         return mimeType.substring(mimeType.indexOf('/') + 1).replaceAll("[+]", " ");

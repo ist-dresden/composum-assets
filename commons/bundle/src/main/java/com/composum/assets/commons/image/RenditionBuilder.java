@@ -5,6 +5,7 @@
  */
 package com.composum.assets.commons.image;
 
+import com.composum.assets.commons.AssetsConstants;
 import com.composum.assets.commons.config.AssetConfig;
 import com.composum.assets.commons.config.RenditionConfig;
 import com.composum.assets.commons.config.VariationConfig;
@@ -12,11 +13,10 @@ import com.composum.assets.commons.handle.AbstractAsset;
 import com.composum.assets.commons.handle.AssetRendition;
 import com.composum.assets.commons.handle.AssetVariation;
 import com.composum.assets.commons.handle.ImageAsset;
-import com.composum.sling.core.BeanContext;
+import com.composum.assets.commons.service.AdaptiveImageService;
 import com.composum.sling.core.concurrent.LazyCreationService;
 import com.composum.sling.core.util.ResourceUtil;
-import org.apache.commons.lang3.Validate;
-import org.apache.jackrabbit.JcrConstants;
+import com.google.common.collect.ImmutableMap;
 import org.apache.sling.api.resource.ModifiableValueMap;
 import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
@@ -24,6 +24,7 @@ import org.apache.sling.api.resource.ResourceResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import javax.jcr.RepositoryException;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -31,53 +32,61 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+/** Builds the transient renditions in {@value AssetsConstants#PATH_TRANSIENTS} from the originals in /content. */
 public class RenditionBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(RenditionBuilder.class);
 
-    public static final HashMap<String, Object> CRUD_VARIATION_PROPS;
+    protected static final Map<String, Object> VARIATION_PROPS;
 
     static {
-        CRUD_VARIATION_PROPS = new HashMap<>();
-        CRUD_VARIATION_PROPS.put(ResourceUtil.PROP_PRIMARY_TYPE, "cpa:Variation");
-        CRUD_VARIATION_PROPS.put(ResourceUtil.PROP_RESOURCE_TYPE, AssetVariation.RESOURCE_TYPE);
+        VARIATION_PROPS = new HashMap<>();
+        VARIATION_PROPS.put(ResourceUtil.PROP_PRIMARY_TYPE, AssetsConstants.NODE_TYPE_VARIATION);
+        VARIATION_PROPS.put(ResourceUtil.PROP_RESOURCE_TYPE, AssetVariation.RESOURCE_TYPE);
     }
 
-    public static final HashMap<String, Object> CRUD_RENDITION_PROPS;
+    protected static final Map<String, Object> RENDITION_PROPS;
 
     static {
-        CRUD_RENDITION_PROPS = new HashMap<>();
-        CRUD_RENDITION_PROPS.put(ResourceUtil.PROP_PRIMARY_TYPE, "cpa:Rendition");
-        CRUD_RENDITION_PROPS.put(ResourceUtil.PROP_RESOURCE_TYPE, AssetRendition.RESOURCE_TYPE);
-        CRUD_RENDITION_PROPS.put(AbstractAsset.VALID, false);
-        CRUD_RENDITION_PROPS.put(JcrConstants.JCR_MIXINTYPES, new String[]{JcrConstants.MIX_LOCKABLE});
+        RENDITION_PROPS = new HashMap<>();
+        RENDITION_PROPS.put(ResourceUtil.PROP_PRIMARY_TYPE, AssetsConstants.NODE_TYPE_RENDITION);
+        RENDITION_PROPS.put(ResourceUtil.PROP_RESOURCE_TYPE, AssetRendition.RESOURCE_TYPE);
+        RENDITION_PROPS.put(AbstractAsset.VALID, false);
     }
 
-    public static final HashMap<String, Object> CRUD_FILE_PROPS;
+    protected static final Map<String, Object> FILE_PROPS;
 
     static {
-        CRUD_FILE_PROPS = new HashMap<>();
-        CRUD_FILE_PROPS.put(ResourceUtil.PROP_PRIMARY_TYPE, "nt:file");
+        FILE_PROPS = new HashMap<>();
+        FILE_PROPS.put(ResourceUtil.PROP_PRIMARY_TYPE, "nt:file");
     }
 
-    public static final HashMap<String, Object> CRUD_RESOURCE_PROPS;
+    protected static final Map<String, Object> RESOURCE_PROPS;
 
     static {
-        CRUD_RESOURCE_PROPS = new HashMap<>();
-        CRUD_RESOURCE_PROPS.put(ResourceUtil.PROP_PRIMARY_TYPE, "nt:resource");
+        RESOURCE_PROPS = new HashMap<>();
+        RESOURCE_PROPS.put(ResourceUtil.PROP_PRIMARY_TYPE, "nt:resource");
     }
 
+    protected static final Map<String, Object> FOLDER_PROPS =
+            ImmutableMap.of(ResourceUtil.PROP_PRIMARY_TYPE, ResourceUtil.TYPE_SLING_FOLDER);
+
+    @Nonnull
     protected final BuilderContext context;
+    @Nonnull
     protected final ImageAsset asset;
+    @Nonnull
     protected final AssetConfig assetConfig;
+    @Nonnull
     protected final VariationConfig variationConfig;
+    @Nonnull
     protected final RenditionConfig renditionConfig;
-    protected final String renditionName;
-    protected final String variationName;
-    protected final String renditionPath;
-    protected final String variationPath;
+    @Nonnull
+    protected final String transientsPath;
+    @Nonnull
+    protected final AssetVariation variation;
 
-    public RenditionBuilder(ImageAsset asset, RenditionConfig config, BuilderContext context)
+    public RenditionBuilder(@Nonnull ImageAsset asset, @Nonnull RenditionConfig config, @Nonnull BuilderContext context)
             throws PersistenceException {
 
         if (!asset.getResource().isValid()) {
@@ -91,92 +100,97 @@ public class RenditionBuilder {
         variationConfig = renditionConfig.getVariation();
         assetConfig = variationConfig.getAssetConfig();
 
-        renditionName = renditionConfig.getName();
-        variationName = variationConfig.getName();
+        variation = asset.giveVariation(variationConfig);
+        AssetRendition rendition = variation.giveRendition(renditionConfig);
+        transientsPath = rendition.getTransientsPath();
 
-        variationPath = asset.getPath() + "/" + variationName;
-        renditionPath = variationPath + "/" + renditionName;
     }
 
     /** Retrieves or creates a rendition. */
     public AssetRendition getOrCreateRendition() throws RepositoryException, PersistenceException {
-        return context.getLazyCreationService().getOrCreate(asset.getResolver(), renditionPath,
-                getRetrievalStrategy(), getCreationStrategy(), getInitializationStrategy(), getParentStrategy());
-    }
-
-    protected Resource createRendition(ResourceResolver resolver, Resource renditionPath)
-            throws IOException, RepositoryException {
-        BeanContext.Service beanContext = new BeanContext.Service(resolver);
-        AssetVariation variation = new AssetVariation(beanContext, renditionPath.getParent(), asset);
-        return buildRenditionContent(resolver, variation, beanContext).getResource();
+        return context.getLazyCreationService().getOrCreate(asset.getResolver(), transientsPath,
+                getRetrievalStrategy(), getCreationStrategy(), getInitializationStrategy(), getParentCreationStrategy());
     }
 
     /**
      * Build the rendition into the rendition resource and switch to valid state.
      */
-    protected AssetRendition buildRenditionContent(ResourceResolver resolver, AssetVariation variation,
-                                                   BeanContext beanContext)
+    protected void createRendition(ResourceResolver resolver)
             throws IOException, RepositoryException {
-        AssetRendition rendition = variation.getRendition(renditionName);
+        AssetRendition rendition = variation.giveRendition(renditionConfig);
         AssetRendition original;
         if (!rendition.isValid() && !rendition.equals(original = rendition.getOriginal())) {
 
             if (original != null) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("Building rendition '" + renditionPath + "'...");
+                    LOG.debug("Building rendition transient '" + transientsPath + "'...");
                 }
 
                 RenditionReader reader = new RenditionReader();
                 BufferedImage image = reader.readImage(original, context);
 
-                // TODO make transformers configurable via OSGi
-                RenditionTransformer transformer = context.getService().getTransformers().get("default");
+                RenditionTransformer transformer = context.getService().getRenditionTransformer();
                 image = transformer.transform(rendition, image, context);
 
                 RenditionWriter writer = new RenditionWriter();
                 InputStream imageStream = writer.writeImage(rendition, image, context);
 
-                Resource fileResource = resolver.create(rendition.getResource(), asset.getName(), CRUD_FILE_PROPS);
-                Resource contentResource = resolver.create(fileResource, "jcr:content", CRUD_RESOURCE_PROPS);
+                Resource transientResource = resolver.getResource(rendition.getTransientsPath());
+                Resource fileResource = resolver.create(transientResource, asset.getName(), FILE_PROPS);
+                Resource contentResource = resolver.create(fileResource, "jcr:content", RESOURCE_PROPS);
 
                 ModifiableValueMap contentValues = contentResource.adaptTo(ModifiableValueMap.class);
                 contentValues.put("jcr:data", imageStream);
                 contentValues.put("jcr:mimeType", rendition.getMimeType());
                 resolver.commit();
 
-                Resource renditionResource = resolver.getResource(rendition.getPath());
+                context.getMetaPropertiesService().adjustMetaProperties(resolver, fileResource);
+                resolver.commit();
+
+                Resource renditionResource = resolver.getResource(rendition.getTransientsPath());
                 contentValues = renditionResource.adaptTo(ModifiableValueMap.class);
+                contentValues.put(AssetsConstants.PROP_ASSETPATH, asset.getPath());
+                contentValues.put(AssetsConstants.PROP_VARIATIONNAME, variation.getName());
                 contentValues.put(AbstractAsset.VALID, true);
                 resolver.commit();
                 if (LOG.isInfoEnabled()) {
-                    LOG.info("New rendition '" + renditionPath + "' built successfully.");
+                    LOG.info("New rendition '" + renditionConfig.getName() + "' built successfully.");
                 }
 
             } else {
-                LOG.error("No original found to build rendition '" + renditionPath + "'.");
+                LOG.error("No original found to build rendition '" + rendition.getPath() + "'.");
             }
         }
 
-        return rendition;
     }
 
     protected LazyCreationService.RetrievalStrategy<AssetRendition> getRetrievalStrategy() {
         return new LazyCreationService.RetrievalStrategy<AssetRendition>() {
             @Override
             public AssetRendition get(ResourceResolver resolver, String path) throws RepositoryException {
-                return context.getService().getRendition(asset, variationConfig.getName(), renditionName);
+                AdaptiveImageService service = context.getService();
+                String variationName = variationConfig.getName();
+                String renditionName = renditionConfig.getName();
+                return service.getRendition(asset, variationName, renditionName);
             }
         };
     }
 
-    protected LazyCreationService.ParentCreationStrategy getParentStrategy() {
+    protected LazyCreationService.ParentCreationStrategy getParentCreationStrategy() {
         return new LazyCreationService.ParentCreationStrategy() {
             @Override
             public Resource createParent(ResourceResolver resolver, Resource parentsParent, String parentName,
                                          int level) throws RepositoryException, PersistenceException {
-                Validate.inclusiveBetween(1, 1, level, "Bug: level %s not expected for %s", level, parentsParent);
                 LOG.debug("Creating parent {}/{}", parentsParent.getPath(), parentName);
-                return resolver.create(parentsParent, parentName, CRUD_VARIATION_PROPS);
+                Map<String, Object> props;
+                switch (level) {
+                    case 2:
+                        props = VARIATION_PROPS;
+                        break;
+                    default:
+                        props = FOLDER_PROPS;
+                }
+                return resolver.create(parentsParent, parentName, props);
             }
         };
     }
@@ -187,7 +201,7 @@ public class RenditionBuilder {
             public Resource create(ResourceResolver resolver, Resource parent, String name) throws RepositoryException,
                     PersistenceException {
                 LOG.debug("Creating {}/{}", parent.getPath(), name);
-                return resolver.create(parent, name, CRUD_RENDITION_PROPS);
+                return resolver.create(parent, name, RENDITION_PROPS);
             }
         };
     }
@@ -198,9 +212,9 @@ public class RenditionBuilder {
             public void initialize(ResourceResolver resolver, Resource resource) throws RepositoryException, PersistenceException {
                 LOG.debug("Initializing {}/{}", resource.getPath());
                 try {
-                    RenditionBuilder.this.createRendition(resolver, resource);
+                    RenditionBuilder.this.createRendition(resolver);
                 } catch (IOException e) {
-                    throw new PersistenceException("Error creating " + resource.getPath(), e);
+                    throw new PersistenceException("Error initializing " + resource.getPath(), e);
                 }
             }
         };
