@@ -71,12 +71,12 @@
 
         <!-- Composum Core -->
         <dependency>
-            <groupId>com.composum.sling.core</groupId>
-            <artifactId>composum-sling-core-console</artifactId>
+            <groupId>com.composum.nodes</groupId>
+            <artifactId>composum-nodes-console</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.composum.sling.core</groupId>
-            <artifactId>composum-sling-core-commons</artifactId>
+            <groupId>com.composum.nodes</groupId>
+            <artifactId>composum-nodes-commons</artifactId>
         </dependency>
 
         <!-- Sling, JCR -->
