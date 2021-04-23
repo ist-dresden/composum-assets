@@ -139,6 +139,20 @@
                         </embedded>
                     </embeddeds>
 
+                    <dependencies>
+                        <dependency>
+                            <group>com/composum/platform</group>
+                            <name>composum-platform-commons-package</name>
+                            <!-- <version>[${project.version},2.0)</version> -->
+                        </dependency>
+
+                        <dependency>
+                            <group>com/composum/platform</group>
+                            <name>composum-platform-services-package</name>
+                            <!-- <version>[${project.version},2.0)</version> -->
+                        </dependency>
+                    </dependencies>
+
                 </configuration>
             </plugin>
 
