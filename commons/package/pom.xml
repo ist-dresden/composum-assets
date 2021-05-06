@@ -123,6 +123,7 @@
                             <root>/libs/composum/assets/install</root>
                             <includes>
                                 <include>.*/composum-assets-commons-bundle.*\.jar</include>
+                                <include>.*/metadata-extractor-bundle.*\.jar</include>
                                 <include>.*/org.apache.sling.serviceusermapping.impl.ServiceUserMapperImpl.amended-assets.config</include>
                             </includes>
                         </filter>
@@ -135,6 +136,11 @@
                         <embedded>
                             <groupId>${project.groupId}</groupId>
                             <artifactId>composum-assets-commons-bundle</artifactId>
+                            <target>/libs/composum/assets/install</target>
+                        </embedded>
+                        <embedded>
+                            <groupId>${project.groupId}</groupId>
+                            <artifactId>metadata-extractor-bundle</artifactId>
                             <target>/libs/composum/assets/install</target>
                         </embedded>
                     </embeddeds>
@@ -169,6 +175,11 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>composum-assets-commons-setup</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>metadata-extractor-bundle</artifactId>
             <version>${project.version}</version>
         </dependency>
 

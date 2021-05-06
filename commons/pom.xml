@@ -17,6 +17,7 @@
 
     <modules>
         <module>bundle</module>
+        <module>metadata-extractor-bundle</module>
         <module>setup</module>
         <module>package</module>
     </modules>

@@ -40,14 +40,14 @@
                         </Include-Resource>
                         <Export-Package>
                             com.composum.assets.commons.*,
-                            org.imgscalr.*,
-                            com.drew.*;version="${com.drewnoakes.metadata-extractor.version}"
+                            org.imgscalr.*
                         </Export-Package>
                         <Import-Package>
                             com.composum.sling.core.*;version="[1.11,3)",
                             com.composum.sling.clientlibs.*;version="[1.11,3)",
                             com.composum.sling.nodes.*;version="[1.11,3)",
                             com.composum.sling.cpnl.*;version="[1.11,3)",
+                            com.drew.*;version="${com.drewnoakes.metadata-extractor.version}",
                             javax.annotation.*;version="[0,4)",
                             *
                         </Import-Package>
@@ -164,20 +164,6 @@
         <dependency>
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-core</artifactId>
-        </dependency>
-        <dependency>
-            <!-- embedded via scope compile since that's missing due to https://issues.apache.org/jira/browse/SLING-7125 -->
-            <groupId>com.drewnoakes</groupId>
-            <artifactId>metadata-extractor</artifactId>
-            <version>${com.drewnoakes.metadata-extractor.version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <!-- embedded via scope compile since that's missing due to https://issues.apache.org/jira/browse/SLING-7125 -->
-            <groupId>com.adobe.xmp</groupId>
-            <artifactId>xmpcore</artifactId>
-            <version>${com.adobe.xmp.xmpcore.version}</version>
-            <scope>compile</scope>
         </dependency>
 
         <!-- JSON -->
