@@ -44,6 +44,8 @@ public class TikaMetaData extends HashMap<String, Object> {
             for (String name : metadata.names()) {
                 if (nameFilter.accept(name)) {
                     result.put(name, metadata.get(name));
+                } else if (LOG.isDebugEnabled()) {
+                    LOG.debug("Rejected metadata name {} : {}", name, metadata.get(name));
                 }
             }
         } catch (TikaException | SAXException | IOException | NoClassDefFoundError ex) {
