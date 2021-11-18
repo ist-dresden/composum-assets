@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jcr:root xmlns:nt="http://www.jcp.org/jcr/nt/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0"
+        xmlns:sling="http://sling.apache.org/jcr/sling/1.0"
+        jcr:primaryType="nt:unstructured"
+        id="cpa-asset-image"
+        sling:resourceType="composum/nodes/browser/view"
+        sling:resourceSuperType="composum/nodes/browser/view/generic"
+        resourceType="composum/assets/manager/console/browser/view/asset">
+    <pattern jcr:primaryType="nt:unstructured"
+            primaryType="cpa:Asset"
+            resourceType="composum/assets/image"/>
+    <tabs jcr:primaryType="nt:unstructured">
+        <properties jcr:primaryType="nt:unstructured"
+                key="properties" icon="list" group="properties"
+                label="Properties" title="Node Properties"/>
+        <generic.cpa-asset-image jcr:primaryType="nt:unstructured"
+                key="view" icon="eye" group="view"
+                label="View" title="Display Asset"
+                resourceType="composum/assets/manager/console/browser/view/asset/tab">
+            <toolbar jcr:primaryType="nt:unstructured">
+                <resolver jcr:primaryType="nt:unstructured"
+                        type="button" icon="external-link" title="Resolver Mapping ON/OFF"/>
+                <selectors jcr:primaryType="nt:unstructured"
+                        type="text" label=".x." title="Sling selectors"/>
+                <parameters jcr:primaryType="nt:unstructured"
+                        type="text" icon="question" title="URL parameters"/>
+                <actions jcr:primaryType="nt:unstructured">
+                    <assetmgr jcr:primaryType="nt:unstructured"
+                            type="link" icon="picture-o" label="Asset Manager" title="Switch to asset manager"
+                            href="/bin/assets.html${path}" target="assets"/>
+                </actions>
+                <file jcr:primaryType="nt:unstructured">
+                    <reload jcr:primaryType="nt:unstructured"
+                            type="button" icon="refresh" label="Reload" title="Reload"/>
+                    <open jcr:primaryType="nt:unstructured"
+                            type="link" icon="globe" label="Open" title="Open in a separate view"
+                            href="${path}" target="_blank"/>
+                </file>
+            </toolbar>
+            <content jcr:primaryType="nt:unstructured"
+                    resourceType="composum/assets/manager/console/browser/view/asset/content"/>
+        </generic.cpa-asset-image>
+        <json jcr:primaryType="nt:unstructured"
+                key="source json" icon="code" group="json"
+                label="JSON" title="Source view as JSON (switchable to XML)"/>
+        <xml jcr:primaryType="nt:unstructured"
+                key="source xml" icon="code" css="hidden" group="xml"
+                label="XML" title="Source view as XML (switchable to JSON)"/>
+        <references jcr:primaryType="nt:unstructured"
+                key="references" icon="crosshairs" group="references"
+                title="References" label="References"/>
+        <acl jcr:primaryType="nt:unstructured" condition="[permission:nodes/repository/permissions=read,acl]"
+                key="acl" icon="key" group="acl"
+                title="Access Rules" label="ACL"/>
+        <version jcr:primaryType="nt:unstructured" condition="[permission:nodes/repository/versions=read,versionable]"
+                key="version" icon="history" group="version"
+                label="Versions" title="Versions"/>
+    </tabs>
+</jcr:root>

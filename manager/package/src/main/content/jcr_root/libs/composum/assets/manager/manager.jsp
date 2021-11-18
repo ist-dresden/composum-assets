@@ -6,7 +6,7 @@
 <cpn:component id="manager" type="com.composum.assets.manager.view.ManagerBean" scope="request">
     <html data-context-path="${slingRequest.contextPath}">
     <head>
-        <sling:call script="/libs/composum/nodes/console/page/head.jsp"/>
+        <sling:call script="/libs/composum/nodes/console/page/head-meta.jsp"/>
         <cpn:clientlib type="css" category="composum.assets.manager"/>
     </head>
     <body id="assets" class="console left-open top-open assets-preview-mode-dark">

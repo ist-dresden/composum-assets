@@ -97,7 +97,7 @@ public class AssetsServlet extends NodeTreeServlet {
         return operations;
     }
 
-    @Override
+    @Deprecated
     protected boolean isEnabled() {
         return true;
     }
