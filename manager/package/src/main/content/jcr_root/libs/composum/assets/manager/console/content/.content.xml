@@ -11,5 +11,5 @@
             pathCondition="^/content(/.+)?$"
             dynamicRedirect="{Boolean}true"
             categories="[nodes,assets]"
-            order="{Long}110"/>
+            order="{Long}500"/>
 </jcr:root>
