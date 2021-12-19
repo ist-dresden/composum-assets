@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.composum.assets</groupId>
         <artifactId>composum-assets-commons</artifactId>
-        <version>1.0.0</version>
+        <version>1.1.0</version>
     </parent>
 
     <artifactId>composum-assets-commons-package</artifactId>
@@ -123,6 +123,7 @@
                             <root>/libs/composum/assets/install</root>
                             <includes>
                                 <include>.*/composum-assets-commons-bundle.*\.jar</include>
+                                <include>.*/metadata-extractor-bundle.*\.jar</include>
                                 <include>.*/org.apache.sling.serviceusermapping.impl.ServiceUserMapperImpl.amended-assets.config</include>
                             </includes>
                         </filter>
@@ -137,7 +138,26 @@
                             <artifactId>composum-assets-commons-bundle</artifactId>
                             <target>/libs/composum/assets/install</target>
                         </embedded>
+                        <embedded>
+                            <groupId>${project.groupId}</groupId>
+                            <artifactId>metadata-extractor-bundle</artifactId>
+                            <target>/libs/composum/assets/install</target>
+                        </embedded>
                     </embeddeds>
+
+                    <dependencies>
+                        <dependency>
+                            <group>com/composum/platform</group>
+                            <name>composum-platform-commons-package</name>
+                            <!-- <version>[${project.version},2.0)</version> -->
+                        </dependency>
+
+                        <dependency>
+                            <group>com/composum/platform</group>
+                            <name>composum-platform-services-package</name>
+                            <!-- <version>[${project.version},2.0)</version> -->
+                        </dependency>
+                    </dependencies>
 
                 </configuration>
             </plugin>
@@ -157,11 +177,16 @@
             <artifactId>composum-assets-commons-setup</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>metadata-extractor-bundle</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- Composum Core -->
         <dependency>
-            <groupId>com.composum.sling.core</groupId>
-            <artifactId>composum-sling-core-commons</artifactId>
+            <groupId>com.composum.nodes</groupId>
+            <artifactId>composum-nodes-commons</artifactId>
         </dependency>
 
         <!-- Taglib support -->
