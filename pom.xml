@@ -47,6 +47,7 @@
     <modules>
         <module>commons</module>
         <module>manager</module>
+        <module>package</module>
     </modules>
 
     <dependencyManagement>
