@@ -43,10 +43,10 @@
                             org.imgscalr.*
                         </Export-Package>
                         <Import-Package>
-                            com.composum.sling.core.*;version="[2,4)",
-                            com.composum.sling.clientlibs.*;version="[2,4)",
-                            com.composum.sling.nodes.*;version="[2,4)",
-                            com.composum.sling.cpnl.*;version="[2,4)",
+                            com.composum.sling.core.*;version="[2,5)",
+                            com.composum.sling.clientlibs.*;version="[2,5)",
+                            com.composum.sling.nodes.*;version="[2,5)",
+                            com.composum.sling.cpnl.*;version="[2,5)",
                             com.drew.*;version="${com.drewnoakes.metadata-extractor.version}",
                             javax.annotation.*;version="[0,4)",
                             *
