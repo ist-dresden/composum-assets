@@ -114,7 +114,7 @@ public class AdjustMetaDataResourceChangeListener implements ResourceChangeListe
             }
 
             if (!paths.isEmpty()) {
-                LOG.info("Processing changed paths {}", paths);
+                LOG.debug("Processing changed paths {}", paths);
                 for (String path : paths) {
                     Resource resource = resolver.getResource(path);
                     if (acceptResource(resource)) {

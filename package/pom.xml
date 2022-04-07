@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd ">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.composum.assets</groupId>
+        <artifactId>composum-assets</artifactId>
+        <version>1.3.1</version>
+    </parent>
+
+    <artifactId>composum-assets-package</artifactId>
+    <packaging>content-package</packaging>
+
+    <name>Composum Assets Package</name>
+    <description>A package containing all Assets packages as subpackages</description>
+    <url>https://github.com/ist-dresden/composum</url>
+
+    <build>
+        <plugins>
+
+            <plugin>
+                <groupId>com.day.jcr.vault</groupId>
+                <artifactId>content-package-maven-plugin</artifactId>
+                <configuration>
+
+                    <group>${package.group}</group>
+                    <properties>
+                        <createdBy>${package.company}</createdBy>
+                    </properties>
+
+                    <subPackages>
+                        <subPackage>
+                            <groupId>${project.groupId}</groupId>
+                            <artifactId>composum-assets-commons-package</artifactId>
+                            <filter>true</filter>
+                        </subPackage>
+                        <subPackage>
+                            <groupId>${project.groupId}</groupId>
+                            <artifactId>composum-assets-manager-package</artifactId>
+                            <filter>true</filter>
+                        </subPackage>
+                    </subPackages>
+
+                    <dependencies>
+                        <dependency>
+                            <group>com/composum/platform</group>
+                            <name>composum-platform-package</name>
+                            <!-- <version>[${project.version},2.0)</version> -->
+                        </dependency>
+                    </dependencies>
+
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+    <dependencies>
+
+        <dependency>
+            <groupId>com.composum.assets</groupId>
+            <artifactId>composum-assets-commons-package</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
+
+        <dependency>
+            <groupId>com.composum.assets</groupId>
+            <artifactId>composum-assets-manager-package</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
+
+    </dependencies>
+    <profiles>
+
+        <profile>
+            <id>installPackage</id><!-- prevent from install concurrent to the collections content -->
+        </profile>
+
+    </profiles>
+</project>
