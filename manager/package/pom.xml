@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.composum.assets</groupId>
         <artifactId>composum-assets-manager</artifactId>
-        <version>1.3.2-SNAPSHOT</version>
+        <version>1.4.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>composum-assets-manager-package</artifactId>
