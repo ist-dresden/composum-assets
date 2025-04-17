@@ -16,7 +16,7 @@ import com.composum.assets.commons.handle.ImageAsset;
 import com.composum.assets.commons.service.AdaptiveImageService;
 import com.composum.sling.core.concurrent.LazyCreationService;
 import com.composum.sling.core.util.ResourceUtil;
-import com.google.common.collect.ImmutableMap;
+import org.apache.jackrabbit.guava.common.collect.ImmutableMap;
 import org.apache.sling.api.resource.ModifiableValueMap;
 import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
